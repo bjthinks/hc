@@ -2,6 +2,8 @@ import System.Console.Readline
 
 import Parser
 import Tokenizer
+import Expression
+import ExpressionParser
 
 mainloop :: IO ()
 mainloop = do i <- readline "> "
@@ -10,7 +12,9 @@ mainloop = do i <- readline "> "
                 Just str -> do if str /= ""
                                  then addHistory str
                                  else return ()
-                               putStrLn $ show $ parseAll tokenizer str
+                               let Right tokens = parseAll tokenizer str
+                               let Right expr = parseAll expressionParser tokens
+                               putStrLn $ show expr
                                mainloop
 
 main :: IO ()

@@ -1,9 +1,13 @@
-module Tokenizer (Token, tokenizer) where
+module Tokenizer (Token(..), isInteger, tokenizer) where
 
 import Parser
 import Data.Char
 
-data Token = TokenInteger Integer | TokenMinus deriving Show
+data Token = TokenInteger Integer | TokenMinus deriving (Eq, Show)
+
+isInteger :: Token -> Bool
+isInteger (TokenInteger _) = True
+isInteger _ = False
 
 tokenizer :: Parser Char [Token]
 tokenizer = do ts <- pStar (spaces >> token)
