@@ -13,8 +13,9 @@ mainloop = do i <- readline "> "
                                  then addHistory str
                                  else return ()
                                case parseAll tokenizer str of
-                                 Right tokens -> do let Right expr = parseAll expressionParser tokens
-                                                    putStrLn $ show expr
+                                 Right tokens -> do case parseAll expressionParser tokens of
+                                                      Right expr -> putStrLn $ show expr
+                                                      Left err -> putStrLn "Error: unrecognized expression"
                                                     mainloop
                                  Left err -> do putStrLn $ "  " ++ replicate (errorLocation err) '-' ++ "^"
                                                 putStrLn "Error: unrecognized input"
