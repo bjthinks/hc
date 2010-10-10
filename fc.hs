@@ -12,10 +12,13 @@ mainloop = do i <- readline "> "
                 Just str -> do if str /= ""
                                  then addHistory str
                                  else return ()
-                               let Right tokens = parseAll tokenizer str
-                               let Right expr = parseAll expressionParser tokens
-                               putStrLn $ show expr
-                               mainloop
+                               case parseAll tokenizer str of
+                                 Right tokens -> do let Right expr = parseAll expressionParser tokens
+                                                    putStrLn $ show expr
+                                                    mainloop
+                                 Left err -> do putStrLn $ "  " ++ replicate (errorLocation err) '-' ++ "^"
+                                                putStrLn "Error: unrecognized input"
+                                                mainloop
 
 main :: IO ()
 main = do setCompletionEntryFunction $ Just $ \_ -> return []
