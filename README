@@ -8,5 +8,8 @@ hence "fc".  fc is written in Haskell, and one of its design goals is
 to demonstrate that Haskell is practical as a language for medium-size
 projects.
 
-FEATURES:
+BUILD INSTRUCTIONS
+ghc --make fc
+
+FEATURES
 * Input via the GNU readline library
