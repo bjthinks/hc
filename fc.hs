@@ -12,8 +12,11 @@ main = do setCompletionEntryFunction $ Just $ \_ -> return []
           putStrLn ""
           return ()
 
+prompt :: String
+prompt = "> "
+
 mainloop :: MaybeT IO ()
-mainloop = do str <- MaybeT (readline "> ")
+mainloop = do str <- MaybeT (readline prompt)
               liftIO $ processLine str
               mainloop
 
@@ -24,14 +27,15 @@ processLine str =
     Right tokens -> do addHistory str
                        processTokens tokens
     Left err -> do addHistory str
-                   printError 2 (errorLocation err) "unrecognized input"
+                   printError (length prompt) (errorLocation err)
+                     "unrecognized input"
 
 processTokens :: [(Int,Token)] -> IO ()
 processTokens tokens =
   case parseAll expressionParser (map snd tokens) of
     Right expr -> putStrLn $ show expr
     Left err -> let stringLocation = fst $ tokens !! errorLocation err in
-      printError 2 stringLocation "unrecognized expression"
+      printError (length prompt) stringLocation "unrecognized expression"
 
 printError :: Int -> Int -> String -> IO ()
 printError s d m = do
