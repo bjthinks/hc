@@ -22,11 +22,16 @@ processLine str =
   case parseAll tokenizer str of
     Right [] -> return ()
     Right tokens -> do addHistory str
-                       case parseAll expressionParser (map snd tokens) of
-                         Right expr -> putStrLn $ show expr
-                         Left err -> do printError 2 (fst $ tokens !! errorLocation err) "unrecognized expression"
+                       processTokens tokens
     Left err -> do addHistory str
                    printError 2 (errorLocation err) "unrecognized input"
+
+processTokens :: [(Int,Token)] -> IO ()
+processTokens tokens =
+  case parseAll expressionParser (map snd tokens) of
+    Right expr -> putStrLn $ show expr
+    Left err -> let stringLocation = fst $ tokens !! errorLocation err in
+      printError 2 stringLocation "unrecognized expression"
 
 printError :: Int -> Int -> String -> IO ()
 printError s d m = do
