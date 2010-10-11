@@ -1,5 +1,6 @@
 import System.Console.Readline
 
+import MyMaybeT
 import Parser
 import Tokenizer
 import Expression
@@ -7,14 +8,13 @@ import ExpressionParser
 
 main :: IO ()
 main = do setCompletionEntryFunction $ Just $ \_ -> return []
-          mainloop
+          runMaybeT mainloop
+          return ()
 
-mainloop :: IO ()
-mainloop = do i <- readline "> "
-              case i of
-                Nothing -> return ()
-                Just str -> do processLine str
-                               mainloop
+mainloop :: MaybeT IO ()
+mainloop = do str <- MaybeT (readline "> ")
+              liftIO $ processLine str
+              mainloop
 
 processLine :: String -> IO ()
 processLine str = do if str /= ""

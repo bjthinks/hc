@@ -1,8 +1,7 @@
 {-# OPTIONS_GHC -fglasgow-exts -XUndecidableInstances #-}
 
 module MyMaybeT
-  (MaybeT,
-   runMaybeT,
+  (MaybeT(..),
    module Control.Monad,
    module Control.Monad.Trans)
 where
