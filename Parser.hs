@@ -4,7 +4,8 @@ module Parser (Parser, parseSome, parseAll,
                pEnd, pGet, pProp, pElt, pWord,
                -- (>>=), (>>), return, fail, mzero, mplus,
                (|||), pStar, pPlus, pMaybe, pIf, pNot,
-               ParseError, errorLocation, errorNames, pNamed, ($=)) where
+               numParsed, ParseError, errorLocation, errorNames,
+               pNamed, ($=)) where
 
 import Control.Monad.Error
 import Control.Monad.State
@@ -116,6 +117,12 @@ pProp p = MakeParser $ \names ->
          do put $ ParseState (num+1) xs err
             return x
        _ -> throwError $ makeError names state
+
+numParsed :: Parser t Int
+numParsed = MakeParser $ \_ ->
+  do state <- get
+     let ParseState num _ _ = state
+     return num
 
 -- PEG functionality
 

@@ -21,8 +21,9 @@ processLine str = do if str /= ""
                        then addHistory str
                        else return ()
                      case parseAll tokenizer str of
-                       Right tokens -> do case parseAll expressionParser tokens of
+                       Right tokens -> do case parseAll expressionParser (map snd tokens) of
                                             Right expr -> putStrLn $ show expr
-                                            Left err -> putStrLn "Error: unrecognized expression"
+                                            Left err -> do putStrLn $ "  " ++ replicate (fst $ tokens !! errorLocation err) '-' ++ "^"
+                                                           putStrLn "Error: unrecognized expression"
                        Left err -> do putStrLn $ "  " ++ replicate (errorLocation err) '-' ++ "^"
                                       putStrLn "Error: unrecognized input"

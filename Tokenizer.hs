@@ -9,7 +9,7 @@ isInteger :: Token -> Bool
 isInteger (TokenInteger _) = True
 isInteger _ = False
 
-tokenizer :: Parser Char [Token]
+tokenizer :: Parser Char [(Int,Token)]
 tokenizer = do ts <- pStar (spaces >> token)
                spaces
                return ts
@@ -18,8 +18,10 @@ spaces :: Parser Char ()
 spaces = do pStar $ pProp isSpace
             return ()
 
-token :: Parser Char Token
-token = integer ||| minus
+token :: Parser Char (Int,Token)
+token = do n <- numParsed
+           t <- integer ||| minus
+           return (n,t)
 
 integer :: Parser Char Token
 integer = do ds <- digits
