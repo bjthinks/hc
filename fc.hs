@@ -5,6 +5,7 @@ import Parser
 import Tokenizer
 import Expression
 import ExpressionParser
+import ExpressionDisplay
 
 main :: IO ()
 main = do setCompletionEntryFunction $ Just $ \_ -> return []
@@ -33,9 +34,12 @@ processLine str =
 processTokens :: [(Int,Token)] -> IO ()
 processTokens tokens =
   case parseAll expressionParser (map snd tokens) of
-    Right expr -> putStrLn $ show expr
+    Right expr -> printResult expr
     Left err -> let stringLocation = fst $ tokens !! errorLocation err in
       printError (length prompt) stringLocation "unrecognized expression"
+
+printResult :: Expression -> IO ()
+printResult = putStrLn . display
 
 printError :: Int -> Int -> String -> IO ()
 printError s d m = do
