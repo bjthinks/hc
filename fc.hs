@@ -9,6 +9,7 @@ import ExpressionParser
 main :: IO ()
 main = do setCompletionEntryFunction $ Just $ \_ -> return []
           runMaybeT mainloop
+          putStrLn ""
           return ()
 
 mainloop :: MaybeT IO ()
