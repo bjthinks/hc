@@ -18,13 +18,14 @@ mainloop = do str <- MaybeT (readline "> ")
               mainloop
 
 processLine :: String -> IO ()
-processLine str = do if str /= ""
-                       then addHistory str
-                       else return ()
-                     case parseAll tokenizer str of
-                       Right tokens -> do case parseAll expressionParser (map snd tokens) of
-                                            Right expr -> putStrLn $ show expr
-                                            Left err -> do putStrLn $ "  " ++ replicate (fst $ tokens !! errorLocation err) '-' ++ "^"
-                                                           putStrLn "Error: unrecognized expression"
-                       Left err -> do putStrLn $ "  " ++ replicate (errorLocation err) '-' ++ "^"
-                                      putStrLn "Error: unrecognized input"
+processLine str =
+  case parseAll tokenizer str of
+    Right [] -> return ()
+    Right tokens -> do addHistory str
+                       case parseAll expressionParser (map snd tokens) of
+                         Right expr -> putStrLn $ show expr
+                         Left err -> do putStrLn $ "  " ++ replicate (fst $ tokens !! errorLocation err) '-' ++ "^"
+                                        putStrLn "Error: unrecognized expression"
+    Left err -> do addHistory str
+                   putStrLn $ "  " ++ replicate (errorLocation err) '-' ++ "^"
+                   putStrLn "Error: unrecognized input"
