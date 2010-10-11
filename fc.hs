@@ -24,8 +24,14 @@ processLine str =
     Right tokens -> do addHistory str
                        case parseAll expressionParser (map snd tokens) of
                          Right expr -> putStrLn $ show expr
-                         Left err -> do putStrLn $ "  " ++ replicate (fst $ tokens !! errorLocation err) '-' ++ "^"
-                                        putStrLn "Error: unrecognized expression"
+                         Left err -> do printError 2 (fst $ tokens !! errorLocation err) "unrecognized expression"
     Left err -> do addHistory str
-                   putStrLn $ "  " ++ replicate (errorLocation err) '-' ++ "^"
-                   putStrLn "Error: unrecognized input"
+                   printError 2 (errorLocation err) "unrecognized input"
+
+printError :: Int -> Int -> String -> IO ()
+printError s d m = do
+  putStrLn $ spaces ++ dashes ++ "^"
+  putStrLn $ "Error: " ++ m
+    where
+      spaces = replicate s ' '
+      dashes = replicate d '-'
