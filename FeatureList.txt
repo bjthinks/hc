@@ -1,0 +1,52 @@
+ input is read in a loop
+input loop uses readline
+nonempty inputs are stored in the readline history
+tab completion is not bound to filenames
+arbitrary precision integer constants are an expression
+tokenizer errors are shown
+expression parser errors are shown
+variable names are an expression
+
+----------
+
+unit testing framework
+unit tests for tokenizer
+unit tests for expression parser
+unit tests for command parser
+unit tests for output displaying
+variables can be assigned to
+prompts are numbered
+?? input history accessed by ! number (string or token substitution)
+outputs are numbered
+output history accessed by % number (expression substitution)
+tab completion is bound to variables
+variables values are stored in a map
+variables in the currently evaluated expression are substituted with
+	  their current values
+important test case:	input	output
+			b:=3	b=3
+			a:=b	a=3
+			b:=5	b=5
+			a	5
+sum of expressions is an expression
+sum of a sum is simplified to a single sum
+zeroes are eliminated from sums
+product of expressions is an expression
+product of a product is simplified to a single product
+ones are eliminated from products
+power of one expression by another is an expression
+negation of an expression is an expression
+quotients of expressions are expressions
+quotient of quotient is simplified to a quotient of products
+terms of a sum/difference or product are sorted
+sort order is lexicographic on variable names, and their powers
+e.g. w + x^3 + x^2 y^100 + 83
+constants are last in sums, but first in products
+after sorting, like terms of a sum are combined via products
+after sorting, like terms of a product are combined via exponentiation
+expand function causes products of sums to be distributed
+factor function causes sums of products to be factored
+substitute function causes expression to be evaluated in a sub-context
+	   with additional definitions
+collect function causes a sum to be written as a polynomial in one of
+	its indetermiates
