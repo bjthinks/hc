@@ -1,4 +1,4 @@
-module Tokenizer (Token(..), isInteger, tokenizer) where
+module Tokenizer (Token(..), isInteger, isWord, tokenizer) where
 
 import Parser
 import Data.Char
