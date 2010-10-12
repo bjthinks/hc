@@ -1,11 +1,26 @@
-module ExpressionParser (expressionParser) where
+module ExpressionParser (commandParser) where
 
 import Parser
 import Tokenizer
 import Expression
 
-expressionParser :: Parser Token Expression
-expressionParser = integer ||| variable
+commandParser :: Parser Token Command
+commandParser = assign ||| eval
+
+assign :: Parser Token Command
+assign = do TokenWord v <- pProp isWord
+            pElt TokenAssign
+            e <- expression
+            return $ CommandAssign v e
+
+eval :: Parser Token Command
+eval = do e <- expression
+          return $ CommandEval e
+
+
+expression :: Parser Token Expression
+expression = do e <- integer ||| variable
+                return e
 
 integer :: Parser Token Expression
 integer = do s <- pMaybe $ pElt TokenMinus

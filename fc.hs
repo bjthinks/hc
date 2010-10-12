@@ -34,12 +34,12 @@ processLine str =
 
 processTokens :: [(Int,Token)] -> IO ()
 processTokens tokens =
-  case parseAll expressionParser (map snd tokens) of
-    Right expr -> printResult expr
+  case parseAll commandParser (map snd tokens) of
+    Right cmd -> printResult cmd
     Left err -> let stringLocation = fst $ tokens !! errorLocation err in
       printError (length prompt) stringLocation "unrecognized expression"
 
-printResult :: Expression -> IO ()
+printResult :: Command -> IO ()
 printResult = putStrLn . display
 
 printError :: Int -> Int -> String -> IO ()
