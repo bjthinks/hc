@@ -8,7 +8,8 @@ import ExpressionParser
 import ExpressionDisplay
 
 main :: IO ()
-main = do setCompletionEntryFunction $ Just $ \_ -> return []
+main = do putStrLn "Don't type control-c"
+          setCompletionEntryFunction $ Just $ \_ -> return []
           runMaybeT mainloop
           putStrLn ""
           return ()
