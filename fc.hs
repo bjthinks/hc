@@ -6,41 +6,51 @@ import Tokenizer
 import Expression
 import ExpressionParser
 import ExpressionDisplay
+import qualified Data.Map as Map
 
 main :: IO ()
 main = do putStrLn "Don't type control-c"
           setCompletionEntryFunction $ Just $ \_ -> return []
-          runMaybeT mainloop
+          runMaybeT $ mainloop newStore
           putStrLn ""
           return ()
 
 prompt :: String
 prompt = "> "
 
-mainloop :: MaybeT IO ()
-mainloop = do str <- MaybeT (readline prompt)
-              liftIO $ processLine str
-              mainloop
+type Store = Map.Map String Expression
 
-processLine :: String -> IO ()
-processLine str =
+newStore :: Store
+newStore = Map.empty
+
+mainloop :: Store -> MaybeT IO ()
+mainloop store = do str <- MaybeT (readline prompt)
+                    store' <- liftIO $ processLine store str
+                    mainloop store'
+
+processLine :: Store -> String -> IO Store
+processLine store str =
   case parseAll tokenizer str of
-    Right [] -> return ()
+    Right [] -> return store
     Right tokens -> do addHistory str
-                       processTokens tokens
+                       processTokens store tokens
     Left err -> do addHistory str
                    printError (length prompt) (errorLocation err)
                      "unrecognized input"
+                   return store
 
-processTokens :: [(Int,Token)] -> IO ()
-processTokens tokens =
+processTokens :: Store -> [(Int,Token)] -> IO Store
+processTokens store tokens =
   case parseAll commandParser (map snd tokens) of
-    Right cmd -> printResult cmd
+    Right cmd -> do store' <- printResult store cmd
+                    return store'
     Left err -> let stringLocation = fst $ tokens !! errorLocation err in
-      printError (length prompt) stringLocation "unrecognized expression"
+      do printError (length prompt) stringLocation "unrecognized expression"
+         return store
 
-printResult :: Command -> IO ()
-printResult = putStrLn . display
+printResult :: Store -> Command -> IO Store
+printResult store cmd = do putStrLn $ display cmd
+                           return store
 
 printError :: Int -> Int -> String -> IO ()
 printError s d m = do
