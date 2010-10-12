@@ -9,7 +9,7 @@ to demonstrate that Haskell is practical as a language for medium-size
 projects.
 
 BUILD INSTRUCTIONS
-ghc --make fc
+make
 
 FEATURES
 * Input via the GNU readline library
