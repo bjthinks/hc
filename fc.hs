@@ -10,6 +10,8 @@ import qualified Data.Map as Map
 
 main :: IO ()
 main = do putStrLn "Don't type control-c"
+          putStrLn "Don't end an input line when more tokens are expected"
+          putStrLn "Don't make assignments that form a loop"
           setCompletionEntryFunction $ Just $ \_ -> return []
           runMaybeT $ mainloop newStore
           putStrLn ""
@@ -42,15 +44,16 @@ processLine store str =
 processTokens :: Store -> [(Int,Token)] -> IO Store
 processTokens store tokens =
   case parseAll commandParser (map snd tokens) of
-    Right cmd -> do store' <- printResult store cmd
+    Right cmd -> do store' <- runCommand store cmd
                     return store'
     Left err -> let stringLocation = fst $ tokens !! errorLocation err in
       do printError (length prompt) stringLocation "unrecognized expression"
          return store
 
-printResult :: Store -> Command -> IO Store
-printResult store cmd = do putStrLn $ display cmd
-                           return store
+runCommand :: Store -> Command -> IO Store
+runCommand store cmd = do let (store', output) = execute store cmd
+                          putStrLn output
+                          return store'
 
 printError :: Int -> Int -> String -> IO ()
 printError s d m = do
