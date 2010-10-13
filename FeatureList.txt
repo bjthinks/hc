@@ -1,4 +1,4 @@
- input is read in a loop
+input is read in a loop
 input loop uses readline
 nonempty inputs are stored in the readline history
 tab completion is not bound to filenames
@@ -6,6 +6,7 @@ arbitrary precision integer constants are an expression
 tokenizer errors are shown
 expression parser errors are shown
 variable names are an expression
+variables can be assigned to
 
 ----------
 
@@ -14,7 +15,6 @@ unit tests for tokenizer
 unit tests for expression parser
 unit tests for command parser
 unit tests for output displaying
-variables can be assigned to
 prompts are numbered
 ?? input history accessed by ! number (string or token substitution)
 outputs are numbered
