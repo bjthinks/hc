@@ -37,28 +37,27 @@ processLine store str =
     Right tokens -> do addHistory str
                        processTokens store tokens
     Left err -> do addHistory str
-                   printError (length prompt) (errorLocation err)
-                     "unrecognized input"
+                   printError $ errorLocation err
                    return store
 
 processTokens :: Store -> [(Int,Token)] -> IO Store
 processTokens store tokens =
   case parseAll commandParser (map snd tokens) of
-    Right cmd -> do store' <- runCommand store cmd
-                    return store'
-    Left err -> let stringLocation = fst $ tokens !! errorLocation err in
-      do printError (length prompt) stringLocation "unrecognized expression"
+    Right cmd -> processCommand store cmd
+    Left err -> let errorIndex = fst $ tokens !! errorLocation err in
+      do printError errorIndex
          return store
 
-runCommand :: Store -> Command -> IO Store
-runCommand store cmd = do let (store', output) = execute store cmd
-                          putStrLn output
-                          return store'
+processCommand :: Store -> Command -> IO Store
+processCommand store cmd =
+  let (store', output) = execute store cmd in
+  do putStrLn output
+     return store'
 
-printError :: Int -> Int -> String -> IO ()
-printError s d m = do
+printError :: Int -> IO ()
+printError d = do
   putStrLn $ spaces ++ dashes ++ "^"
-  putStrLn $ "Error: " ++ m
+  putStrLn $ "ERROR: YOUR FAULT"
     where
-      spaces = replicate s ' '
+      spaces = replicate (length prompt) ' '
       dashes = replicate d '-'
