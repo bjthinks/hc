@@ -8,7 +8,7 @@ import ExpressionParser
 import ExpressionDisplay
 import Command
 import CommandParser
-import qualified Data.Map as Map
+import Store
 
 main :: IO ()
 main = do putStrLn "Don't type control-c"
@@ -21,11 +21,6 @@ main = do putStrLn "Don't type control-c"
 
 prompt :: String
 prompt = "> "
-
-type Store = Map.Map String Expression
-
-newStore :: Store
-newStore = Map.empty
 
 mainloop :: Store -> MaybeT IO ()
 mainloop store = do str <- MaybeT (readline prompt)
