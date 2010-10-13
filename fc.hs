@@ -6,6 +6,7 @@ import Tokenizer
 import Expression
 import ExpressionParser
 import ExpressionDisplay
+import Command
 import qualified Data.Map as Map
 
 main :: IO ()

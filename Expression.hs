@@ -1,7 +1,4 @@
-module Expression (Command(..), Expression(..)) where
-
-data Command = CommandAssign String Expression |
-               CommandEval Expression
+module Expression (Expression(..)) where
 
 data Expression = ExpressionInteger Integer |
                   ExpressionVariable String
