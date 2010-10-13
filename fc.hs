@@ -7,6 +7,7 @@ import Expression
 import ExpressionParser
 import ExpressionDisplay
 import Command
+import CommandParser
 import qualified Data.Map as Map
 
 main :: IO ()
