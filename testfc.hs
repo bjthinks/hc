@@ -41,8 +41,8 @@ expressionParserTests = [
   testEval "-8" (ExpressionInteger (-8)),
   testEval "foo" $ ExpressionVariable "foo",
   testEval "a+1" $ ExpressionSum [ExpressionVariable "a",ExpressionInteger 1],
-  testEval "a+b" $ ExpressionSum [ExpressionVariable "a",ExpressionVariable "b"]
---  testEval "b+a" $ ExpressionSum [ExpressionVariable "a",ExpressionVariable "b"]
+  testEval "a+b" $ ExpressionSum [ExpressionVariable "a",ExpressionVariable "b"],
+  testEval "b+a" $ ExpressionSum [ExpressionVariable "a",ExpressionVariable "b"]
   ]
 
 expressionDisplayTests = [

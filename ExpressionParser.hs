@@ -7,7 +7,7 @@ import Expression
 expressionParser :: Parser Token Expression
 expressionParser = do e <- additive
                       pElt TokenEnd
-                      return e
+                      return $ standardForm e
 
 additive :: Parser Token Expression
 additive = do a <- atom
