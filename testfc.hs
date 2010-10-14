@@ -35,8 +35,16 @@ expressionParserTests = [
   parseAll expressionParser [TokenWord "foo",TokenEnd] ~?= Right (ExpressionVariable "foo")
   ]
 
+expressionDisplayTests = [
+  displayExpr (ExpressionInteger 3) ~?= "3",
+  displayExpr (ExpressionInteger (-5)) ~?= "-5",
+  displayExpr (ExpressionVariable "x") ~?= "x",
+  displayExpr (ExpressionVariable "ABCdef123") ~?= "ABCdef123"
+  ]
+
 tests = test (map ("tokenizer" ~:) tokenizerTests ++
-              map ("expression parser" ~:) expressionParserTests)
+              map ("expression parser" ~:) expressionParserTests ++
+              map ("expression display" ~:) expressionDisplayTests)
 
 main = runTestTT tests
 
