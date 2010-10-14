@@ -26,13 +26,23 @@ tokenizerTests = [
   parseAll tokenizer "a23"     ~?= Right [(0,TokenWord "a23"),(3,TokenEnd)],
   parseAll tokenizer " a11 11" ~?= Right [(1,TokenWord "a11"),(5,TokenInteger 11),(7,TokenEnd)],
   parseAll tokenizer ":="      ~?= Right [(0,TokenAssign),(2,TokenEnd)],
-  parseAll tokenizer "3-:=-3"  ~?= Right [(0,TokenInteger 3),(1,TokenMinus),(2,TokenAssign),(4,TokenMinus),(5,TokenInteger 3),(6,TokenEnd)]
+  parseAll tokenizer "3-:=-3"  ~?= Right [(0,TokenInteger 3),(1,TokenMinus),(2,TokenAssign),(4,TokenMinus),(5,TokenInteger 3),(6,TokenEnd)],
+  parseAll tokenizer "+"       ~?= Right [(0,TokenPlus),(1,TokenEnd)]
   ]
 
+unRight :: Either a b -> b
+unRight (Right b) = b
+unRight _ = error "tokenizer failed"
+
+testEval str expr = parseAll expressionParser (map snd (unRight (parseAll tokenizer str))) ~?= Right expr
+
 expressionParserTests = [
-  parseAll expressionParser [TokenInteger 4,TokenEnd] ~?= Right (ExpressionInteger 4),
-  parseAll expressionParser [TokenMinus,TokenInteger 8,TokenEnd] ~?= Right (ExpressionInteger (-8)),
-  parseAll expressionParser [TokenWord "foo",TokenEnd] ~?= Right (ExpressionVariable "foo")
+  testEval "4" (ExpressionInteger 4),
+  testEval "-8" (ExpressionInteger (-8)),
+  testEval "foo" $ ExpressionVariable "foo",
+  testEval "a+1" $ ExpressionSum [ExpressionVariable "a",ExpressionInteger 1],
+  testEval "a+b" $ ExpressionSum [ExpressionVariable "a",ExpressionVariable "b"]
+--  testEval "b+a" $ ExpressionSum [ExpressionVariable "a",ExpressionVariable "b"]
   ]
 
 expressionDisplayTests = [

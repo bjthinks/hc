@@ -5,6 +5,7 @@ import Data.Char
 
 data Token = TokenInteger Integer |
              TokenWord String |
+             TokenPlus |
              TokenMinus |
              TokenAssign |
              TokenEnd
@@ -31,7 +32,7 @@ spaces = do pStar $ pProp isSpace
 
 token :: Parser Char (Int,Token)
 token = do n <- numParsed
-           t <- integer ||| word ||| minus ||| assign
+           t <- integer ||| word ||| plus ||| minus ||| assign
            return (n,t)
 
 integer :: Parser Char Token
@@ -42,6 +43,10 @@ word :: Parser Char Token
 word = do c <- pProp isAlpha
           cs <- pStar $ pProp isAlphaNum
           return $ TokenWord (c:cs)
+
+plus :: Parser Char Token
+plus = do pElt '+'
+          return TokenPlus
 
 minus :: Parser Char Token
 minus = do pElt '-'

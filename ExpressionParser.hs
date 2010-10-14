@@ -5,9 +5,19 @@ import Tokenizer
 import Expression
 
 expressionParser :: Parser Token Expression
-expressionParser = do e <- integer ||| variable
+expressionParser = do e <- additive
                       pElt TokenEnd
                       return e
+
+additive :: Parser Token Expression
+additive = do a <- atom
+              as <- pStar (pElt TokenPlus >> atom)
+              return $ case as of
+                [] -> a
+                _ -> ExpressionSum (a:as)
+
+atom :: Parser Token Expression
+atom = integer ||| variable
 
 integer :: Parser Token Expression
 integer = do s <- pMaybe $ pElt TokenMinus
