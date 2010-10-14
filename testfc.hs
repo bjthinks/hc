@@ -42,9 +42,19 @@ expressionDisplayTests = [
   displayExpr (ExpressionVariable "ABCdef123") ~?= "ABCdef123"
   ]
 
+storeTests = [
+  getValue "a" newStore ~?= Nothing,
+  getValue "a" (setValue "a" (ExpressionInteger 42) newStore) ~?= Just (ExpressionInteger 42),
+  getValue "b" (setValue "a" (ExpressionInteger 42) newStore) ~?= Nothing,
+  getValue "a" (setValue "a" (ExpressionVariable "x") (setValue "a" (ExpressionInteger 11) newStore)) ~?= Just (ExpressionVariable "x"),
+  getValue "a" (setValue "b" (ExpressionVariable "x") (setValue "a" (ExpressionInteger 11) newStore)) ~?= Just (ExpressionInteger 11),
+  getValue "a" (setValue "a" (ExpressionVariable "x") (setValue "b" (ExpressionInteger 11) newStore)) ~?= Just (ExpressionVariable "x")
+  ]
+
 tests = test (map ("tokenizer" ~:) tokenizerTests ++
               map ("expression parser" ~:) expressionParserTests ++
-              map ("expression display" ~:) expressionDisplayTests)
+              map ("expression display" ~:) expressionDisplayTests ++
+              map ("store" ~:) storeTests)
 
 main = runTestTT tests
 
