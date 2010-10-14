@@ -12,7 +12,6 @@ import Store
 
 main :: IO ()
 main = do putStrLn "Don't type control-c"
-          putStrLn "Don't end an input line when more tokens are expected"
           putStrLn "Don't make assignments that form a loop"
           setCompletionEntryFunction $ Just $ \_ -> return []
           runMaybeT $ mainloop newStore

@@ -6,7 +6,8 @@ import Data.Char
 data Token = TokenInteger Integer |
              TokenWord String |
              TokenMinus |
-             TokenAssign
+             TokenAssign |
+             TokenEnd
              deriving (Eq, Show)
 
 isInteger :: Token -> Bool
@@ -20,7 +21,9 @@ isWord _ = False
 tokenizer :: Parser Char [(Int,Token)]
 tokenizer = do ts <- pStar (spaces >> token)
                spaces
-               return ts
+               pEnd
+               n <- numParsed
+               return $ ts ++ [(n,TokenEnd)]
 
 spaces :: Parser Char ()
 spaces = do pStar $ pProp isSpace

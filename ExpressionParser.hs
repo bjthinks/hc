@@ -6,6 +6,7 @@ import Expression
 
 expressionParser :: Parser Token Expression
 expressionParser = do e <- integer ||| variable
+                      pElt TokenEnd
                       return e
 
 integer :: Parser Token Expression

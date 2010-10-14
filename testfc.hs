@@ -11,13 +11,13 @@ import CommandParser
 import Store
 
 tokenizerTests = [
-  parseAll tokenizer ""       ~?= Right [],
-  parseAll tokenizer "1"      ~?= Right [(0,TokenInteger 1)],
-  parseAll tokenizer "123"    ~?= Right [(0,TokenInteger 123)],
-  parseAll tokenizer " 1"     ~?= Right [(1,TokenInteger 1)],
-  parseAll tokenizer "   456" ~?= Right [(3,TokenInteger 456)],
-  parseAll tokenizer " 1 2 3" ~?= Right [(1,TokenInteger 1),(3,TokenInteger 2),(5,TokenInteger 3)],
-  parseAll tokenizer "    345    5678   34    " ~?= Right [(4,TokenInteger 345),(11,TokenInteger 5678),(18,TokenInteger 34)]
+  parseAll tokenizer ""        ~?= Right [(0,TokenEnd)],
+  parseAll tokenizer "1"       ~?= Right [(0,TokenInteger 1),(1,TokenEnd)],
+  parseAll tokenizer "123"     ~?= Right [(0,TokenInteger 123),(3,TokenEnd)],
+  parseAll tokenizer " 1"      ~?= Right [(1,TokenInteger 1),(2,TokenEnd)],
+  parseAll tokenizer "   456"  ~?= Right [(3,TokenInteger 456),(6,TokenEnd)],
+  parseAll tokenizer " 1 2 3 " ~?= Right [(1,TokenInteger 1),(3,TokenInteger 2),(5,TokenInteger 3),(7,TokenEnd)],
+  parseAll tokenizer "    345    5678   34    " ~?= Right [(4,TokenInteger 345),(11,TokenInteger 5678),(18,TokenInteger 34),(24,TokenEnd)]
   ]
 
 tests = test (tokenizerTests)
