@@ -49,7 +49,9 @@ expressionDisplayTests = [
   displayExpr (ExpressionInteger 3) ~?= "3",
   displayExpr (ExpressionInteger (-5)) ~?= "-5",
   displayExpr (ExpressionVariable "x") ~?= "x",
-  displayExpr (ExpressionVariable "ABCdef123") ~?= "ABCdef123"
+  displayExpr (ExpressionVariable "ABCdef123") ~?= "ABCdef123",
+  displayExpr (ExpressionSum [ExpressionVariable "a",ExpressionInteger 1]) ~?= "a + 1",
+  displayExpr (ExpressionSum [ExpressionVariable "a",ExpressionVariable "b"]) ~?= "a + b"
   ]
 
 storeTests = [
