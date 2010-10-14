@@ -4,4 +4,4 @@ fc: *.hs
 testfc: *.hs
 	ghc --make -O3 testfc && ./testfc
 clean:
-	rm -f *.hi *.o *~ fc
+	rm -f *.hi *.o *~ fc testfc
