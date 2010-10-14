@@ -43,7 +43,8 @@ expressionParserTests = [
   testEval "a+1" $ ExpressionSum [ExpressionVariable "a",ExpressionInteger 1],
   testEval "a+b" $ ExpressionSum [ExpressionVariable "a",ExpressionVariable "b"],
   testEval "b+a" $ ExpressionSum [ExpressionVariable "a",ExpressionVariable "b"],
-  testEval "a+1+1" $ ExpressionSum [ExpressionVariable "a",ExpressionInteger 2]
+  testEval "a+1+1" $ ExpressionSum [ExpressionVariable "a",ExpressionInteger 2],
+  testEval "3+7+c+b+a+5+d+12" $ ExpressionSum [ExpressionVariable "a",ExpressionVariable "b",ExpressionVariable "c",ExpressionVariable "d",ExpressionInteger 27]
   ]
 
 expressionDisplayTests = [
