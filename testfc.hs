@@ -29,7 +29,14 @@ tokenizerTests = [
   parseAll tokenizer "3-:=-3"  ~?= Right [(0,TokenInteger 3),(1,TokenMinus),(2,TokenAssign),(4,TokenMinus),(5,TokenInteger 3),(6,TokenEnd)]
   ]
 
-tests = test (map ("tokenizer" ~:) tokenizerTests)
+expressionParserTests = [
+  parseAll expressionParser [TokenInteger 4,TokenEnd] ~?= Right (ExpressionInteger 4),
+  parseAll expressionParser [TokenMinus,TokenInteger 8,TokenEnd] ~?= Right (ExpressionInteger (-8)),
+  parseAll expressionParser [TokenWord "foo",TokenEnd] ~?= Right (ExpressionVariable "foo")
+  ]
+
+tests = test (map ("tokenizer" ~:) tokenizerTests ++
+              map ("expression parser" ~:) expressionParserTests)
 
 main = runTestTT tests
 
