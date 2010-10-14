@@ -10,8 +10,9 @@ data Expression = ExpressionInteger Integer |
 -- Put an expression into "standard form".  This performs a series
 -- of internal and basic algebraic simplifications, including:
 -- sums are sorted
+-- sums of constants are evaluated
 standardForm :: Expression -> Expression
-standardForm e = sortSums e
+standardForm e = addConstants $ sortSums e
 
 sortSums :: Expression -> Expression
 sortSums s@(ExpressionSum []) = s
@@ -26,3 +27,11 @@ sortSums (ExpressionSum es) = ExpressionSum (sortBy sumOrder es') where
   sumOrder (ExpressionSum _) _ = GT
   sumOrder _ (ExpressionSum _) = LT
 sortSums e@(_) = e
+
+addConstants :: Expression -> Expression
+addConstants (ExpressionSum es) = ExpressionSum (addConstants' es) where
+  addConstants' (ExpressionInteger m:ExpressionInteger n:es) =
+    addConstants' (ExpressionInteger (m+n):es)
+  addConstants' (e:es) = e:addConstants' es
+  addConstants' [] = []
+addConstants e@(_) = e
