@@ -52,7 +52,9 @@ expressionParserTests = [
   testEval "0+0" $ ExpressionInteger 0,
   testEval "(0)" $ ExpressionInteger 0,
   testEval "(0+0)+(0+(0+0)+(0+0+(0+0))+0)+0" $ ExpressionInteger 0,
-  testEval "(1+1)+(1+(1+1)+(1+1+(1+1))+1)+1" $ ExpressionInteger 11
+  testEval "(1+1)+(1+(1+1)+(1+1+(1+1))+1)+1" $ ExpressionInteger 11,
+  testEval "(x+1)+y" $ ExpressionSum [ExpressionVariable "x",ExpressionVariable "y",ExpressionInteger 1],
+  testEval "(x+1)+y+1" $ ExpressionSum [ExpressionVariable "x",ExpressionVariable "y",ExpressionInteger 2]
   ]
 
 expressionDisplayTests = [
