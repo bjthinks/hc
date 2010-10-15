@@ -11,7 +11,7 @@ expressionParser = do e <- additive
 
 additive :: Parser Token Expression
 additive = do a <- multiplicative
-              as <- pStar (pElt TokenPlus >> atom)
+              as <- pStar (pElt TokenPlus >> multiplicative)
               return $ case as of
                 [] -> a
                 _ -> ExpressionSum (a:as)

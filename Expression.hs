@@ -43,6 +43,7 @@ sortSums (ExpressionSum es) = ExpressionSum (sortBy sumOrder es') where
   sumOrder (ExpressionSum _) (ExpressionSum _) = EQ
   sumOrder (ExpressionSum _) _ = GT
   sumOrder _ (ExpressionSum _) = LT
+  sumOrder _ _ = EQ
 sortSums (ExpressionProduct es) = ExpressionProduct (map sortSums es)
 sortSums e@(_) = e
 
