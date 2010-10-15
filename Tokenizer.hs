@@ -7,6 +7,7 @@ data Token = TokenInteger Integer |
              TokenWord String |
              TokenPlus |
              TokenMinus |
+             TokenTimes |
              TokenOpenParen |
              TokenCloseParen |
              TokenAssign |
@@ -34,7 +35,7 @@ spaces = do pStar $ pProp isSpace
 
 token :: Parser Char (Int,Token)
 token = do n <- numParsed
-           t <- integer ||| word ||| plus ||| minus ||| assign |||
+           t <- integer ||| word ||| plus ||| minus ||| times ||| assign |||
                 openParen ||| closeParen
            return (n,t)
 
@@ -54,6 +55,10 @@ plus = do pElt '+'
 minus :: Parser Char Token
 minus = do pElt '-'
            return TokenMinus
+
+times :: Parser Char Token
+times = do pElt '*'
+           return TokenTimes
 
 openParen :: Parser Char Token
 openParen = do pElt '('
