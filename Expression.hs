@@ -13,7 +13,11 @@ data Expression = ExpressionInteger Integer |
 -- sums of constants are evaluated, and zeroes are removed
 -- empty sums are replaced with zero, singleton sums are unwrapped
 standardForm :: Expression -> Expression
-standardForm e = removeTrivialSums $ addConstants $ sortSums e
+standardForm e =
+  let e' = removeTrivialSums $ addConstants $ sortSums e in
+  case e == e' of
+    True -> e'
+    False -> standardForm e'
 
 sortSums :: Expression -> Expression
 sortSums s@(ExpressionSum []) = s
@@ -30,7 +34,8 @@ sortSums (ExpressionSum es) = ExpressionSum (sortBy sumOrder es') where
 sortSums e@(_) = e
 
 addConstants :: Expression -> Expression
-addConstants (ExpressionSum es) = ExpressionSum (addConstants' es) where
+addConstants (ExpressionSum es) = ExpressionSum (addConstants' es') where
+  es' = map addConstants es
   addConstants' (ExpressionInteger 0:es) = addConstants' es
   addConstants' (ExpressionInteger m:ExpressionInteger n:es) =
     addConstants' (ExpressionInteger (m+n):es)

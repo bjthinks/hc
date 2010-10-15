@@ -50,8 +50,9 @@ expressionParserTests = [
   testEval "a+0" $ ExpressionVariable "a",
   testEval "0" $ ExpressionInteger 0,
   testEval "0+0" $ ExpressionInteger 0,
-  testEval "(0)" $ ExpressionInteger 0
-  --testEval "(0+0)+(0+(0+0)+(0+0+(0+0))+0)+0" $ ExpressionInteger 0
+  testEval "(0)" $ ExpressionInteger 0,
+  testEval "(0+0)+(0+(0+0)+(0+0+(0+0))+0)+0" $ ExpressionInteger 0,
+  testEval "(1+1)+(1+(1+1)+(1+1+(1+1))+1)+1" $ ExpressionInteger 11
   ]
 
 expressionDisplayTests = [
