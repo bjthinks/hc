@@ -17,7 +17,7 @@ additive = do a <- atom
                 _ -> ExpressionSum (a:as)
 
 atom :: Parser Token Expression
-atom = integer ||| variable
+atom = integer ||| variable ||| paren
 
 integer :: Parser Token Expression
 integer = do s <- pMaybe $ pElt TokenMinus
@@ -29,3 +29,9 @@ integer = do s <- pMaybe $ pElt TokenMinus
 variable :: Parser Token Expression
 variable = do TokenWord w <- pProp isWord
               return $ ExpressionVariable w
+
+paren :: Parser Token Expression
+paren = do pElt TokenOpenParen
+           e <- additive
+           pElt TokenCloseParen
+           return e
