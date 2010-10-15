@@ -10,11 +10,18 @@ expressionParser = do e <- additive
                       return $ standardForm e
 
 additive :: Parser Token Expression
-additive = do a <- atom
+additive = do a <- multiplicative
               as <- pStar (pElt TokenPlus >> atom)
               return $ case as of
                 [] -> a
                 _ -> ExpressionSum (a:as)
+
+multiplicative :: Parser Token Expression
+multiplicative = do a <- atom
+                    as <- pStar (pElt TokenTimes >> atom)
+                    return $ case as of
+                      [] -> a
+                      _ -> ExpressionProduct (a:as)
 
 atom :: Parser Token Expression
 atom = integer ||| variable ||| paren

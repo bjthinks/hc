@@ -4,7 +4,8 @@ import Data.List
 
 data Expression = ExpressionInteger Integer |
                   ExpressionVariable String |
-                  ExpressionSum [Expression]
+                  ExpressionSum [Expression] |
+                  ExpressionProduct [Expression]
                   deriving (Show, Eq)
 
 -- Put an expression into "standard form".  This performs a series
