@@ -43,7 +43,18 @@ sortSums (ExpressionSum es) = ExpressionSum (sortBy sumOrder es') where
   sumOrder (ExpressionSum _) (ExpressionSum _) = EQ
   sumOrder (ExpressionSum _) _ = GT
   sumOrder _ (ExpressionSum _) = LT
-  sumOrder _ _ = EQ
+  sumOrder (ExpressionProduct (x:xs)) (ExpressionProduct (y:ys)) =
+    case sumOrder x y of
+      LT -> LT
+      GT -> GT
+      EQ -> sumOrder (ExpressionProduct xs) (ExpressionProduct ys)
+  sumOrder (ExpressionProduct (x:xs)) (ExpressionProduct []) = LT
+  sumOrder (ExpressionProduct []) (ExpressionProduct (y:ys)) = GT
+  sumOrder (ExpressionProduct []) (ExpressionProduct []) = EQ
+  sumOrder x@(ExpressionProduct xs) y@(_) =
+    sumOrder x (ExpressionProduct [y])
+  sumOrder x@(_) y@(ExpressionProduct xs) =
+    sumOrder (ExpressionProduct [x]) y
 sortSums (ExpressionProduct es) = ExpressionProduct (map sortSums es)
 sortSums e@(_) = e
 
