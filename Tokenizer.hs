@@ -7,6 +7,8 @@ data Token = TokenInteger Integer |
              TokenWord String |
              TokenPlus |
              TokenMinus |
+             TokenOpenParen |
+             TokenCloseParen |
              TokenAssign |
              TokenEnd
              deriving (Eq, Show)
@@ -32,7 +34,8 @@ spaces = do pStar $ pProp isSpace
 
 token :: Parser Char (Int,Token)
 token = do n <- numParsed
-           t <- integer ||| word ||| plus ||| minus ||| assign
+           t <- integer ||| word ||| plus ||| minus ||| assign |||
+                openParen ||| closeParen
            return (n,t)
 
 integer :: Parser Char Token
@@ -51,6 +54,14 @@ plus = do pElt '+'
 minus :: Parser Char Token
 minus = do pElt '-'
            return TokenMinus
+
+openParen :: Parser Char Token
+openParen = do pElt '('
+               return TokenOpenParen
+
+closeParen :: Parser Char Token
+closeParen = do pElt ')'
+                return TokenCloseParen
 
 assign :: Parser Char Token
 assign = do pElt ':'

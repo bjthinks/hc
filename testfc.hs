@@ -27,7 +27,9 @@ tokenizerTests = [
   parseAll tokenizer " a11 11" ~?= Right [(1,TokenWord "a11"),(5,TokenInteger 11),(7,TokenEnd)],
   parseAll tokenizer ":="      ~?= Right [(0,TokenAssign),(2,TokenEnd)],
   parseAll tokenizer "3-:=-3"  ~?= Right [(0,TokenInteger 3),(1,TokenMinus),(2,TokenAssign),(4,TokenMinus),(5,TokenInteger 3),(6,TokenEnd)],
-  parseAll tokenizer "+"       ~?= Right [(0,TokenPlus),(1,TokenEnd)]
+  parseAll tokenizer "+"       ~?= Right [(0,TokenPlus),(1,TokenEnd)],
+  parseAll tokenizer "("       ~?= Right [(0,TokenOpenParen),(1,TokenEnd)],
+  parseAll tokenizer ")"       ~?= Right [(0,TokenCloseParen),(1,TokenEnd)]
   ]
 
 unRight :: Either a b -> b
