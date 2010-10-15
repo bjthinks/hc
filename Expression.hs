@@ -10,9 +10,14 @@ data Expression = ExpressionInteger Integer |
 -- Put an expression into "standard form".  This performs a series
 -- of internal and basic algebraic simplifications, including:
 -- sums are sorted
--- sums of constants are evaluated
+-- sums of constants are evaluated, and zeroes are removed
+-- empty sums are replaced with zero, singleton sums are unwrapped
 standardForm :: Expression -> Expression
-standardForm e = addConstants $ sortSums e
+standardForm e =
+  let e' = removeTrivialSums $ addConstants $ sortSums e in
+  case e == e' of
+    True -> e'
+    False -> standardForm e'
 
 sortSums :: Expression -> Expression
 sortSums s@(ExpressionSum []) = s
@@ -29,9 +34,17 @@ sortSums (ExpressionSum es) = ExpressionSum (sortBy sumOrder es') where
 sortSums e@(_) = e
 
 addConstants :: Expression -> Expression
-addConstants (ExpressionSum es) = ExpressionSum (addConstants' es) where
+addConstants (ExpressionSum es) = ExpressionSum (addConstants' es') where
+  es' = map addConstants es
+  addConstants' (ExpressionInteger 0:es) = addConstants' es
   addConstants' (ExpressionInteger m:ExpressionInteger n:es) =
     addConstants' (ExpressionInteger (m+n):es)
   addConstants' (e:es) = e:addConstants' es
   addConstants' [] = []
 addConstants e@(_) = e
+
+removeTrivialSums :: Expression -> Expression
+removeTrivialSums (ExpressionSum []) = ExpressionInteger 0
+removeTrivialSums (ExpressionSum [e]) = removeTrivialSums e
+removeTrivialSums (ExpressionSum es) = ExpressionSum $ map removeTrivialSums es
+removeTrivialSums e@(_) = e
