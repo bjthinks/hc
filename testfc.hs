@@ -81,7 +81,8 @@ expressionDisplayTests = [
   displayExpr (ExpressionVariable "x") ~?= "x",
   displayExpr (ExpressionVariable "ABCdef123") ~?= "ABCdef123",
   displayExpr (ExpressionSum [ExpressionVariable "a",ExpressionInteger 1]) ~?= "a + 1",
-  displayExpr (ExpressionSum [ExpressionVariable "a",ExpressionVariable "b"]) ~?= "a + b"
+  displayExpr (ExpressionSum [ExpressionVariable "a",ExpressionVariable "b"]) ~?= "a + b",
+  displayExpr (ExpressionProduct [ExpressionVariable "a",ExpressionVariable "b"]) ~?= "a b"
   ]
 
 storeTests = [
