@@ -60,4 +60,6 @@ removeTrivialSums :: Expression -> Expression
 removeTrivialSums (ExpressionSum []) = ExpressionInteger 0
 removeTrivialSums (ExpressionSum [e]) = removeTrivialSums e
 removeTrivialSums (ExpressionSum es) = ExpressionSum $ map removeTrivialSums es
+removeTrivialSums (ExpressionProduct es) =
+  ExpressionProduct (map removeTrivialSums es)
 removeTrivialSums e@(_) = e
