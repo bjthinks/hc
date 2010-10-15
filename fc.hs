@@ -29,7 +29,7 @@ mainloop store = do str <- MaybeT (readline prompt)
 processLine :: Store -> String -> IO Store
 processLine store str =
   case parseAll tokenizer str of
-    Right [] -> return store
+    Right [(_,TokenEnd)] -> return store
     Right tokens -> do addHistory str
                        processTokens store tokens
     Left err -> do addHistory str
