@@ -82,7 +82,14 @@ expressionDisplayTests = [
   displayExpr (ExpressionVariable "ABCdef123") ~?= "ABCdef123",
   displayExpr (ExpressionSum [ExpressionVariable "a",ExpressionInteger 1]) ~?= "a + 1",
   displayExpr (ExpressionSum [ExpressionVariable "a",ExpressionVariable "b"]) ~?= "a + b",
-  displayExpr (ExpressionProduct [ExpressionVariable "a",ExpressionVariable "b"]) ~?= "a b"
+  displayExpr (ExpressionProduct [ExpressionVariable "a",ExpressionVariable "b"]) ~?= "a b",
+  displayExpr (ExpressionProduct [ExpressionInteger 2,ExpressionVariable "b"]) ~?= "2 b",
+  displayExpr (ExpressionSum [ExpressionProduct [ExpressionVariable "a",ExpressionVariable "b"],ExpressionProduct [ExpressionInteger 2,ExpressionVariable "b"]]) ~?= "a b + 2 b",
+  displayExpr (ExpressionProduct [ExpressionVariable "a",ExpressionSum [ExpressionVariable "b",ExpressionVariable "c"]]) ~?= "a (b + c)",
+  displayExpr (ExpressionProduct [ExpressionSum [ExpressionVariable "a",ExpressionVariable "b"],ExpressionSum [ExpressionVariable "c",ExpressionVariable "d"]]) ~?= "(a + b) (c + d)",
+  -- This next one is a little bit bad, because the expression is not in standard form. But, we never expect display to change the form of an expression, so it ought to work.
+  displayExpr (ExpressionProduct [ExpressionSum [ExpressionVariable "a",ExpressionVariable "b"],ExpressionVariable "c"]) ~?= "(a + b) c",
+  displayExpr (ExpressionProduct [ExpressionSum [ExpressionVariable "a",ExpressionVariable "b"],ExpressionSum [ExpressionVariable "c",ExpressionVariable "d"],ExpressionSum [ExpressionVariable "e",ExpressionInteger 1]]) ~?= "(a + b) (c + d) (e + 1)"
   ]
 
 storeTests = [
