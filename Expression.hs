@@ -53,6 +53,7 @@ addConstants (ExpressionSum es) = ExpressionSum (addConstants' es') where
     addConstants' (ExpressionInteger (m+n):es)
   addConstants' (e:es) = e:addConstants' es
   addConstants' [] = []
+addConstants (ExpressionProduct es) = ExpressionProduct (map addConstants es)
 addConstants e@(_) = e
 
 removeTrivialSums :: Expression -> Expression

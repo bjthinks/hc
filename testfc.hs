@@ -60,7 +60,8 @@ expressionParserTests = [
   testEval "2*x" $ ExpressionProduct [ExpressionInteger 2,ExpressionVariable "x"],
   testEval "x*(a+1)" $ ExpressionProduct [ExpressionVariable "x",ExpressionSum [ExpressionVariable "a",ExpressionInteger 1]],
   testEval "x*(a+b)" $ ExpressionProduct [ExpressionVariable "x",ExpressionSum [ExpressionVariable "a",ExpressionVariable "b"]],
-  testEval "x*(b+a)" $ ExpressionProduct [ExpressionVariable "x",ExpressionSum [ExpressionVariable "a",ExpressionVariable "b"]]
+  testEval "x*(b+a)" $ ExpressionProduct [ExpressionVariable "x",ExpressionSum [ExpressionVariable "a",ExpressionVariable "b"]],
+  testEval "x*(a+1+1)" $ ExpressionProduct [ExpressionVariable "x",ExpressionSum [ExpressionVariable "a",ExpressionInteger 2]]
   ]
 
 expressionDisplayTests = [
