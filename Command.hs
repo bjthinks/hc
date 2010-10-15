@@ -18,6 +18,7 @@ substitute s (ExpressionVariable v) =
     Just e -> substitute s e
     Nothing -> ExpressionVariable v
 substitute s (ExpressionSum es) = ExpressionSum $ map (substitute s) es
+substitute s (ExpressionProduct es) = ExpressionProduct $ map (substitute s) es
 
 displayAssignment :: String -> Expression -> String
 displayAssignment v e = v ++ " := " ++ displayExpr e
