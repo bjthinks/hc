@@ -28,6 +28,7 @@ flattenSums (ExpressionSum es) = ExpressionSum $ flattenSums' es' where
   flattenSums' (ExpressionSum nes:es) = flattenSums' (nes ++ es)
   flattenSums' (e:es) = e:flattenSums' es
   flattenSums' [] = []
+flattenSums (ExpressionProduct es) = ExpressionProduct (map flattenSums es)
 flattenSums e@(_) = e
 
 sortSums :: Expression -> Expression
