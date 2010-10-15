@@ -11,7 +11,7 @@ data Expression = ExpressionInteger Integer |
 -- of internal and basic algebraic simplifications, including:
 -- sums are sorted
 -- sums of constants are evaluated, and zeroes are removed
--- singleton sums are removed
+-- empty sums are replaced with zero, singleton sums are unwrapped
 standardForm :: Expression -> Expression
 standardForm e = removeTrivialSums $ addConstants $ sortSums e
 
@@ -39,6 +39,7 @@ addConstants (ExpressionSum es) = ExpressionSum (addConstants' es) where
 addConstants e@(_) = e
 
 removeTrivialSums :: Expression -> Expression
+removeTrivialSums (ExpressionSum []) = ExpressionInteger 0
 removeTrivialSums (ExpressionSum [e]) = removeTrivialSums e
 removeTrivialSums (ExpressionSum es) = ExpressionSum $ map removeTrivialSums es
 removeTrivialSums e@(_) = e
