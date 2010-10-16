@@ -2,8 +2,8 @@ module Expression (Expression(..), standardForm) where
 
 import Data.List
 
-data Expression = ExpressionInteger Integer |
-                  ExpressionVariable String |
+data Expression = ExpressionVariable String |
+                  ExpressionInteger Integer |
                   ExpressionSum [Expression] |
                   ExpressionProduct [Expression]
                   deriving (Show, Eq, Ord)
@@ -33,7 +33,19 @@ flattenSums e@(_) = e
 
 sortSums :: Expression -> Expression
 sortSums s@(ExpressionSum []) = s
-sortSums (ExpressionSum es) = ExpressionSum (sort es)
+sortSums (ExpressionSum es) = ExpressionSum (removeTrivialProducts (sort (makeTrivialProducts es)))
+  where
+    makeTrivialProducts :: [Expression] -> [Expression]
+    makeTrivialProducts (ExpressionProduct ps:xs) =
+      ExpressionProduct ps:makeTrivialProducts xs
+    makeTrivialProducts (x:xs) =
+      ExpressionProduct [x]:makeTrivialProducts xs
+    makeTrivialProducts [] = []
+    removeTrivialProducts :: [Expression] -> [Expression]
+    removeTrivialProducts (ExpressionProduct [x]:xs) =
+      x:removeTrivialProducts xs
+    removeTrivialProducts (x:xs) = x:removeTrivialProducts xs
+    removeTrivialProducts [] = []
 sortSums (ExpressionProduct es) = ExpressionProduct (map sortSums es)
 sortSums e@(_) = e
 
