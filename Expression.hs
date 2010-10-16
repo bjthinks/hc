@@ -24,9 +24,9 @@ instance Ord Expression where
   compare (ExpressionSum _) (ExpressionInteger _) = LT
   compare (ExpressionInteger _) (ExpressionSum _) = GT
   -- Sums are compared by comparing their contents
-  compare (ExpressionSum x) (ExpressionSum y) = compare x y
+  compare (ExpressionSum x) (ExpressionSum y) = compareExprList x y
   -- Same for products
-  compare (ExpressionProduct x) (ExpressionProduct y) = compare x y
+  compare (ExpressionProduct x) (ExpressionProduct y) = compareExprList x y
   -- In sums, integers and variables are compared with products by
   -- treating them as singleton products
   compare (ExpressionProduct x) y@(ExpressionVariable _) = compare x [y]
@@ -36,6 +36,17 @@ instance Ord Expression where
   -- Products come before sums
   compare (ExpressionProduct _) (ExpressionSum _) = LT
   compare (ExpressionSum _) (ExpressionProduct _) = GT
+
+compareExprList :: [Expression] -> [Expression] -> Ordering
+compareExprList (x:xs) (y:ys) =
+  case compare x y of
+    LT -> LT
+    GT -> GT
+    EQ -> compareExprList xs ys
+compareExprList [] [] = EQ
+-- HERE'S THE BEEF
+compareExprList (_:_) [] = LT
+compareExprList [] (_:_) = GT
 
 -- Put an expression into "standard form".  This performs a series
 -- of internal and basic algebraic simplifications, including:
