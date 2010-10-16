@@ -115,7 +115,10 @@ expressionParserTests = [
                                                                           ExpressionVariable "d"]]],
   testEval "1*1" $ ExpressionInteger 1,
   testEval "1*1*1*(1*1*(1*(1*1)*1)*(1*1))*1" $ ExpressionInteger 1,
-  testEval "(-1)*(-1)*(-1)*((-1)*(-1)*((-1)*((-1)*(-1))*(-1))*((-1)*(-1)))*(-1) " $ ExpressionInteger 1
+  testEval "(-1)*(-1)*(-1)*((-1)*(-1)*((-1)*((-1)*(-1))*(-1))*((-1)*(-1)))*(-1) " $ ExpressionInteger 1,
+  testEval "a*(-1)*b*((-1)*c*((-1)*(d*(-1))*(-1))*((-1)*e))*(-1) " $ ExpressionProduct [ExpressionVariable "a", ExpressionVariable "b", ExpressionVariable "c", ExpressionVariable "d", ExpressionVariable "e", ExpressionInteger (-1)],
+  testEval "2*3" $ ExpressionProduct [ExpressionInteger 2,ExpressionInteger 3],
+  testEval "3*2" $ ExpressionProduct [ExpressionInteger 2,ExpressionInteger 3]
   ]
 
 expressionDisplayTests = [

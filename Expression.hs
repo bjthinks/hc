@@ -15,9 +15,8 @@ instance Ord Expression where
   -- Variables come before integers
   compare (ExpressionVariable _) (ExpressionInteger _) = LT
   compare (ExpressionInteger _) (ExpressionVariable _) = GT
-  -- Integers all go together
-  -- NOTE: might refine this later
-  compare (ExpressionInteger _) (ExpressionInteger _) = EQ
+  -- Integers all go together, sorted by absolute value
+  compare (ExpressionInteger x) (ExpressionInteger y) = compare (abs x) (abs y)
   -- In products, sums come after variables but before constants
   compare (ExpressionSum _) (ExpressionVariable _) = GT
   compare (ExpressionVariable _) (ExpressionSum _) = LT
