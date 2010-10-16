@@ -77,7 +77,8 @@ flattenProducts (ExpressionSum es) = ExpressionSum (map flattenProducts es)
 flattenProducts e@(_) = e
 
 sortProducts :: Expression -> Expression
-sortProducts (ExpressionProduct es) = ExpressionProduct (sort es)
+sortProducts (ExpressionProduct es) =
+  ExpressionProduct $ sort $ map sortProducts es
 sortProducts (ExpressionSum es) = ExpressionSum $ map sortProducts es
 sortProducts e@(_) = e
 
