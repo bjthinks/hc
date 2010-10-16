@@ -61,7 +61,7 @@ compareExprList [] (_:_) = GT
 standardForm :: Expression -> Expression
 standardForm e =
   let e' = removeTrivialSums $ addConstants $ sortSums $ flattenSums $
-           removeTrivialProducts $ multiplyUnits $
+           removeTrivialProducts $ multiplyConstants $
            sortProducts $ flattenProducts e in
   case e == e' of
     True -> e'
@@ -103,17 +103,16 @@ flattenSums (ExpressionSum es) = ExpressionSum $ flattenSums' es' where
 flattenSums (ExpressionProduct es) = ExpressionProduct (map flattenSums es)
 flattenSums e@(_) = e
 
-multiplyUnits :: Expression -> Expression
-multiplyUnits (ExpressionProduct es) =
-  ExpressionProduct (multiplyUnits' es') where
-    es' = map multiplyUnits es
-    multiplyUnits' (ExpressionInteger 1:es) = multiplyUnits' es
-    multiplyUnits' (ExpressionInteger (-1):ExpressionInteger (-1):es) =
-      multiplyUnits' es
-    multiplyUnits' (e:es) = e:multiplyUnits' es
-    multiplyUnits' [] = []
-multiplyUnits (ExpressionSum es) = ExpressionSum (map multiplyUnits es)
-multiplyUnits e@(_) = e
+multiplyConstants :: Expression -> Expression
+multiplyConstants (ExpressionProduct es) =
+  ExpressionProduct (multiplyConstants' es') where
+    es' = map multiplyConstants es
+    multiplyConstants' (ExpressionInteger x:ExpressionInteger y:es) =
+      multiplyConstants' (ExpressionInteger (x*y):es)
+    multiplyConstants' (e:es) = e:multiplyConstants' es
+    multiplyConstants' [] = []
+multiplyConstants (ExpressionSum es) = ExpressionSum (map multiplyConstants es)
+multiplyConstants e@(_) = e
 
 sortSums :: Expression -> Expression
 sortSums s@(ExpressionSum []) = s
