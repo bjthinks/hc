@@ -6,7 +6,36 @@ data Expression = ExpressionVariable String |
                   ExpressionInteger Integer |
                   ExpressionSum [Expression] |
                   ExpressionProduct [Expression]
-                  deriving (Show, Eq, Ord)
+                  deriving (Show, Eq)
+
+instance Ord Expression where
+  -- Variables are sorted in alphabetical order
+  compare (ExpressionVariable x) (ExpressionVariable y) =
+    compare x y
+  -- Variables come before integers
+  compare (ExpressionVariable _) (ExpressionInteger _) = LT
+  compare (ExpressionInteger _) (ExpressionVariable _) = GT
+  -- Integers all go together
+  -- NOTE: might refine this later
+  compare (ExpressionInteger _) (ExpressionInteger _) = EQ
+  -- In products, sums come after variables but before constants
+  compare (ExpressionSum _) (ExpressionVariable _) = GT
+  compare (ExpressionVariable _) (ExpressionSum _) = LT
+  compare (ExpressionSum _) (ExpressionInteger _) = LT
+  compare (ExpressionInteger _) (ExpressionSum _) = GT
+  -- Sums are compared by comparing their contents
+  compare (ExpressionSum x) (ExpressionSum y) = compare x y
+  -- Same for products
+  compare (ExpressionProduct x) (ExpressionProduct y) = compare x y
+  -- In sums, integers and variables are compared with products by
+  -- treating them as singleton products
+  compare (ExpressionProduct x) y@(ExpressionVariable _) = compare x [y]
+  compare (ExpressionProduct x) y@(ExpressionInteger _) = compare x [y]
+  compare x@(ExpressionVariable _) (ExpressionProduct y) = compare [x] y
+  compare x@(ExpressionInteger _) (ExpressionProduct y) = compare [x] y
+  -- Products come before sums
+  compare (ExpressionProduct _) (ExpressionSum _) = LT
+  compare (ExpressionSum _) (ExpressionProduct _) = GT
 
 -- Put an expression into "standard form".  This performs a series
 -- of internal and basic algebraic simplifications, including:
