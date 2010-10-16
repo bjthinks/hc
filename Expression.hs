@@ -109,8 +109,8 @@ multiplyUnits (ExpressionProduct es) =
   ExpressionProduct (multiplyUnits' es') where
     es' = map multiplyUnits es
     multiplyUnits' (ExpressionInteger 1:es) = multiplyUnits' es
-    --multiplyUnits' (ExpressionInteger (-1):ExpressionInteger (-1):es) =
-      --multiplyUnits' es
+    multiplyUnits' (ExpressionInteger (-1):ExpressionInteger (-1):es) =
+      multiplyUnits' es
     multiplyUnits' (e:es) = e:multiplyUnits' es
     multiplyUnits' [] = []
 multiplyUnits (ExpressionSum es) = ExpressionSum (map multiplyUnits es)
