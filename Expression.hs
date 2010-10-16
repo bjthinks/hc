@@ -53,6 +53,8 @@ compareExprList [] (_:_) = GT
 -- nested products are flattened
 -- terms of a product are sorted
 --   (note that constants are internally placed last)
+-- in a product, ones are removed, and (-1)*(-1) is removed
+-- empty products are replaced with one, singleton products are unwrapped
 -- nested sums are flattened
 -- sums are sorted
 -- sums of constants are evaluated, and zeroes are removed
@@ -60,6 +62,7 @@ compareExprList [] (_:_) = GT
 standardForm :: Expression -> Expression
 standardForm e =
   let e' = removeTrivialSums $ addConstants $ sortSums $ flattenSums $
+           removeTrivialProducts $ multiplyUnits $
            sortProducts $ flattenProducts e in
   case e == e' of
     True -> e'
@@ -82,6 +85,15 @@ sortProducts (ExpressionProduct es) =
 sortProducts (ExpressionSum es) = ExpressionSum $ map sortProducts es
 sortProducts e@(_) = e
 
+removeTrivialProducts :: Expression -> Expression
+removeTrivialProducts (ExpressionProduct []) = ExpressionInteger 1
+removeTrivialProducts (ExpressionProduct [e]) = removeTrivialProducts e
+removeTrivialProducts (ExpressionProduct es) =
+  ExpressionProduct $ map removeTrivialProducts es
+removeTrivialProducts (ExpressionSum es) =
+  ExpressionSum (map removeTrivialProducts es)
+removeTrivialProducts e@(_) = e
+
 flattenSums :: Expression -> Expression
 flattenSums (ExpressionSum es) = ExpressionSum $ flattenSums' es' where
   es' = map flattenSums es
@@ -91,6 +103,18 @@ flattenSums (ExpressionSum es) = ExpressionSum $ flattenSums' es' where
   flattenSums' [] = []
 flattenSums (ExpressionProduct es) = ExpressionProduct (map flattenSums es)
 flattenSums e@(_) = e
+
+multiplyUnits :: Expression -> Expression
+multiplyUnits (ExpressionProduct es) =
+  ExpressionProduct (multiplyUnits' es') where
+    es' = map multiplyUnits es
+    multiplyUnits' (ExpressionInteger 1:es) = multiplyUnits' es
+    --multiplyUnits' (ExpressionInteger (-1):ExpressionInteger (-1):es) =
+      --multiplyUnits' es
+    multiplyUnits' (e:es) = e:multiplyUnits' es
+    multiplyUnits' [] = []
+multiplyUnits (ExpressionSum es) = ExpressionSum (map multiplyUnits es)
+multiplyUnits e@(_) = e
 
 sortSums :: Expression -> Expression
 sortSums s@(ExpressionSum []) = s
