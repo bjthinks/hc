@@ -50,16 +50,29 @@ compareExprList [] (_:_) = GT
 
 -- Put an expression into "standard form".  This performs a series
 -- of internal and basic algebraic simplifications, including:
+-- nested products are flattened
 -- nested sums are flattened
 -- sums are sorted
 -- sums of constants are evaluated, and zeroes are removed
 -- empty sums are replaced with zero, singleton sums are unwrapped
 standardForm :: Expression -> Expression
 standardForm e =
-  let e' = removeTrivialSums $ addConstants $ sortSums $ flattenSums e in
+  let e' = removeTrivialSums $ addConstants $ sortSums $ flattenSums $
+           flattenProducts e in
   case e == e' of
     True -> e'
     False -> standardForm e'
+
+flattenProducts :: Expression -> Expression
+flattenProducts (ExpressionProduct es) = ExpressionProduct $
+                                         flattenProducts' es' where
+  es' = map flattenProducts es
+  flattenProducts' :: [Expression] -> [Expression]
+  flattenProducts' (ExpressionProduct nes:es) = flattenProducts' (nes ++ es)
+  flattenProducts' (e:es) = e:flattenProducts' es
+  flattenProducts' [] = []
+flattenProducts (ExpressionSum es) = ExpressionSum (map flattenProducts es)
+flattenProducts e@(_) = e
 
 flattenSums :: Expression -> Expression
 flattenSums (ExpressionSum es) = ExpressionSum $ flattenSums' es' where
