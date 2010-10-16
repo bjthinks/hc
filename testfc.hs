@@ -73,7 +73,13 @@ expressionParserTests = [
   testEval "x*y+a" $ ExpressionSum [ExpressionVariable "a",ExpressionProduct [ExpressionVariable "x",ExpressionVariable "y"]],
   testEval "a+x*y" $ ExpressionSum [ExpressionVariable "a",ExpressionProduct [ExpressionVariable "x",ExpressionVariable "y"]],
   testEval "a*z+x" $ ExpressionSum [ExpressionProduct [ExpressionVariable "a",ExpressionVariable "z"],ExpressionVariable "x"],
-  testEval "x+a*z" $ ExpressionSum [ExpressionProduct [ExpressionVariable "a",ExpressionVariable "z"],ExpressionVariable "x"]
+  testEval "x+a*z" $ ExpressionSum [ExpressionProduct [ExpressionVariable "a",ExpressionVariable "z"],ExpressionVariable "x"],
+  testEval "a*b+2*c" $ ExpressionSum [ExpressionProduct [ExpressionVariable "a",ExpressionVariable "b"],ExpressionProduct [ExpressionInteger 2,ExpressionVariable "c"]],
+  testEval "2*c+a*b" $ ExpressionSum [ExpressionProduct [ExpressionVariable "a",ExpressionVariable "b"],ExpressionProduct [ExpressionInteger 2,ExpressionVariable "c"]],
+  testEval "a*c+2*b" $ ExpressionSum [ExpressionProduct [ExpressionVariable "a",ExpressionVariable "c"],ExpressionProduct [ExpressionInteger 2,ExpressionVariable "b"]],
+  testEval "2*b+a*c" $ ExpressionSum [ExpressionProduct [ExpressionVariable "a",ExpressionVariable "c"],ExpressionProduct [ExpressionInteger 2,ExpressionVariable "b"]],
+  testEval "b*c+2*a" $ ExpressionSum [ExpressionProduct [ExpressionInteger 2,ExpressionVariable "a"],ExpressionProduct [ExpressionVariable "b",ExpressionVariable "c"]],
+  testEval "2*a+b*c" $ ExpressionSum [ExpressionProduct [ExpressionInteger 2,ExpressionVariable "a"],ExpressionProduct [ExpressionVariable "b",ExpressionVariable "c"]]
   ]
 
 expressionDisplayTests = [

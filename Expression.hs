@@ -43,6 +43,10 @@ sortSums (ExpressionSum es) = ExpressionSum (sortBy sumOrder es') where
   sumOrder (ExpressionSum _) (ExpressionSum _) = EQ
   sumOrder (ExpressionSum _) _ = GT
   sumOrder _ (ExpressionSum _) = LT
+  sumOrder (ExpressionProduct (ExpressionInteger _:xs)) y =
+    sumOrder (ExpressionProduct xs) y
+  sumOrder x (ExpressionProduct (ExpressionInteger _:ys)) =
+    sumOrder x (ExpressionProduct ys)
   sumOrder (ExpressionProduct (x:xs)) (ExpressionProduct (y:ys)) =
     case sumOrder x y of
       LT -> LT
