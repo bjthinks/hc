@@ -6,7 +6,7 @@ data Expression = ExpressionInteger Integer |
                   ExpressionVariable String |
                   ExpressionSum [Expression] |
                   ExpressionProduct [Expression]
-                  deriving (Show, Eq)
+                  deriving (Show, Eq, Ord)
 
 -- Put an expression into "standard form".  This performs a series
 -- of internal and basic algebraic simplifications, including:
@@ -33,48 +33,7 @@ flattenSums e@(_) = e
 
 sortSums :: Expression -> Expression
 sortSums s@(ExpressionSum []) = s
-sortSums (ExpressionSum es) = ExpressionSum (sortBy sumOrder es') where
-  es' = map sortSums es
-  sumOrder :: Expression -> Expression -> Ordering
-  sumOrder (ExpressionProduct xs) (ExpressionProduct ys) =
-    lexTermOrder xs ys
-  sumOrder (ExpressionProduct xs) y = lexTermOrder xs [y]
-  sumOrder x (ExpressionProduct ys) = lexTermOrder [x] ys
-  sumOrder x y = lexTermOrder [x] [y]
-  lexTermOrder :: [Expression] -> [Expression] -> Ordering
-  lexTermOrder xs ys = lexTermOrder' (stripIntegers xs) (stripIntegers ys)
-  stripIntegers :: [Expression] -> [Expression]
-  stripIntegers (ExpressionInteger _:xs) = stripIntegers xs
-  stripIntegers (x:xs) = x:stripIntegers xs
-  stripIntegers [] = []
-  lexTermOrder' :: [Expression] -> [Expression] -> Ordering
-  lexTermOrder' (ExpressionVariable x:xs) (ExpressionVariable y:ys) =
-    case compare x y of
-      LT -> LT
-      GT -> GT
-      EQ -> lexTermOrder' xs ys
-  lexTermOrder' (_:_) [] = LT
-  lexTermOrder' [] (_:_) = GT
-  lexTermOrder' [] [] = EQ
-{-
-  --sumOrder (ExpressionInteger _) (ExpressionInteger _) = EQ
-  --sumOrder (ExpressionInteger _) (ExpressionVariable _) = GT
-  --sumOrder (ExpressionVariable _) (ExpressionInteger _) = LT
-  sumOrder (ExpressionSum _) (ExpressionSum _) = EQ
-  sumOrder (ExpressionSum _) _ = GT
-  sumOrder _ (ExpressionSum _) = LT
-  sumOrder (ExpressionProduct (ExpressionInteger _:xs)) y =
-    sumOrder (ExpressionProduct xs) y
-  sumOrder x (ExpressionProduct (ExpressionInteger _:ys)) =
-    sumOrder x (ExpressionProduct ys)
-  sumOrder (ExpressionProduct (x:xs)) (ExpressionProduct []) = LT
-  sumOrder (ExpressionProduct []) (ExpressionProduct (y:ys)) = GT
-  sumOrder (ExpressionProduct []) (ExpressionProduct []) = EQ
-  sumOrder x@(ExpressionProduct xs) y@(_) =
-    sumOrder x (ExpressionProduct [y])
-  sumOrder x@(_) y@(ExpressionProduct xs) =
-    sumOrder (ExpressionProduct [x]) y
--}
+sortSums (ExpressionSum es) = ExpressionSum (sort es)
 sortSums (ExpressionProduct es) = ExpressionProduct (map sortSums es)
 sortSums e@(_) = e
 
