@@ -94,7 +94,9 @@ flattenSums e@(_) = e
 
 sortSums :: Expression -> Expression
 sortSums s@(ExpressionSum []) = s
-sortSums (ExpressionSum es) = ExpressionSum (removeTrivialProducts (sort (makeTrivialProducts es)))
+sortSums (ExpressionSum es) =
+  ExpressionSum $ removeTrivialProducts $ sort $ makeTrivialProducts $
+  map sortSums es
   where
     makeTrivialProducts :: [Expression] -> [Expression]
     makeTrivialProducts (ExpressionProduct ps:xs) =
