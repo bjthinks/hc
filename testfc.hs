@@ -123,7 +123,13 @@ expressionParserTests = [
   testEval "3*2" $ ExpressionInteger 6,
   testEval "1*x" $ ExpressionVariable "x",
   testEval "0*x" $ ExpressionInteger 0,
-  testEval "a+a" $ ExpressionProduct [ExpressionVariable "a",ExpressionInteger 2]
+  testEval "a+a" $ ExpressionProduct [ExpressionVariable "a",ExpressionInteger 2],
+  testEval "a+2*a" $ ExpressionProduct [ExpressionVariable "a",ExpressionInteger 3],
+  testEval "2*a+2*a" $ ExpressionProduct [ExpressionVariable "a",ExpressionInteger 4],
+  testEval "3*a+5*a" $ ExpressionProduct [ExpressionVariable "a",ExpressionInteger 8],
+  testEval "c+a+b+c+b+a+b+b+c+c+c+a+b+a+c" $ ExpressionSum [ExpressionProduct [ExpressionVariable "a",ExpressionInteger 4],
+                                                            ExpressionProduct [ExpressionVariable "b",ExpressionInteger 5],
+                                                            ExpressionProduct [ExpressionVariable "c",ExpressionInteger 6]]
   ]
 
 expressionDisplayTests = [

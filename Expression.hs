@@ -184,11 +184,13 @@ combineSummands (ExpressionSum es) =
       case (stripConstants x1) == (stripConstants x2) of
         False -> ExpressionProduct x1:
                  combineSummands' (ExpressionProduct x2:xs)
-        True -> combineSummands' $
-                ExpressionProduct (stripConstants x1 ++
-                                   [standardForm (ExpressionSum
-                                                  (getConstants x1 ++
-                                                   getConstants x2))]):xs
+        True -> combineSummands'
+                (ExpressionProduct
+                 (stripConstants x1 ++
+                  [standardForm (ExpressionSum
+                                 [ExpressionProduct (getConstants x1),
+                                  ExpressionProduct (getConstants x2)])])
+                 :xs)
     combineSummands' [x] = [x]
     combineSummands' [] = []
     stripConstants :: [Expression] -> [Expression]
