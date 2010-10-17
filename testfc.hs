@@ -120,7 +120,8 @@ expressionParserTests = [
   testEval "2*3" $ ExpressionInteger 6,
   testEval "3*2" $ ExpressionInteger 6,
   testEval "1*x" $ ExpressionVariable "x",
-  testEval "0*x" $ ExpressionInteger 0
+  testEval "0*x" $ ExpressionInteger 0,
+  testEval "a+a" $ ExpressionProduct [ExpressionVariable "a",ExpressionInteger 2]
   ]
 
 expressionDisplayTests = [

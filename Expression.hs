@@ -58,10 +58,12 @@ compareExprList [] (_:_) = GT
 -- nested sums are flattened
 -- sums are sorted
 -- sums of constants are evaluated, and zeroes are removed
+-- like terms of sums are combined together
 -- empty sums are replaced with zero, singleton sums are unwrapped
 standardForm :: Expression -> Expression
 standardForm e =
-  let e' = removeTrivialSums $ addConstants $ sortSums $ flattenSums $
+  let e' = removeTrivialSums $ combineSummands $ addConstants $
+           sortSums $ flattenSums $
            removeTrivialProducts $ multiplyConstants $
            sortProducts $ destroyZeroProducts $ flattenProducts e in
   case e == e' of
@@ -159,6 +161,52 @@ addConstants (ExpressionSum es) = ExpressionSum (addConstants' es') where
   addConstants' [] = []
 addConstants (ExpressionProduct es) = ExpressionProduct (map addConstants es)
 addConstants e@(_) = e
+
+combineSummands :: Expression -> Expression
+combineSummands (ExpressionSum es) =
+  ExpressionSum $ removeTrivialProducts $ combineSummands' $
+  makeTrivialProducts es
+  where
+    makeTrivialProducts :: [Expression] -> [Expression]
+    makeTrivialProducts (ExpressionProduct ps:xs) =
+      ExpressionProduct ps:makeTrivialProducts xs
+    makeTrivialProducts (x:xs) =
+      ExpressionProduct [x]:makeTrivialProducts xs
+    makeTrivialProducts [] = []
+    removeTrivialProducts :: [Expression] -> [Expression]
+    removeTrivialProducts (ExpressionProduct [x]:xs) =
+      x:removeTrivialProducts xs
+    removeTrivialProducts (x:xs) = x:removeTrivialProducts xs
+    removeTrivialProducts [] = []
+
+    combineSummands' :: [Expression] -> [Expression]
+    combineSummands' (ExpressionProduct x1:ExpressionProduct x2:xs) =
+      case (stripConstants x1) == (stripConstants x2) of
+        False -> ExpressionProduct x1:
+                 combineSummands' (ExpressionProduct x2:xs)
+        True -> combineSummands' $
+                ExpressionProduct (stripConstants x1 ++
+                                   [standardForm (ExpressionSum
+                                                  (getConstants x1 ++
+                                                   getConstants x2))]):xs
+    combineSummands' [x] = [x]
+    combineSummands' [] = []
+    stripConstants :: [Expression] -> [Expression]
+    stripConstants (ExpressionInteger _:es) = es
+    stripConstants (x:xs) = x:stripConstants xs
+    stripConstants [] = []
+    getConstants :: [Expression] -> [Expression]
+    getConstants es = case getConstants' es of
+      [] -> [ExpressionInteger 1]
+      xs -> xs
+    getConstants' :: [Expression] -> [Expression]
+    getConstants' (ExpressionInteger n:es) =
+      ExpressionInteger n:getConstants es
+    getConstants' (_:es) = getConstants es
+    getConstants' [] = []
+combineSummands (ExpressionProduct es) =
+  ExpressionProduct (map combineSummands es)
+combineSummands e@(_) = e
 
 removeTrivialSums :: Expression -> Expression
 removeTrivialSums (ExpressionSum []) = ExpressionInteger 0
