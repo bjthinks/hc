@@ -33,6 +33,7 @@ constants are last in sums, but first in products
 outputs are numbered
 output history accessed by % number (expression substitution)
 tab completion is bound to variables
+after sorting, like terms of a sum are combined via products
 
 ----------
 
@@ -44,7 +45,6 @@ negation of an expression is an expression
 quotients of expressions are expressions
 quotient of quotient is simplified to a quotient of products
 handle differences/negatives in sums
-after sorting, like terms of a sum are combined via products
 after sorting, like terms of a product are combined via exponentiation
 expand function causes products of sums to be distributed
 factor function causes sums of products to be factored
