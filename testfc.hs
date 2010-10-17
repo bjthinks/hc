@@ -129,7 +129,11 @@ expressionParserTests = [
   testEval "3*a+5*a" $ ExpressionProduct [ExpressionVariable "a",ExpressionInteger 8],
   testEval "c+a+b+c+b+a+b+b+c+c+c+a+b+a+c" $ ExpressionSum [ExpressionProduct [ExpressionVariable "a",ExpressionInteger 4],
                                                             ExpressionProduct [ExpressionVariable "b",ExpressionInteger 5],
-                                                            ExpressionProduct [ExpressionVariable "c",ExpressionInteger 6]]
+                                                            ExpressionProduct [ExpressionVariable "c",ExpressionInteger 6]],
+  testEval "2*c+5*a+7*b+6*c+3*b+9*a+4*b+5*b+3*c+8*c+7*c+2*a+4*b+6*a+6*c" $
+  ExpressionSum [ExpressionProduct [ExpressionVariable "a",ExpressionInteger 22],
+                 ExpressionProduct [ExpressionVariable "b",ExpressionInteger 23],
+                 ExpressionProduct [ExpressionVariable "c",ExpressionInteger 32]]
   ]
 
 expressionDisplayTests = [
