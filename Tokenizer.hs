@@ -10,6 +10,7 @@ data Token = TokenInteger Integer |
              TokenTimes |
              TokenOpenParen |
              TokenCloseParen |
+             TokenPercent |
              TokenAssign |
              TokenEnd
              deriving (Eq, Show)
@@ -36,7 +37,7 @@ spaces = do pStar $ pProp isSpace
 token :: Parser Char (Int,Token)
 token = do n <- numParsed
            t <- integer ||| word ||| plus ||| minus ||| times ||| assign |||
-                openParen ||| closeParen
+                openParen ||| closeParen ||| percent
            return (n,t)
 
 integer :: Parser Char Token
@@ -67,6 +68,10 @@ openParen = do pElt '('
 closeParen :: Parser Char Token
 closeParen = do pElt ')'
                 return TokenCloseParen
+
+percent :: Parser Char Token
+percent = do pElt '%'
+             return TokenPercent
 
 assign :: Parser Char Token
 assign = do pElt ':'
