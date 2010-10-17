@@ -62,7 +62,7 @@ standardForm :: Expression -> Expression
 standardForm e =
   let e' = removeTrivialSums $ addConstants $ sortSums $ flattenSums $
            removeTrivialProducts $ multiplyConstants $
-           sortProducts $ flattenProducts e in
+           sortProducts $ destroyZeroProducts $ flattenProducts e in
   case e == e' of
     True -> e'
     False -> standardForm e'
@@ -78,11 +78,36 @@ flattenProducts (ExpressionProduct es) = ExpressionProduct $
 flattenProducts (ExpressionSum es) = ExpressionSum (map flattenProducts es)
 flattenProducts e@(_) = e
 
+destroyZeroProducts :: Expression -> Expression
+destroyZeroProducts (ExpressionProduct es)
+  | hasZero es = ExpressionInteger 0
+  | otherwise = ExpressionProduct (map destroyZeroProducts es)
+    where
+      hasZero :: [Expression] -> Bool
+      hasZero (ExpressionInteger 0:_) = True
+      hasZero (_:es) = hasZero es
+      hasZero [] = False
+destroyZeroProducts (ExpressionSum es) =
+  ExpressionSum (map destroyZeroProducts es)
+destroyZeroProducts e@(_) = e
+
 sortProducts :: Expression -> Expression
 sortProducts (ExpressionProduct es) =
   ExpressionProduct $ sort $ map sortProducts es
 sortProducts (ExpressionSum es) = ExpressionSum $ map sortProducts es
 sortProducts e@(_) = e
+
+multiplyConstants :: Expression -> Expression
+multiplyConstants (ExpressionProduct es) =
+  ExpressionProduct (multiplyConstants' es') where
+    es' = map multiplyConstants es
+    multiplyConstants' (ExpressionInteger 1:es) = multiplyConstants' es
+    multiplyConstants' (ExpressionInteger x:ExpressionInteger y:es) =
+      multiplyConstants' (ExpressionInteger (x*y):es)
+    multiplyConstants' (e:es) = e:multiplyConstants' es
+    multiplyConstants' [] = []
+multiplyConstants (ExpressionSum es) = ExpressionSum (map multiplyConstants es)
+multiplyConstants e@(_) = e
 
 removeTrivialProducts :: Expression -> Expression
 removeTrivialProducts (ExpressionProduct []) = ExpressionInteger 1
@@ -102,18 +127,6 @@ flattenSums (ExpressionSum es) = ExpressionSum $ flattenSums' es' where
   flattenSums' [] = []
 flattenSums (ExpressionProduct es) = ExpressionProduct (map flattenSums es)
 flattenSums e@(_) = e
-
-multiplyConstants :: Expression -> Expression
-multiplyConstants (ExpressionProduct es) =
-  ExpressionProduct (multiplyConstants' es') where
-    es' = map multiplyConstants es
-    multiplyConstants' (ExpressionInteger 1:es) = multiplyConstants' es
-    multiplyConstants' (ExpressionInteger x:ExpressionInteger y:es) =
-      multiplyConstants' (ExpressionInteger (x*y):es)
-    multiplyConstants' (e:es) = e:multiplyConstants' es
-    multiplyConstants' [] = []
-multiplyConstants (ExpressionSum es) = ExpressionSum (map multiplyConstants es)
-multiplyConstants e@(_) = e
 
 sortSums :: Expression -> Expression
 sortSums s@(ExpressionSum []) = s
