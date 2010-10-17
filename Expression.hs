@@ -107,6 +107,7 @@ multiplyConstants :: Expression -> Expression
 multiplyConstants (ExpressionProduct es) =
   ExpressionProduct (multiplyConstants' es') where
     es' = map multiplyConstants es
+    multiplyConstants' (ExpressionInteger 1:es) = multiplyConstants' es
     multiplyConstants' (ExpressionInteger x:ExpressionInteger y:es) =
       multiplyConstants' (ExpressionInteger (x*y):es)
     multiplyConstants' (e:es) = e:multiplyConstants' es
