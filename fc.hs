@@ -25,7 +25,8 @@ prompt = "> "
 mainloop :: Store -> MaybeT IO ()
 mainloop store = do str <- MaybeT (readline prompt)
                     store' <- liftIO $ processLine store str
-                    liftIO $ setCompletionEntryFunction $ Just $ \prefix -> return $ makeCompletionFunction store' prefix
+                    liftIO $ setCompletionEntryFunction $ Just $
+                      (return . makeCompletionFunction store')
                     mainloop store'
 
 makeCompletionFunction :: Store -> String -> [String]
