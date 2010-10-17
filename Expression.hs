@@ -50,6 +50,7 @@ compareExprList [] (_:_) = GT
 -- Put an expression into "standard form".  This performs a series
 -- of internal and basic algebraic simplifications, including:
 -- nested products are flattened
+-- products of zero are removed
 -- terms of a product are sorted
 --   (note that constants are internally placed last)
 -- in a product, ones are removed, and (-1)*(-1) is removed
