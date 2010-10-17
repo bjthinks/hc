@@ -30,13 +30,13 @@ ones are eliminated from products
 terms of a product are sorted
 sort order is lexicographic on variable names, and their powers
 constants are last in sums, but first in products
+outputs are numbered
 
 ----------
 
 unit tests for command parser
 prompts are numbered
 ?? input history accessed by ! number (string or token substitution)
-outputs are numbered
 output history accessed by % number (expression substitution)
 tab completion is bound to variables
 power of one expression by another is an expression
