@@ -30,7 +30,8 @@ tokenizerTests = [
   parseAll tokenizer "+"       ~?= Right [(0,TokenPlus),(1,TokenEnd)],
   parseAll tokenizer "("       ~?= Right [(0,TokenOpenParen),(1,TokenEnd)],
   parseAll tokenizer ")"       ~?= Right [(0,TokenCloseParen),(1,TokenEnd)],
-  parseAll tokenizer "*"       ~?= Right [(0,TokenTimes),(1,TokenEnd)]
+  parseAll tokenizer "*"       ~?= Right [(0,TokenTimes),(1,TokenEnd)],
+  parseAll tokenizer "%"       ~?= Right [(0,TokenPercent),(1,TokenEnd)]
   ]
 
 unRight :: Either a b -> b
@@ -43,6 +44,7 @@ expressionParserTests = [
   testEval "4" (ExpressionInteger 4),
   testEval "-8" (ExpressionInteger (-8)),
   testEval "foo" $ ExpressionVariable "foo",
+  testEval "%3" $ ExpressionVariable "%3",
   testEval "a+1" $ ExpressionSum [ExpressionVariable "a",ExpressionInteger 1],
   testEval "a+b" $ ExpressionSum [ExpressionVariable "a",ExpressionVariable "b"],
   testEval "b+a" $ ExpressionSum [ExpressionVariable "a",ExpressionVariable "b"],

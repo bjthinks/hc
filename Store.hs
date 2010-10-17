@@ -1,4 +1,4 @@
-module Store(Store, newStore, setValue, getValue) where
+module Store(Store, newStore, setValue, getValue, getVariables) where
 
 import Expression
 import qualified Data.Map as Map
@@ -13,3 +13,6 @@ setValue v e (StoreGuts s) = StoreGuts $ Map.insert v e s
 
 getValue :: String -> Store -> Maybe Expression
 getValue v (StoreGuts s) = Map.lookup v s
+
+getVariables :: Store -> [String]
+getVariables (StoreGuts s) = Map.keys s
