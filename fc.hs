@@ -25,8 +25,20 @@ prompt = "> "
 mainloop :: Store -> MaybeT IO ()
 mainloop store = do str <- MaybeT (readline prompt)
                     store' <- liftIO $ processLine store str
-                    liftIO $ setCompletionEntryFunction $ Just $ \str -> return $ filter (\x -> (take (length str) x) == str) $ filter (\y -> (length y > 0 && isAlpha (head y))) $ getVariables store'
+                    liftIO $ setCompletionEntryFunction $ Just $ \prefix -> return $ makeCompletionFunction store' prefix
                     mainloop store'
+
+makeCompletionFunction :: Store -> String -> [String]
+makeCompletionFunction store prefix =
+  filter (startsWith prefix) $
+  filter firstCharAlpha $
+  getVariables store
+
+startsWith :: String -> String -> Bool
+startsWith prefix str = take (length prefix) str == prefix
+
+firstCharAlpha :: String -> Bool
+firstCharAlpha str = length str > 0 && isAlpha (head str)
 
 processLine :: Store -> String -> IO Store
 processLine store str =
