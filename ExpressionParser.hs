@@ -24,7 +24,7 @@ multiplicative = do a <- atom
                       _ -> ExpressionProduct (a:as)
 
 atom :: Parser Token Expression
-atom = integer ||| variable ||| paren
+atom = integer ||| variable ||| historyVariable ||| paren
 
 integer :: Parser Token Expression
 integer = do s <- pMaybe $ pElt TokenMinus
@@ -36,6 +36,11 @@ integer = do s <- pMaybe $ pElt TokenMinus
 variable :: Parser Token Expression
 variable = do TokenWord w <- pProp isWord
               return $ ExpressionVariable w
+
+historyVariable :: Parser Token Expression
+historyVariable = do pElt TokenPercent
+                     TokenInteger n <- pProp isInteger
+                     return $ ExpressionVariable ('%':show n)
 
 paren :: Parser Token Expression
 paren = do pElt TokenOpenParen
