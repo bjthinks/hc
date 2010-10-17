@@ -9,6 +9,7 @@ import ExpressionDisplay
 import Command
 import CommandParser
 import Store
+import Data.Char
 
 main :: IO ()
 main = do putStrLn "Don't type control-c"
@@ -24,6 +25,7 @@ prompt = "> "
 mainloop :: Store -> MaybeT IO ()
 mainloop store = do str <- MaybeT (readline prompt)
                     store' <- liftIO $ processLine store str
+                    liftIO $ setCompletionEntryFunction $ Just $ \str -> return $ filter (\x -> (take (length str) x) == str) $ filter (\y -> (length y > 0 && isAlpha (head y))) $ getVariables store'
                     mainloop store'
 
 processLine :: Store -> String -> IO Store
