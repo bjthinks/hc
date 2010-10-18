@@ -1,4 +1,7 @@
-module Expression (Expression(..), standardForm) where
+module Expression (Expression(ExpressionVariable,
+                              ExpressionInteger,
+                              ExpressionSum,
+                              ExpressionProduct), standardForm) where
 
 import Data.List
 
