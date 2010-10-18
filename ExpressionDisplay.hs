@@ -6,13 +6,19 @@ displayExpr :: Expression -> String
 displayExpr = fst . displayWithPrecedence
 
 displayWithPrecedence :: Expression -> (String,Int)
-displayWithPrecedence (ExpressionInteger n) = (show n,10)
-displayWithPrecedence (ExpressionVariable v) = (v,10)
-displayWithPrecedence (ExpressionSum (e:es)) =
+displayWithPrecedence = eMatch
+                        displayInteger
+                        displayVariable
+                        displaySum
+                        displayProduct
+
+displayInteger n = (show n,10)
+displayVariable v = (v,10)
+displaySum (e:es) =
   (foldl withplus (displayExpr e) es,0) where
     withplus :: String -> Expression -> String
     withplus s t = s ++ " + " ++ displayExpr t
-displayWithPrecedence (ExpressionProduct es) =
+displayProduct es =
   (foldl withspace f fs,1) where
     (f:fs) = map displayTerm intFirstExprs
     intFirstExprs = filter isConstant es ++ filter isNonConstant es
