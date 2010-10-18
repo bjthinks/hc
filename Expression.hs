@@ -1,4 +1,8 @@
 module Expression (eInt, eVar, eSum, eProd,
+                   useOnlyForTestingExpressionInteger,
+                   useOnlyForTestingExpressionVariable,
+                   useOnlyForTestingExpressionSum,
+                   useOnlyForTestingExpressionProduct,
                    Expression(ExpressionVariable,
                               ExpressionInteger,
                               ExpressionSum,
@@ -32,6 +36,11 @@ eSum exprs = ExpressionSum exprs
 
 eProd :: [Expression] -> Expression
 eProd exprs = ExpressionProduct exprs
+
+useOnlyForTestingExpressionInteger = ExpressionInteger
+useOnlyForTestingExpressionVariable = ExpressionVariable
+useOnlyForTestingExpressionSum = ExpressionSum
+useOnlyForTestingExpressionProduct = ExpressionProduct
 
 instance Ord Expression where
   -- Variables are sorted in alphabetical order
