@@ -23,9 +23,12 @@ eVar (v:vs)
   | isAlpha v = ExpressionVariable (v:vs)
   | otherwise = error "invalid variable name"
 
--- What these should do, is, assuming all the input expressions are in
--- standard form, return an expression which is also in standard form.
--- What I must do, is, define what it means to be in standard form.
+-- Return a sum in standard form, meaning
+-- 1: a sum contains no sums
+-- 2: a sum is sorted
+-- 3: a sum contains at most one constant term
+-- 4: like terms of a sum are combined together
+-- 5: a sum contains at least 2 elements
 eSum :: [Expression] -> Expression
 eSum exprs = ExpressionSum exprs
 
