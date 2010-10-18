@@ -1,10 +1,7 @@
 module Expression (eInt, eVar, eSum, eProd,
                    eMatch,
                    useThisVariableOnlyForTestingTheExpressionConstructors,
-                   Expression(ExpressionVariable,
-                              ExpressionInteger,
-                              ExpressionSum,
-                              ExpressionProduct), standardForm) where
+                   Expression, standardForm) where
 
 import Data.Char (isAlpha)
 import Data.List
