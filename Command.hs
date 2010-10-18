@@ -14,17 +14,17 @@ execute s (CommandEval e) =
       var = "%" ++ show n
       result = standardForm $ substitute s e
   in
-  (setValue "#" (ExpressionInteger (n+1)) $
+  (setValue "#" (eInt (n+1)) $
    setValue var result s, displayAssignment var result)
 
 substitute :: Store -> Expression -> Expression
-substitute s (ExpressionInteger n) = ExpressionInteger n
-substitute s (ExpressionVariable v) =
+substitute s e@(ExpressionInteger n) = e
+substitute s e@(ExpressionVariable v) =
   case getValue v s of
-    Just e -> substitute s e
-    Nothing -> ExpressionVariable v
-substitute s (ExpressionSum es) = ExpressionSum $ map (substitute s) es
-substitute s (ExpressionProduct es) = ExpressionProduct $ map (substitute s) es
+    Just expr -> substitute s expr
+    Nothing -> e
+substitute s (ExpressionSum es) = eSum $ map (substitute s) es
+substitute s (ExpressionProduct es) = eProd $ map (substitute s) es
 
 displayAssignment :: String -> Expression -> String
 displayAssignment v e = v ++ " := " ++ displayExpr e

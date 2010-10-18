@@ -1,8 +1,10 @@
-module Expression (Expression(ExpressionVariable,
+module Expression (eInt, eVar, eSum, eProd,
+                   Expression(ExpressionVariable,
                               ExpressionInteger,
                               ExpressionSum,
                               ExpressionProduct), standardForm) where
 
+import Data.Char (isAlpha)
 import Data.List
 
 data Expression = ExpressionVariable String |
@@ -10,6 +12,26 @@ data Expression = ExpressionVariable String |
                   ExpressionSum [Expression] |
                   ExpressionProduct [Expression]
                   deriving (Show, Eq)
+
+-- This serves little purpose now, but may later if
+-- we change it so signs are stored separately
+eInt :: Integer -> Expression
+eInt n = ExpressionInteger n
+
+eVar :: String -> Expression
+eVar "" = error "invalid variable name"
+eVar (v:vs)
+  | isAlpha v = ExpressionVariable (v:vs)
+  | otherwise = error "invalid variable name"
+
+-- What these should do, is, assuming all the input expressions are in
+-- standard form, return an expression which is also in standard form.
+-- What I must do, is, define what it means to be in standard form.
+eSum :: [Expression] -> Expression
+eSum exprs = ExpressionSum exprs
+
+eProd :: [Expression] -> Expression
+eProd exprs = ExpressionProduct exprs
 
 instance Ord Expression where
   -- Variables are sorted in alphabetical order

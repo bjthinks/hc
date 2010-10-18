@@ -15,7 +15,7 @@ main :: IO ()
 main = do putStrLn "Don't type control-c"
           putStrLn "Don't make assignments that form a loop"
           setCompletionEntryFunction $ Just $ \_ -> return []
-          runMaybeT $ mainloop (setValue "#" (ExpressionInteger 0) newStore)
+          runMaybeT $ mainloop (setValue "#" (eInt 0) newStore)
           putStrLn ""
           return ()
 
