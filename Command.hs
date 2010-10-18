@@ -18,13 +18,17 @@ execute s (CommandEval e) =
    setValue var result s, displayAssignment var result)
 
 substitute :: Store -> Expression -> Expression
-substitute s e@(ExpressionInteger n) = e
-substitute s e@(ExpressionVariable v) =
-  case getValue v s of
-    Just expr -> substitute s expr
-    Nothing -> e
-substitute s (ExpressionSum es) = eSum $ map (substitute s) es
-substitute s (ExpressionProduct es) = eProd $ map (substitute s) es
+substitute s = eMatch
+               eInt                           -- Integer -> Expression
+               (get s)                        -- String -> Expression
+               (eSum . (map $ substitute s))  -- [Expression] -> Expression
+               (eProd . (map $ substitute s)) -- [Expression] -> Expression
+
+get :: Store -> String -> Expression
+get store str =
+  case getValue str store of
+    Just expr -> substitute store expr
+    Nothing -> eVar str
 
 displayAssignment :: String -> Expression -> String
 displayAssignment v e = v ++ " := " ++ displayExpr e

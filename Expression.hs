@@ -1,4 +1,5 @@
 module Expression (eInt, eVar, eSum, eProd,
+                   eMatch,
                    useOnlyForTestingExpressionInteger,
                    useOnlyForTestingExpressionVariable,
                    useOnlyForTestingExpressionSum,
@@ -36,6 +37,13 @@ eSum exprs = ExpressionSum exprs
 
 eProd :: [Expression] -> Expression
 eProd exprs = ExpressionProduct exprs
+
+eMatch :: (Integer -> a) -> (String -> a) -> ([Expression] -> a) ->
+          ([Expression] -> a) -> Expression -> a
+eMatch f _ _ _ (ExpressionInteger n) = f n
+eMatch _ f _ _ (ExpressionVariable s) = f s
+eMatch _ _ f _ (ExpressionSum es) = f es
+eMatch _ _ _ f (ExpressionProduct es) = f es
 
 useOnlyForTestingExpressionInteger = ExpressionInteger
 useOnlyForTestingExpressionVariable = ExpressionVariable
