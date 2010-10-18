@@ -15,7 +15,8 @@ main :: IO ()
 main = do putStrLn "Don't type control-c"
           putStrLn "Don't make assignments that form a loop"
           setCompletionEntryFunction $ Just $ \_ -> return []
-          runMaybeT $ mainloop (setValue "#" (eInt 0) newStore)
+          --runMaybeT $ mainloop (setValue "#" (eInt 0) newStore)
+          runMaybeT $ mainloop newStore
           putStrLn ""
           return ()
 
@@ -32,14 +33,14 @@ mainloop store = do str <- MaybeT (readline prompt)
 makeCompletionFunction :: Store -> String -> [String]
 makeCompletionFunction store prefix =
   filter (startsWith prefix) $
-  filter firstCharAlpha $
+  -- filter firstCharAlpha $
   getVariables store
 
 startsWith :: String -> String -> Bool
 startsWith prefix str = take (length prefix) str == prefix
 
-firstCharAlpha :: String -> Bool
-firstCharAlpha str = length str > 0 && isAlpha (head str)
+--firstCharAlpha :: String -> Bool
+--firstCharAlpha str = length str > 0 && isAlpha (head str)
 
 processLine :: Store -> String -> IO Store
 processLine store str =
