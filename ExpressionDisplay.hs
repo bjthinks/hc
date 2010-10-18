@@ -26,9 +26,10 @@ displayProduct es =
     displayTerm e = parenthesize (displayWithPrecedence e) 1
     withspace :: String -> String -> String
     withspace s t = s ++ " " ++ t
+    fTrue x = True
+    fFalse x = False
     isConstant :: Expression -> Bool
-    isConstant (ExpressionInteger _) = True
-    isConstant _ = False
+    isConstant = eMatch fTrue fFalse fFalse fFalse
     isNonConstant :: Expression -> Bool
     isNonConstant = not . isConstant
 
