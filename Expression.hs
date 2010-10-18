@@ -1,9 +1,6 @@
 module Expression (eInt, eVar, eSum, eProd,
                    eMatch,
-                   useOnlyForTestingExpressionInteger,
-                   useOnlyForTestingExpressionVariable,
-                   useOnlyForTestingExpressionSum,
-                   useOnlyForTestingExpressionProduct,
+                   useThisVariableOnlyForTestingTheExpressionConstructors,
                    Expression(ExpressionVariable,
                               ExpressionInteger,
                               ExpressionSum,
@@ -45,10 +42,9 @@ eMatch _ f _ _ (ExpressionVariable s) = f s
 eMatch _ _ f _ (ExpressionSum es) = f es
 eMatch _ _ _ f (ExpressionProduct es) = f es
 
-useOnlyForTestingExpressionInteger = ExpressionInteger
-useOnlyForTestingExpressionVariable = ExpressionVariable
-useOnlyForTestingExpressionSum = ExpressionSum
-useOnlyForTestingExpressionProduct = ExpressionProduct
+useThisVariableOnlyForTestingTheExpressionConstructors =
+  (ExpressionInteger, ExpressionVariable,
+   ExpressionSum, ExpressionProduct)
 
 instance Ord Expression where
   -- Variables are sorted in alphabetical order

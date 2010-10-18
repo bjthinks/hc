@@ -10,10 +10,7 @@ import Command
 import CommandParser
 import Store
 
-tInt  = useOnlyForTestingExpressionInteger
-tVar  = useOnlyForTestingExpressionVariable
-tSum  = useOnlyForTestingExpressionSum
-tProd = useOnlyForTestingExpressionProduct
+(tInt,tVar,tSum,tProd) = useThisVariableOnlyForTestingTheExpressionConstructors
 
 tokenizerTests = [
   parseAll tokenizer ""        ~?= Right [(0,TokenEnd)],
