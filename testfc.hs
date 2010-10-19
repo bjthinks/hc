@@ -32,7 +32,8 @@ tokenizerTests = [
   parseAll tokenizer "+"       ~?= Right [(0,TokenPlus),(1,TokenEnd)],
   parseAll tokenizer "("       ~?= Right [(0,TokenOpenParen),(1,TokenEnd)],
   parseAll tokenizer ")"       ~?= Right [(0,TokenCloseParen),(1,TokenEnd)],
-  parseAll tokenizer "*"       ~?= Right [(0,TokenTimes),(1,TokenEnd)]
+  parseAll tokenizer "*"       ~?= Right [(0,TokenTimes),(1,TokenEnd)],
+  parseAll tokenizer "/"       ~?= Right [(0,TokenDivide),(1,TokenEnd)]
   ]
 
 unRight :: Either a b -> b
