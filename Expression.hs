@@ -175,38 +175,12 @@ makeProduct es = ExpressionProduct es
 {-
 
 
-sortProducts :: Expression -> Expression
-sortProducts (ExpressionProduct es) =
-  ExpressionProduct $ sort $ map sortProducts es
-sortProducts (ExpressionSum es) = ExpressionSum $ map sortProducts es
-sortProducts e@(_) = e
-
     multiplyConstants' (ExpressionInteger 1:es) = multiplyConstants' es
     multiplyConstants' (ExpressionInteger x:ExpressionInteger y:es) =
       multiplyConstants' (ExpressionInteger (x*y):es)
     multiplyConstants' (e:es) = e:multiplyConstants' es
     multiplyConstants' [] = []
 
-
-sortSums :: Expression -> Expression
-sortSums s@(ExpressionSum []) = s
-sortSums (ExpressionSum es) =
-  ExpressionSum $ removeTrivialProducts $ sort $ makeTrivialProducts $
-  map sortSums es
-  where
-    makeTrivialProducts :: [Expression] -> [Expression]
-    makeTrivialProducts (ExpressionProduct ps:xs) =
-      ExpressionProduct ps:makeTrivialProducts xs
-    makeTrivialProducts (x:xs) =
-      ExpressionProduct [x]:makeTrivialProducts xs
-    makeTrivialProducts [] = []
-    removeTrivialProducts :: [Expression] -> [Expression]
-    removeTrivialProducts (ExpressionProduct [x]:xs) =
-      x:removeTrivialProducts xs
-    removeTrivialProducts (x:xs) = x:removeTrivialProducts xs
-    removeTrivialProducts [] = []
-sortSums (ExpressionProduct es) = ExpressionProduct (map sortSums es)
-sortSums e@(_) = e
 
 addConstants :: Expression -> Expression
 addConstants (ExpressionSum es) = ExpressionSum (addConstants' es') where
