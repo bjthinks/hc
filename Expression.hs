@@ -12,6 +12,69 @@ data Expression = ExpressionVariable String |
                   ExpressionProduct [Expression]
                   deriving (Show, Eq)
 
+instance Ord Expression where
+  -- Integers are sorted by value
+  compare (ExpressionInteger x) (ExpressionInteger y) = compare x y
+  -- Variables are sorted in alphabetical order
+  compare (ExpressionVariable x) (ExpressionVariable y) =
+    compare x y
+  -- Sums are compared by comparing their contents, looking first
+  -- at nonconstants and using constants as a tiebreaker
+  compare (ExpressionSum x) (ExpressionSum y) = compareSum x y
+  -- Same for products
+  compare (ExpressionProduct x) (ExpressionProduct y) = compareProduct x y
+
+  -- Integer < Variable
+  compare (ExpressionInteger _) (ExpressionVariable _) = LT
+  compare (ExpressionVariable _) (ExpressionInteger _) = GT
+  -- Variable < Sum
+  compare (ExpressionSum _) (ExpressionVariable _) = GT
+  compare (ExpressionVariable _) (ExpressionSum _) = LT
+  -- Integer < Sum
+  compare (ExpressionInteger _) (ExpressionSum _) = LT
+  compare (ExpressionSum _) (ExpressionInteger _) = GT
+  -- Integer < Product
+  compare (ExpressionInteger _) (ExpressionProduct _) = LT
+  compare (ExpressionProduct _) (ExpressionInteger _) = GT
+  -- Variables are like singleton Products, so Variables and
+  -- Products are intermingled in the sort order.
+  -- FIXME: this should be compareProduct, right? Can I write a
+  -- failing unit test here?
+  compare (ExpressionProduct x) y@(ExpressionVariable _) = compare x [y]
+  compare x@(ExpressionVariable _) (ExpressionProduct y) = compare [x] y
+  -- Product < Sum
+  compare (ExpressionProduct _) (ExpressionSum _) = LT
+  compare (ExpressionSum _) (ExpressionProduct _) = GT
+
+compareSum :: [Expression] -> [Expression] -> Ordering
+compareSum xs ys = compareSumOrProd (addConstant 0 xs) (addConstant 0 ys)
+
+compareProduct :: [Expression] -> [Expression] -> Ordering
+compareProduct xs ys = compareSumOrProd (addConstant 1 xs) (addConstant 1 ys)
+
+addConstant :: Integer -> [Expression] -> [Expression]
+addConstant _ xs@(ExpressionInteger _:_) = xs
+addConstant n xs = ExpressionInteger n:xs
+
+-- A sum or product is compared against another sum or product, resp.,
+-- by first trying to compare the nonconstant terms, then the constant.
+compareSumOrProd :: [Expression] -> [Expression] -> Ordering
+compareSumOrProd (ExpressionInteger m:xs) (ExpressionInteger n:ys) =
+  case compareExprList xs ys of
+    LT -> LT
+    GT -> GT
+    EQ -> compare m n
+compareExprList :: [Expression] -> [Expression] -> Ordering
+compareExprList (x:xs) (y:ys) =
+  case compare x y of
+    LT -> LT
+    GT -> GT
+    EQ -> compareExprList xs ys
+compareExprList [] [] = EQ
+-- HERE'S THE BEEF
+compareExprList (_:_) [] = LT
+compareExprList [] (_:_) = GT
+
 eMatch :: (Integer -> a) -> (String -> a) -> ([Expression] -> a) ->
           ([Expression] -> a) -> Expression -> a
 eMatch f _ _ _ (ExpressionInteger n) = f n
@@ -60,9 +123,8 @@ flattenSummands (ExpressionSum summands:es) = summands ++ flattenSummands es
 flattenSummands (e:es) = e:flattenSummands es
 flattenSummands [] = []
 
--- FIXME
 sortSummands :: [Expression] -> [Expression]
-sortSummands = id
+sortSummands = sort
 
 -- FIXME
 combineSummands :: [Expression] -> [Expression]
@@ -96,9 +158,8 @@ flattenFactors (ExpressionProduct terms:es) = terms ++ flattenFactors es
 flattenFactors (e:es) = e:flattenFactors es
 flattenFactors [] = []
 
--- FIXME
 sortFactors :: [Expression] -> [Expression]
-sortFactors = id
+sortFactors = sort
 
 combineConstantFactors :: [Expression] -> [Expression]
 combineConstantFactors (ExpressionInteger m:ExpressionInteger n:es) =
@@ -117,44 +178,6 @@ makeProduct es = ExpressionProduct es
 
 -- OLD STUFF
 {-
-instance Ord Expression where
-  -- Variables are sorted in alphabetical order
-  compare (ExpressionVariable x) (ExpressionVariable y) =
-    compare x y
-  -- Variables come before integers
-  compare (ExpressionVariable _) (ExpressionInteger _) = LT
-  compare (ExpressionInteger _) (ExpressionVariable _) = GT
-  -- Integers all go together, sorted by absolute value
-  compare (ExpressionInteger x) (ExpressionInteger y) = compare (abs x) (abs y)
-  -- In products, sums come after variables but before constants
-  compare (ExpressionSum _) (ExpressionVariable _) = GT
-  compare (ExpressionVariable _) (ExpressionSum _) = LT
-  compare (ExpressionSum _) (ExpressionInteger _) = LT
-  compare (ExpressionInteger _) (ExpressionSum _) = GT
-  -- Sums are compared by comparing their contents
-  compare (ExpressionSum x) (ExpressionSum y) = compareExprList x y
-  -- Same for products
-  compare (ExpressionProduct x) (ExpressionProduct y) = compareExprList x y
-  -- In sums, integers and variables are compared with products by
-  -- treating them as singleton products
-  compare (ExpressionProduct x) y@(ExpressionVariable _) = compare x [y]
-  compare (ExpressionProduct x) y@(ExpressionInteger _) = compare x [y]
-  compare x@(ExpressionVariable _) (ExpressionProduct y) = compare [x] y
-  compare x@(ExpressionInteger _) (ExpressionProduct y) = compare [x] y
-  -- Products come before sums
-  compare (ExpressionProduct _) (ExpressionSum _) = LT
-  compare (ExpressionSum _) (ExpressionProduct _) = GT
-
-compareExprList :: [Expression] -> [Expression] -> Ordering
-compareExprList (x:xs) (y:ys) =
-  case compare x y of
-    LT -> LT
-    GT -> GT
-    EQ -> compareExprList xs ys
-compareExprList [] [] = EQ
--- HERE'S THE BEEF
-compareExprList (_:_) [] = LT
-compareExprList [] (_:_) = GT
 
 
 sortProducts :: Expression -> Expression
