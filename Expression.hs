@@ -12,6 +12,7 @@ data Expression = ExpressionVariable String |
                   ExpressionProduct [Expression]
                   deriving (Show, Eq)
 
+-- This is a TOTAL ORDER
 instance Ord Expression where
   -- Integers are sorted by value
   compare (ExpressionInteger x) (ExpressionInteger y) = compare x y
@@ -23,26 +24,23 @@ instance Ord Expression where
   compare (ExpressionSum x) (ExpressionSum y) = compareSum x y
   -- Same for products
   compare (ExpressionProduct x) (ExpressionProduct y) = compareProduct x y
-
-  -- Integer < Variable
+  -- Integer < Variable < Sum
   compare (ExpressionInteger _) (ExpressionVariable _) = LT
   compare (ExpressionVariable _) (ExpressionInteger _) = GT
-  -- Variable < Sum
-  compare (ExpressionSum _) (ExpressionVariable _) = GT
   compare (ExpressionVariable _) (ExpressionSum _) = LT
+  compare (ExpressionSum _) (ExpressionVariable _) = GT
+  -- Integer < Product < Sum
+  compare (ExpressionInteger _) (ExpressionProduct _) = LT
+  compare (ExpressionProduct _) (ExpressionInteger _) = GT
+  compare (ExpressionProduct _) (ExpressionSum _) = LT
+  compare (ExpressionSum _) (ExpressionProduct _) = GT
   -- Integer < Sum
   compare (ExpressionInteger _) (ExpressionSum _) = LT
   compare (ExpressionSum _) (ExpressionInteger _) = GT
-  -- Integer < Product
-  compare (ExpressionInteger _) (ExpressionProduct _) = LT
-  compare (ExpressionProduct _) (ExpressionInteger _) = GT
   -- Variables are like singleton Products, so Variables and
   -- Products are intermingled in the sort order.
   compare (ExpressionProduct x) y@(ExpressionVariable _) = compareProduct x [y]
   compare x@(ExpressionVariable _) (ExpressionProduct y) = compareProduct [x] y
-  -- Product < Sum
-  compare (ExpressionProduct _) (ExpressionSum _) = LT
-  compare (ExpressionSum _) (ExpressionProduct _) = GT
 
 -- FIXME: I hope there's a cleaner way to do this
 compareSum :: [Expression] -> [Expression] -> Ordering
