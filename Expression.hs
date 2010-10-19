@@ -38,10 +38,8 @@ instance Ord Expression where
   compare (ExpressionProduct _) (ExpressionInteger _) = GT
   -- Variables are like singleton Products, so Variables and
   -- Products are intermingled in the sort order.
-  -- FIXME: this should be compareProduct, right? Can I write a
-  -- failing unit test here?
-  compare (ExpressionProduct x) y@(ExpressionVariable _) = compare x [y]
-  compare x@(ExpressionVariable _) (ExpressionProduct y) = compare [x] y
+  compare (ExpressionProduct x) y@(ExpressionVariable _) = compareProduct x [y]
+  compare x@(ExpressionVariable _) (ExpressionProduct y) = compareProduct [x] y
   -- Product < Sum
   compare (ExpressionProduct _) (ExpressionSum _) = LT
   compare (ExpressionSum _) (ExpressionProduct _) = GT
