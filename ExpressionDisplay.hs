@@ -14,24 +14,25 @@ displayWithPrecedence = eMatch
 
 displayInteger n = (show n,10)
 displayVariable v = (v,10)
-displaySum (e:es) =
-  (foldl withplus (displayExpr e) es,0) where
-    withplus :: String -> Expression -> String
-    withplus s t = s ++ " + " ++ displayExpr t
-displayProduct es =
-  (foldl withspace f fs,1) where
-    (f:fs) = map displayTerm intFirstExprs
-    intFirstExprs = filter isConstant es ++ filter isNonConstant es
-    displayTerm :: Expression -> String
-    displayTerm e = parenthesize (displayWithPrecedence e) 1
-    withspace :: String -> String -> String
-    withspace s t = s ++ " " ++ t
+displaySum es =
+  (foldl withplus f fs,0) where
+    withplus :: String -> String -> String
+    withplus s t = s ++ " + " ++ t
+    (f:fs) = map displayExpr intLastExprs
+    intLastExprs = filter isNonConstant es ++ filter isConstant es
     fTrue x = True
     fFalse x = False
     isConstant :: Expression -> Bool
     isConstant = eMatch fTrue fFalse fFalse fFalse
     isNonConstant :: Expression -> Bool
     isNonConstant = not . isConstant
+displayProduct es =
+  (foldl withspace f fs,1) where
+    (f:fs) = map displayTerm es
+    displayTerm :: Expression -> String
+    displayTerm e = parenthesize (displayWithPrecedence e) 1
+    withspace :: String -> String -> String
+    withspace s t = s ++ " " ++ t
 
 parenthesize :: (String,Int) -> Int -> String
 parenthesize (str,x) y
