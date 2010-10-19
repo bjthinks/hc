@@ -46,7 +46,7 @@ eVar (v:vs)
 -- Invariants, in order of processing:
 --   1. a sum contains no sums
 --   2. a sum is sorted
---   3. like terms of a sum are combined together
+--   3. like terms of a sum are combined together, and removed if zero
 --   4. a sum contains at least 2 elements
 eSum :: [Expression] -> Expression
 eSum exprs = makeSum $
@@ -80,7 +80,7 @@ makeSum es = ExpressionSum es
 -- Invariants, in order of processing:
 --   1. a product contains no products
 --   2. a product is sorted
---   3. a product contains at most one constant
+--   3. a product contains at most one constant, which is removed if 1
 --   4. a product of zero with anything is zero
 --   5. a product contains at least 2 elements
 eProd :: [Expression] -> Expression
@@ -103,6 +103,7 @@ sortFactors = id
 combineConstantFactors :: [Expression] -> [Expression]
 combineConstantFactors (ExpressionInteger m:ExpressionInteger n:es) =
   combineConstantFactors (ExpressionInteger (m*n):es)
+combineConstantFactors (ExpressionInteger 1:es) = es
 combineConstantFactors es = es
 
 detectZeroFactors :: [Expression] -> [Expression]
@@ -155,52 +156,6 @@ compareExprList [] [] = EQ
 compareExprList (_:_) [] = LT
 compareExprList [] (_:_) = GT
 
--- Put an expression into "standard form".  This performs a series
--- of internal and basic algebraic simplifications, including:
--- nested products are flattened
--- products of zero are removed
--- terms of a product are sorted
---   (note that constants are internally placed last)
--- in a product, ones are removed, and (-1)*(-1) is removed
--- empty products are replaced with one, singleton products are unwrapped
--- nested sums are flattened
--- sums are sorted
--- sums of constants are evaluated, and zeroes are removed
--- like terms of sums are combined together
--- empty sums are replaced with zero, singleton sums are unwrapped
-standardForm :: Expression -> Expression
-standardForm e =
-  let e' = removeTrivialSums $ combineSummands $ addConstants $
-           sortSums $ flattenSums $
-           removeTrivialProducts $ multiplyConstants $
-           sortProducts $ destroyZeroProducts $ flattenProducts e in
-  case e == e' of
-    True -> e'
-    False -> standardForm e'
-
-flattenProducts :: Expression -> Expression
-flattenProducts (ExpressionProduct es) = ExpressionProduct $
-                                         flattenProducts' es' where
-  es' = map flattenProducts es
-  flattenProducts' :: [Expression] -> [Expression]
-  flattenProducts' (ExpressionProduct nes:es) = flattenProducts' (nes ++ es)
-  flattenProducts' (e:es) = e:flattenProducts' es
-  flattenProducts' [] = []
-flattenProducts (ExpressionSum es) = ExpressionSum (map flattenProducts es)
-flattenProducts e@(_) = e
-
-destroyZeroProducts :: Expression -> Expression
-destroyZeroProducts (ExpressionProduct es)
-  | hasZero es = ExpressionInteger 0
-  | otherwise = ExpressionProduct (map destroyZeroProducts es)
-    where
-      hasZero :: [Expression] -> Bool
-      hasZero (ExpressionInteger 0:_) = True
-      hasZero (_:es) = hasZero es
-      hasZero [] = False
-destroyZeroProducts (ExpressionSum es) =
-  ExpressionSum (map destroyZeroProducts es)
-destroyZeroProducts e@(_) = e
 
 sortProducts :: Expression -> Expression
 sortProducts (ExpressionProduct es) =
@@ -208,26 +163,12 @@ sortProducts (ExpressionProduct es) =
 sortProducts (ExpressionSum es) = ExpressionSum $ map sortProducts es
 sortProducts e@(_) = e
 
-multiplyConstants :: Expression -> Expression
-multiplyConstants (ExpressionProduct es) =
-  ExpressionProduct (multiplyConstants' es') where
-    es' = map multiplyConstants es
     multiplyConstants' (ExpressionInteger 1:es) = multiplyConstants' es
     multiplyConstants' (ExpressionInteger x:ExpressionInteger y:es) =
       multiplyConstants' (ExpressionInteger (x*y):es)
     multiplyConstants' (e:es) = e:multiplyConstants' es
     multiplyConstants' [] = []
-multiplyConstants (ExpressionSum es) = ExpressionSum (map multiplyConstants es)
-multiplyConstants e@(_) = e
 
-removeTrivialProducts :: Expression -> Expression
-removeTrivialProducts (ExpressionProduct []) = ExpressionInteger 1
-removeTrivialProducts (ExpressionProduct [e]) = removeTrivialProducts e
-removeTrivialProducts (ExpressionProduct es) =
-  ExpressionProduct $ map removeTrivialProducts es
-removeTrivialProducts (ExpressionSum es) =
-  ExpressionSum (map removeTrivialProducts es)
-removeTrivialProducts e@(_) = e
 
 sortSums :: Expression -> Expression
 sortSums s@(ExpressionSum []) = s
@@ -307,12 +248,4 @@ combineSummands (ExpressionSum es) =
 combineSummands (ExpressionProduct es) =
   ExpressionProduct (map combineSummands es)
 combineSummands e@(_) = e
-
-removeTrivialSums :: Expression -> Expression
-removeTrivialSums (ExpressionSum []) = ExpressionInteger 0
-removeTrivialSums (ExpressionSum [e]) = removeTrivialSums e
-removeTrivialSums (ExpressionSum es) = ExpressionSum $ map removeTrivialSums es
-removeTrivialSums (ExpressionProduct es) =
-  ExpressionProduct (map removeTrivialSums es)
-removeTrivialSums e@(_) = e
 -}
