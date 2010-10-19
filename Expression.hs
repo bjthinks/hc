@@ -140,6 +140,7 @@ combineSummands' ((m,e):(n,f):gs)
 combineSummands' xs = xs
 pullCoeff :: Expression -> (Integer,Expression)
 pullCoeff (ExpressionInteger n) = (n,ExpressionInteger 1)
+pullCoeff (ExpressionProduct [ExpressionInteger n,e]) = (n,e)
 pullCoeff (ExpressionProduct (ExpressionInteger n:es)) =
   (n,ExpressionProduct es)
 pullCoeff x = (1,x)
