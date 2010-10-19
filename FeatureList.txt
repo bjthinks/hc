@@ -32,19 +32,19 @@ sort order is lexicographic on variable names, and their powers
 constants are last in sums, but first in products
 tab completion is bound to variables
 after sorting, like terms of a sum are combined via products
+negation of an expression is an expression
+handle differences/negatives in sums
 
 ----------
 
-outputs are numbered
-output history accessed by % number (expression substitution)
+?? outputs are numbered
+?? output history accessed by % number (expression substitution)
 unit tests for command parser
 ?? prompts are numbered
 ?? input history accessed by ! number (string or token substitution)
 power of one expression by another is an expression
-negation of an expression is an expression
 quotients of expressions are expressions
 quotient of quotient is simplified to a quotient of products
-handle differences/negatives in sums
 after sorting, like terms of a product are combined via exponentiation
 expand function causes products of sums to be distributed
 factor function causes sums of products to be factored
