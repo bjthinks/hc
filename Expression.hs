@@ -79,6 +79,15 @@ eMatch _ f _ _ (ExpressionVariable s) = f s
 eMatch _ _ f _ (ExpressionSum es) = f es
 eMatch _ _ _ f (ExpressionProduct es) = f es
 
+{-
+pullCoeffSum :: [Expression] -> (Integer,[Expression])
+pullCoeffSum (ExpressionInteger n:es) = (n,es)
+pullCoeffSum es = (0,es)
+pullCoeffProd :: [Expression] -> (Integer,[Expression])
+pullCoeffProd (ExpressionInteger n:es) = (n,es)
+pullCoeffProd es = (1,es)
+-}
+
 useThisVariableOnlyForTestingTheExpressionConstructors =
   (ExpressionInteger, ExpressionVariable,
    ExpressionSum, ExpressionProduct)
@@ -122,7 +131,23 @@ flattenSummands [] = []
 
 -- FIXME
 combineSummands :: [Expression] -> [Expression]
-combineSummands = id
+combineSummands es = map pushCoeff $ combineSummands' $ map pullCoeff es
+combineSummands' :: [(Integer,Expression)] -> [(Integer,Expression)]
+combineSummands' ((m,e):(n,f):gs)
+  | e == f     = combineSummands' ((m+n,e):gs)
+  | m == 0     = combineSummands' ((n,f):gs)
+  | otherwise  = (m,e):combineSummands' ((n,f):gs)
+combineSummands' xs = xs
+pullCoeff :: Expression -> (Integer,Expression)
+pullCoeff (ExpressionInteger n) = (n,ExpressionInteger 1)
+pullCoeff (ExpressionProduct (ExpressionInteger n:es)) =
+  (n,ExpressionProduct es)
+pullCoeff x = (1,x)
+pushCoeff :: (Integer,Expression) -> Expression
+pushCoeff (1,e) = e
+pushCoeff (n,ExpressionInteger 1) = ExpressionInteger n
+pushCoeff (n,ExpressionProduct es) = ExpressionProduct (ExpressionInteger n:es)
+pushCoeff (n,e) = ExpressionProduct [ExpressionInteger n,e]
 
 makeSum :: [Expression] -> Expression
 makeSum [] = eInt 0
