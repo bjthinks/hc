@@ -169,15 +169,6 @@ makeProduct es = ExpressionProduct es
 
 -- OLD STUFF
 {-
-
-
-    multiplyConstants' (ExpressionInteger 1:es) = multiplyConstants' es
-    multiplyConstants' (ExpressionInteger x:ExpressionInteger y:es) =
-      multiplyConstants' (ExpressionInteger (x*y):es)
-    multiplyConstants' (e:es) = e:multiplyConstants' es
-    multiplyConstants' [] = []
-
-
 addConstants :: Expression -> Expression
 addConstants (ExpressionSum es) = ExpressionSum (addConstants' es') where
   es' = map addConstants es
