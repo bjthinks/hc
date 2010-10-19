@@ -129,21 +129,20 @@ flattenSummands (ExpressionSum summands:es) = summands ++ flattenSummands es
 flattenSummands (e:es) = e:flattenSummands es
 flattenSummands [] = []
 
--- FIXME
 combineSummands :: [Expression] -> [Expression]
-combineSummands es = map pushCoeff $ combineSummands' $ map pullCoeff es
+combineSummands es = map pushCoeff $ combineSummands' $ map popCoeff es
+popCoeff :: Expression -> (Integer,Expression)
+popCoeff (ExpressionInteger n) = (n,ExpressionInteger 1)
+popCoeff (ExpressionProduct [ExpressionInteger n,e]) = (n,e)
+popCoeff (ExpressionProduct (ExpressionInteger n:es)) =
+  (n,ExpressionProduct es)
+popCoeff x = (1,x)
 combineSummands' :: [(Integer,Expression)] -> [(Integer,Expression)]
 combineSummands' ((m,e):(n,f):gs)
   | e == f     = combineSummands' ((m+n,e):gs)
   | m == 0     = combineSummands' ((n,f):gs)
   | otherwise  = (m,e):combineSummands' ((n,f):gs)
 combineSummands' xs = xs
-pullCoeff :: Expression -> (Integer,Expression)
-pullCoeff (ExpressionInteger n) = (n,ExpressionInteger 1)
-pullCoeff (ExpressionProduct [ExpressionInteger n,e]) = (n,e)
-pullCoeff (ExpressionProduct (ExpressionInteger n:es)) =
-  (n,ExpressionProduct es)
-pullCoeff x = (1,x)
 pushCoeff :: (Integer,Expression) -> Expression
 pushCoeff (1,e) = e
 pushCoeff (n,ExpressionInteger 1) = ExpressionInteger n
