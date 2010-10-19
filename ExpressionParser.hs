@@ -7,7 +7,7 @@ import Expression
 expressionParser :: Parser Token Expression
 expressionParser = do e <- additive
                       pElt TokenEnd
-                      return $ standardForm e
+                      return e
 
 additive :: Parser Token Expression
 additive = do a <- multiplicative
@@ -36,13 +36,6 @@ integer = do s <- pMaybe $ pElt TokenMinus
 variable :: Parser Token Expression
 variable = do TokenWord w <- pProp isWord
               return $ eVar w
-
-{-
-historyVariable :: Parser Token Expression
-historyVariable = do pElt TokenPercent
-                     TokenInteger n <- pProp isInteger
-                     return $ ExpressionVariable ('%':show n)
--}
 
 paren :: Parser Token Expression
 paren = do pElt TokenOpenParen

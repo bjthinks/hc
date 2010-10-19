@@ -1,7 +1,7 @@
 module Expression (eInt, eVar, eSum, eProd,
                    eMatch,
                    useThisVariableOnlyForTestingTheExpressionConstructors,
-                   Expression, standardForm) where
+                   Expression) where
 
 import Data.Char (isAlpha)
 import Data.List
@@ -11,29 +11,6 @@ data Expression = ExpressionVariable String |
                   ExpressionSum [Expression] |
                   ExpressionProduct [Expression]
                   deriving (Show, Eq)
-
--- This serves little purpose now, but may later if
--- we change it so signs are stored separately
-eInt :: Integer -> Expression
-eInt n = ExpressionInteger n
-
-eVar :: String -> Expression
-eVar "" = error "invalid variable name"
-eVar (v:vs)
-  | isAlpha v = ExpressionVariable (v:vs)
-  | otherwise = error "invalid variable name"
-
--- Return a sum in standard form, meaning
--- 1: a sum contains no sums
--- 2: a sum is sorted
--- 3: a sum contains at most one constant term
--- 4: like terms of a sum are combined together
--- 5: a sum contains at least 2 elements
-eSum :: [Expression] -> Expression
-eSum exprs = ExpressionSum exprs
-
-eProd :: [Expression] -> Expression
-eProd exprs = ExpressionProduct exprs
 
 eMatch :: (Integer -> a) -> (String -> a) -> ([Expression] -> a) ->
           ([Expression] -> a) -> Expression -> a
@@ -46,6 +23,99 @@ useThisVariableOnlyForTestingTheExpressionConstructors =
   (ExpressionInteger, ExpressionVariable,
    ExpressionSum, ExpressionProduct)
 
+-------------------- INTEGERS --------------------
+
+-- This serves little purpose now, but may later if
+-- we change it so signs are stored separately
+eInt :: Integer -> Expression
+eInt n = ExpressionInteger n
+
+-------------------- VARIABLES --------------------
+
+eVar :: String -> Expression
+eVar "" = error "invalid variable name"
+-- FIXME: should also check that subsequent chars are alphanumeric
+eVar (v:vs)
+  | isAlpha v = ExpressionVariable (v:vs)
+  | otherwise = error "invalid variable name"
+
+-------------------- SUMS --------------------
+
+-- Return a sum in standard form, assuming that all summands are
+-- already in standard form.
+-- Invariants, in order of processing:
+--   1. a sum contains no sums
+--   2. a sum is sorted
+--   3. like terms of a sum are combined together
+--   4. a sum contains at least 2 elements
+eSum :: [Expression] -> Expression
+eSum exprs = makeSum $
+             combineSummands $
+             sortSummands $
+             flattenSummands $
+             exprs
+
+flattenSummands :: [Expression] -> [Expression]
+flattenSummands (ExpressionSum summands:es) = summands ++ flattenSummands es
+flattenSummands (e:es) = e:flattenSummands es
+flattenSummands [] = []
+
+-- FIXME
+sortSummands :: [Expression] -> [Expression]
+sortSummands = id
+
+-- FIXME
+combineSummands :: [Expression] -> [Expression]
+combineSummands = id
+
+makeSum :: [Expression] -> Expression
+makeSum [] = eInt 0
+makeSum [e] = e
+makeSum es = ExpressionSum es
+
+-------------------- PRODUCTS --------------------
+
+-- Return a product in standard form, assuming that all factors are
+-- already in standard form.
+-- Invariants, in order of processing:
+--   1. a product contains no products
+--   2. a product is sorted
+--   3. a product contains at most one constant
+--   4. a product of zero with anything is zero
+--   5. a product contains at least 2 elements
+eProd :: [Expression] -> Expression
+eProd exprs = makeProduct $
+              detectZeroFactors $
+              combineConstantFactors $
+              sortFactors $
+              flattenFactors $
+              exprs
+
+flattenFactors :: [Expression] -> [Expression]
+flattenFactors (ExpressionProduct terms:es) = terms ++ flattenFactors es
+flattenFactors (e:es) = e:flattenFactors es
+flattenFactors [] = []
+
+-- FIXME
+sortFactors :: [Expression] -> [Expression]
+sortFactors = id
+
+combineConstantFactors :: [Expression] -> [Expression]
+combineConstantFactors (ExpressionInteger m:ExpressionInteger n:es) =
+  combineConstantFactors (ExpressionInteger (m*n):es)
+combineConstantFactors es = es
+
+detectZeroFactors :: [Expression] -> [Expression]
+detectZeroFactors (ExpressionInteger 0:_) = [ExpressionInteger 0]
+detectZeroFactors es = es
+
+makeProduct :: [Expression] -> Expression
+makeProduct [] = eInt 1
+makeProduct [e] = e
+makeProduct es = ExpressionProduct es
+
+-- OLD STUFF
+{-
 instance Ord Expression where
   -- Variables are sorted in alphabetical order
   compare (ExpressionVariable x) (ExpressionVariable y) =
@@ -159,16 +229,6 @@ removeTrivialProducts (ExpressionSum es) =
   ExpressionSum (map removeTrivialProducts es)
 removeTrivialProducts e@(_) = e
 
-flattenSums :: Expression -> Expression
-flattenSums (ExpressionSum es) = ExpressionSum $ flattenSums' es' where
-  es' = map flattenSums es
-  flattenSums' :: [Expression] -> [Expression]
-  flattenSums' (ExpressionSum nes:es) = flattenSums' (nes ++ es)
-  flattenSums' (e:es) = e:flattenSums' es
-  flattenSums' [] = []
-flattenSums (ExpressionProduct es) = ExpressionProduct (map flattenSums es)
-flattenSums e@(_) = e
-
 sortSums :: Expression -> Expression
 sortSums s@(ExpressionSum []) = s
 sortSums (ExpressionSum es) =
@@ -255,3 +315,4 @@ removeTrivialSums (ExpressionSum es) = ExpressionSum $ map removeTrivialSums es
 removeTrivialSums (ExpressionProduct es) =
   ExpressionProduct (map removeTrivialSums es)
 removeTrivialSums e@(_) = e
+-}

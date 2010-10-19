@@ -10,7 +10,6 @@ data Token = TokenInteger Integer |
              TokenTimes |
              TokenOpenParen |
              TokenCloseParen |
-             -- TokenPercent |
              TokenAssign |
              TokenEnd
              deriving (Eq, Show)
@@ -68,12 +67,6 @@ openParen = do pElt '('
 closeParen :: Parser Char Token
 closeParen = do pElt ')'
                 return TokenCloseParen
-
-{-
-percent :: Parser Char Token
-percent = do pElt '%'
-             return TokenPercent
--}
 
 assign :: Parser Char Token
 assign = do pElt ':'
