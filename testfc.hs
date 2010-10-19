@@ -240,7 +240,14 @@ expressionDisplayTests = [
   testDisplay "-2*-x" "2 x",
   testDisplay "2*x" "2 x",
   testDisplay "x-(-1)" "x + 1",
-  testDisplay "x-1" "x - 1"
+  testDisplay "x-1" "x - 1",
+  testDisplay "-x-1" "-x - 1",
+  testDisplay "x+y+1" "x + y + 1",
+  testDisplay "1*x+1*y+1" "x + y + 1",
+  testDisplay "2*x+2*y+2" "2 x + 2 y + 2",
+  testDisplay "-x-y-1" "-x - y - 1",
+  testDisplay "-1*x-1*y-1" "-x - y - 1",
+  testDisplay "-2*x-2*y-2" "-2 x - 2 y - 2"
   ]
 
 storeTests = [
