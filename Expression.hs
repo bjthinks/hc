@@ -46,6 +46,7 @@ instance Ord Expression where
   compare (ExpressionProduct _) (ExpressionSum _) = LT
   compare (ExpressionSum _) (ExpressionProduct _) = GT
 
+-- FIXME: I hope there's a cleaner way to do this
 compareSum :: [Expression] -> [Expression] -> Ordering
 compareSum xs ys = compareSumOrProd (addConstant 0 xs) (addConstant 0 ys)
 
@@ -114,7 +115,7 @@ eVar (v:vs)
 eSum :: [Expression] -> Expression
 eSum exprs = makeSum $
              combineSummands $
-             sortSummands $
+             sort $
              flattenSummands $
              exprs
 
@@ -122,9 +123,6 @@ flattenSummands :: [Expression] -> [Expression]
 flattenSummands (ExpressionSum summands:es) = summands ++ flattenSummands es
 flattenSummands (e:es) = e:flattenSummands es
 flattenSummands [] = []
-
-sortSummands :: [Expression] -> [Expression]
-sortSummands = sort
 
 -- FIXME
 combineSummands :: [Expression] -> [Expression]
@@ -149,7 +147,7 @@ eProd :: [Expression] -> Expression
 eProd exprs = makeProduct $
               detectZeroFactors $
               combineConstantFactors $
-              sortFactors $
+              sort $
               flattenFactors $
               exprs
 
@@ -157,9 +155,6 @@ flattenFactors :: [Expression] -> [Expression]
 flattenFactors (ExpressionProduct terms:es) = terms ++ flattenFactors es
 flattenFactors (e:es) = e:flattenFactors es
 flattenFactors [] = []
-
-sortFactors :: [Expression] -> [Expression]
-sortFactors = sort
 
 combineConstantFactors :: [Expression] -> [Expression]
 combineConstantFactors (ExpressionInteger m:ExpressionInteger n:es) =
