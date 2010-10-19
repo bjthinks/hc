@@ -11,7 +11,11 @@ expressionParser = do e <- additive
 
 additive :: Parser Token Expression
 additive = do a <- multiplicative
-              as <- pStar (pElt TokenPlus >> multiplicative)
+              as <- pStar (do sign <- pElt TokenPlus ||| pElt TokenMinus
+                              term <- multiplicative
+                              return $ case sign of
+                                TokenPlus -> term
+                                TokenMinus -> eProd [eInt (-1),term])
               return $ eSum (a:as)
 
 multiplicative :: Parser Token Expression

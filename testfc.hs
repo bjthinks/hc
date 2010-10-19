@@ -238,7 +238,8 @@ expressionDisplayTests = [
   testDisplay "-2*x" "-2 x",
   testDisplay "2*-x" "-2 x",
   testDisplay "-2*-x" "2 x",
-  testDisplay "2*x" "2 x"
+  testDisplay "2*x" "2 x",
+  testDisplay "x-(-1)" "x + 1"
   ]
 
 storeTests = [
