@@ -1,3 +1,5 @@
+all: fc testfc
+
 fc: *.hs
 	ghc --make -O3 fc
 
