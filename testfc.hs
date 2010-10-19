@@ -212,7 +212,7 @@ expressionDisplayTests = [
   testDisplay "1*1" "1",
   testDisplay "1*1*1*(1*1*(1*(1*1)*1)*(1*1))*1" "1",
   testDisplay "(-1)*(-1)*(-1)*((-1)*(-1)*((-1)*((-1)*(-1))*(-1))*((-1)*(-1)))*(-1)" "1",
-  --testDisplay "a*(-1)*b*((-1)*c*((-1)*(d*(-1))*(-1))*((-1)*e))*(-1) " "-a b c d e",
+  testDisplay "a*(-1)*b*((-1)*c*((-1)*(d*(-1))*(-1))*((-1)*e))*(-1) " "-a b c d e",
   testDisplay "2*3" "6",
   testDisplay "3*2" "6",
   testDisplay "1*x" "x",
@@ -230,7 +230,15 @@ expressionDisplayTests = [
   testDisplay "-(-a)" "a",
   testDisplay "-(5)" "-5",
   testDisplay "(-5)" "-5",
-  testDisplay "-(-5)" "5"
+  testDisplay "-(-5)" "5",
+  testDisplay "-1*x" "-x",
+  testDisplay "1*-x" "-x",
+  testDisplay "-1*-x" "x",
+  testDisplay "1*x" "x",
+  testDisplay "-2*x" "-2 x",
+  testDisplay "2*-x" "-2 x",
+  testDisplay "-2*-x" "2 x",
+  testDisplay "2*x" "2 x"
   ]
 
 storeTests = [
