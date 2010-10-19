@@ -12,26 +12,27 @@ expressionParser = do e <- additive
 additive :: Parser Token Expression
 additive = do a <- multiplicative
               as <- pStar (pElt TokenPlus >> multiplicative)
-              return $ case as of
-                [] -> a
-                _ -> eSum (a:as)
+              return $ eSum (a:as)
 
 multiplicative :: Parser Token Expression
-multiplicative = do a <- atom
-                    as <- pStar (pElt TokenTimes >> atom)
-                    return $ case as of
-                      [] -> a
-                      _ -> eProd (a:as)
+multiplicative = do a <- unary
+                    as <- pStar (pElt TokenTimes >> unary)
+                    return $ eProd (a:as)
+
+unary :: Parser Token Expression
+unary = minus atom ||| atom
+
+minus :: Parser Token Expression -> Parser Token Expression
+minus p = do pElt TokenMinus
+             expr <- p
+             return $ eProd [eInt (-1),expr]
 
 atom :: Parser Token Expression
 atom = integer ||| variable ||| paren
 
 integer :: Parser Token Expression
-integer = do s <- pMaybe $ pElt TokenMinus
-             TokenInteger n <- pProp isInteger
-             return $ eInt $ case s of
-               Nothing -> n
-               Just _ -> (-n)
+integer = do TokenInteger n <- pProp isInteger
+             return $ eInt n
 
 variable :: Parser Token Expression
 variable = do TokenWord w <- pProp isWord
