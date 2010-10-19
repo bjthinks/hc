@@ -37,7 +37,7 @@ tokenizerTests = [
 
 unRight :: Either a b -> b
 unRight (Right b) = b
-unRight _ = error "tokenizer failed"
+unRight _ = error "parse failed"
 
 testEval str expr = parseAll expressionParser (map snd (unRight (parseAll tokenizer str))) ~?= Right expr
 
@@ -223,7 +223,14 @@ expressionDisplayTests = [
   testDisplay "3*a+5*a" "8 a",
   testDisplay "c+a+b+c+b+a+b+b+c+c+c+a+b+a+c" "4 a + 5 b + 6 c",
   testDisplay "2*c+5*a+7*b+6*c+3*b+9*a+4*b+5*b+3*c+8*c+7*c+2*a+4*b+6*a+6*c" "22 a + 23 b + 32 c",
-  testDisplay "(a+1)*(b+2)*c*(d+3)+(d+3)*5*(b+2)*c*(a+1)+4*(d+3)*c*(b+2)*(a+1)" "10 c (a + 1) (b + 2) (d + 3)"
+  testDisplay "(a+1)*(b+2)*c*(d+3)+(d+3)*5*(b+2)*c*(a+1)+4*(d+3)*c*(b+2)*(a+1)" "10 c (a + 1) (b + 2) (d + 3)",
+  testDisplay "-a" "-a",
+  testDisplay "-(a)" "-a",
+  testDisplay "(-a)" "-a",
+  testDisplay "-(-a)" "a",
+  testDisplay "-(5)" "-5",
+  testDisplay "(-5)" "-5",
+  testDisplay "-(-5)" "5"
   ]
 
 storeTests = [
