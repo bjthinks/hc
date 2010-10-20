@@ -251,7 +251,11 @@ expressionDisplayTests = [
   testDisplay "-1*x-1*y-1" "-x - y - 1",
   testDisplay "-2*x-2*y-2" "-2 x - 2 y - 2",
   testDisplay "a^b" "a^b",
-  testDisplay "a^b+c^d" "a^b + c^d"
+  testDisplay "a^b+c^d" "a^b + c^d",
+  testDisplay "a^2+b" "a^2 + b",
+  testDisplay "b+a^2" "a^2 + b",
+  testDisplay "b^2+a" "a + b^2",
+  testDisplay "a+b^2" "a + b^2"
   ]
 
 storeTests = [

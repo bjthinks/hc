@@ -27,6 +27,7 @@ instance Ord Expression where
   compare (ExpressionProduct x) (ExpressionProduct y) = compareProduct x y
   -- Powers are sorted first by base, then exponent
   compare (ExpressionPower x) (ExpressionPower y) = compare x y
+
   -- Integer < Variable < Sum
   compare (ExpressionInteger _) (ExpressionVariable _) = LT
   compare (ExpressionVariable _) (ExpressionInteger _) = GT
@@ -44,6 +45,13 @@ instance Ord Expression where
   -- Products are intermingled in the sort order.
   compare (ExpressionProduct x) y@(ExpressionVariable _) = compareProduct x [y]
   compare x@(ExpressionVariable _) (ExpressionProduct y) = compareProduct [x] y
+
+  -- Variables are like things to the power 1, so Variables and
+  -- Powers are intermingled in the sort order.
+  compare x@(ExpressionVariable _) y@(ExpressionPower _) =
+    compare (ExpressionPower (x,ExpressionInteger 1)) y
+  compare x@(ExpressionPower _) y@(ExpressionVariable _) =
+    compare x (ExpressionPower (y,ExpressionInteger 1))
 
 -- FIXME: I hope there's a cleaner way to do this
 compareSum :: [Expression] -> [Expression] -> Ordering
