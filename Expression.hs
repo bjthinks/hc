@@ -217,5 +217,7 @@ makeProduct es = ExpressionProduct es
 ePower :: (Expression,Expression) -> Expression
 -- 1. A product to a power becomes a product of powers
 ePower (ExpressionProduct xs,y) = eProd (map (flip (curry ePower) y) xs)
+-- 2. An integer to an integer power is evaluated
+ePower (ExpressionInteger x,ExpressionInteger y) = eInt (x^y)
 -- Otherwise, we construct the power
 ePower (x,y) = ExpressionPower (x,y)

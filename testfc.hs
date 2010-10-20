@@ -266,7 +266,8 @@ expressionDisplayTests = [
   testDisplay "y*z+x^2" "x^2 + y z",
   testDisplay "2+x^2" "x^2 + 2",
   testDisplay "x^2+2" "x^2 + 2",
-  testDisplay "(x*y)^2" "x^2 y^2"
+  testDisplay "(x*y)^2" "x^2 y^2",
+  testDisplay "2^2" "4"
   ]
 
 storeTests = [
