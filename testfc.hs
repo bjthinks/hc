@@ -255,7 +255,15 @@ expressionDisplayTests = [
   testDisplay "a^2+b" "a^2 + b",
   testDisplay "b+a^2" "a^2 + b",
   testDisplay "b^2+a" "a + b^2",
-  testDisplay "a+b^2" "a + b^2"
+  testDisplay "a+b^2" "a + b^2",
+  testDisplay "a*b^2" "a b^2",
+  testDisplay "a^2*b" "a^2 b",
+  testDisplay "2*x^2" "2 x^2",
+  testDisplay "x^2*2" "2 x^2",
+  testDisplay "(x+1)*y^2" "y^2 (x + 1)",
+  testDisplay "(y+1)*x^2" "x^2 (y + 1)",
+  testDisplay "x*y+z^2" "x y + z^2",
+  testDisplay "y*z+x^2" "x^2 + y z"
   ]
 
 storeTests = [

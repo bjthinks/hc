@@ -46,11 +46,12 @@ instance Ord Expression where
   compare (ExpressionProduct x) y@(ExpressionVariable _) = compareProduct x [y]
   compare x@(ExpressionVariable _) (ExpressionProduct y) = compareProduct [x] y
 
-  -- Variables are like things to the power 1, so Variables and
-  -- Powers are intermingled in the sort order.
-  compare x@(ExpressionVariable _) y@(ExpressionPower _) =
+  -- Anything not a power is like a thing to the power 1,
+  -- so Powers are intermingled with everything else in the
+  -- sort order.
+  compare x y@(ExpressionPower _) =
     compare (ExpressionPower (x,ExpressionInteger 1)) y
-  compare x@(ExpressionPower _) y@(ExpressionVariable _) =
+  compare x@(ExpressionPower _) y =
     compare x (ExpressionPower (y,ExpressionInteger 1))
 
 -- FIXME: I hope there's a cleaner way to do this
