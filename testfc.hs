@@ -263,7 +263,10 @@ expressionDisplayTests = [
   testDisplay "(x+1)*y^2" "y^2 (x + 1)",
   testDisplay "(y+1)*x^2" "x^2 (y + 1)",
   testDisplay "x*y+z^2" "x y + z^2",
-  testDisplay "y*z+x^2" "x^2 + y z"
+  testDisplay "y*z+x^2" "x^2 + y z",
+  testDisplay "2+x^2" "x^2 + 2",
+  testDisplay "x^2+2" "x^2 + 2",
+  testDisplay "(x*y)^2" "x^2 y^2"
   ]
 
 storeTests = [

@@ -108,8 +108,7 @@ useThisVariableOnlyForTestingTheExpressionConstructors =
 
 -------------------- INTEGERS --------------------
 
--- This serves little purpose now, but may later if
--- we change it so signs are stored separately
+-- This serves little purpose
 eInt :: Integer -> Expression
 eInt n = ExpressionInteger n
 
@@ -208,5 +207,15 @@ makeProduct es = ExpressionProduct es
 
 -------------------- POWERS --------------------
 
+-- Return an expression raised to the power of another expression,
+-- in standard form, assuming that the two input expressions are in
+-- standard form.
+-- Since we're only dealing with two expressions, rather than a list,
+-- the manipulations can be done on a case-by-case basis via pattern
+-- matching.
+
 ePower :: (Expression,Expression) -> Expression
-ePower = ExpressionPower
+-- 1. A product to a power becomes a product of powers
+ePower (ExpressionProduct xs,y) = eProd (map (flip (curry ePower) y) xs)
+-- Otherwise, we construct the power
+ePower (x,y) = ExpressionPower (x,y)
