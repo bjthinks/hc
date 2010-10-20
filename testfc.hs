@@ -10,7 +10,7 @@ import Command
 import CommandParser
 import Store
 
-(tInt,tVar,tSum,tProd) = useThisVariableOnlyForTestingTheExpressionConstructors
+(tInt,tVar,tSum,tProd,tPower) = useThisVariableOnlyForTestingTheExpressionConstructors
 
 tokenizerTests = [
   parseAll tokenizer ""        ~?= Right [(0,TokenEnd)],
@@ -140,7 +140,8 @@ expressionParserTests = [
   tProd [tInt 10,tVar "c",
          tSum [tInt 1,tVar "a"],
          tSum [tInt 2,tVar "b"],
-         tSum [tInt 3,tVar "d"]]
+         tSum [tInt 3,tVar "d"]],
+  testEval "a^b" $ tPower (tVar "a",tVar "b")
   ]
 
 testDisplay :: String -> String -> Test

@@ -1,4 +1,4 @@
-module Expression (eInt, eVar, eSum, eProd,
+module Expression (eInt, eVar, eSum, eProd, ePower,
                    eMatch,
                    useThisVariableOnlyForTestingTheExpressionConstructors,
                    Expression) where
@@ -9,7 +9,8 @@ import Data.List
 data Expression = ExpressionVariable String |
                   ExpressionInteger Integer |
                   ExpressionSum [Expression] |
-                  ExpressionProduct [Expression]
+                  ExpressionProduct [Expression] |
+                  ExpressionPower (Expression,Expression)
                   deriving (Show, Eq)
 
 -- This is a TOTAL ORDER
@@ -90,7 +91,7 @@ pullCoeffProd es = (1,es)
 
 useThisVariableOnlyForTestingTheExpressionConstructors =
   (ExpressionInteger, ExpressionVariable,
-   ExpressionSum, ExpressionProduct)
+   ExpressionSum, ExpressionProduct, ExpressionPower)
 
 -------------------- INTEGERS --------------------
 
@@ -191,3 +192,8 @@ makeProduct :: [Expression] -> Expression
 makeProduct [] = eInt 1
 makeProduct [e] = e
 makeProduct es = ExpressionProduct es
+
+-------------------- POWERS --------------------
+
+ePower :: (Expression,Expression) -> Expression
+ePower = ExpressionPower

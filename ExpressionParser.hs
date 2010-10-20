@@ -24,12 +24,19 @@ multiplicative = do a <- unary
                     return $ eProd (a:as)
 
 unary :: Parser Token Expression
-unary = minus atom ||| atom
+unary = minus power ||| power
 
 minus :: Parser Token Expression -> Parser Token Expression
 minus p = do pElt TokenMinus
              expr <- p
              return $ eProd [eInt (-1),expr]
+
+power :: Parser Token Expression
+power = do b <- atom
+           e <- pMaybe (pElt TokenPower >> unary)
+           return $ case e of
+             Nothing -> b
+             Just ee -> ePower (b,ee)
 
 atom :: Parser Token Expression
 atom = integer ||| variable ||| paren
