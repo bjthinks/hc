@@ -17,6 +17,10 @@ substitute s = eMatch
                (get s)                        -- String -> Expression
                (eSum . (map $ substitute s))  -- [Expression] -> Expression
                (eProd . (map $ substitute s)) -- [Expression] -> Expression
+               (ePower . (pairmap $ substitute s))
+
+pairmap :: (a -> b) -> (a,a) -> (b,b)
+pairmap f (x,y) = (f x,f y)
 
 get :: Store -> String -> Expression
 get store str =
