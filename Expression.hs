@@ -25,6 +25,8 @@ instance Ord Expression where
   compare (ExpressionSum x) (ExpressionSum y) = compareSum x y
   -- Same for products
   compare (ExpressionProduct x) (ExpressionProduct y) = compareProduct x y
+  -- Powers are sorted first by base, then exponent
+  compare (ExpressionPower x) (ExpressionPower y) = compare x y
   -- Integer < Variable < Sum
   compare (ExpressionInteger _) (ExpressionVariable _) = LT
   compare (ExpressionVariable _) (ExpressionInteger _) = GT
