@@ -263,7 +263,13 @@ expressionDisplayTests = [
   testDisplay "x^3+x^2" "x^3 + x^2",
   testDisplay "(x*y)^2" "x^2 y^2",
   testDisplay "2^2" "4",
-  testDisplay "(x^2)^2" "x^4"
+  testDisplay "(x^2)^2" "x^4",
+  testDisplay "(x^3)^3" "x^9",
+  --testDisplay "x^(3^3)" "x^27" -- parse fails
+  --testDisplay "x^-1" "1 / x"
+  --testDisplay "x^-2" "1 / x^2"
+  --testDisplay "2^-2" "1 / 4"
+  testDisplay "(2^-1)^-1" "2"
   ]
 
 storeTests = [

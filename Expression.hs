@@ -206,5 +206,7 @@ makeProduct es = ExpressionProduct es
 eIntPow :: Expression -> Integer -> Expression
 eIntPow (ExpressionProduct xs) n = eProd $ map (flip eIntPow n) xs
 eIntPow (ExpressionIntPow x m) n = eIntPow x (m*n)
-eIntPow (ExpressionInteger x) n = eInt (x^n)
+eIntPow (ExpressionInteger x) n
+  | n < 0 = ExpressionIntPow (eInt (x^(-n))) (-1)
+  | otherwise = eInt (x^n)
 eIntPow x n = ExpressionIntPow x n
