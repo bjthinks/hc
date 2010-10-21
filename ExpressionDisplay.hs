@@ -37,8 +37,11 @@ displayProduct es = let
       (-1) -> ("-" ++ rest,1)
       cc -> (show cc ++ " " ++ rest,1)
 
-displayIntPow e n =
-  (parenthesize (displayWithPrecedence e) 2 ++ "^" ++ show n,1)
+displayIntPow e n
+  | n == (-1) = ("/ " ++ parenthesize (displayWithPrecedence e) 2,1)
+  | n < 0     = ("/ " ++ parenthesize (displayWithPrecedence e) 2 ++
+                 "^" ++ show (-n),1)
+  | otherwise = (parenthesize (displayWithPrecedence e) 2 ++ "^" ++ show n,1)
 
 withspace :: String -> String -> String
 withspace s t = s ++ " " ++ t
