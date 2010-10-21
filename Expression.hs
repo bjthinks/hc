@@ -204,4 +204,5 @@ makeProduct es = ExpressionProduct es
 -------------------- INTEGER POWERS --------------------
 
 eIntPow :: Expression -> Integer -> Expression
-eIntPow = ExpressionIntPow
+eIntPow (ExpressionProduct xs) n = eProd $ map (flip eIntPow n) xs
+eIntPow x n = ExpressionIntPow x n
