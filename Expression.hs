@@ -74,11 +74,13 @@ compareExprList (_:_) [] = LT
 compareExprList [] (_:_) = GT
 
 eMatch :: (Integer -> a) -> (String -> a) -> ([Expression] -> a) ->
-          ([Expression] -> a) -> Expression -> a
-eMatch f _ _ _ (ExpressionInteger n) = f n
-eMatch _ f _ _ (ExpressionVariable s) = f s
-eMatch _ _ f _ (ExpressionSum es) = f es
-eMatch _ _ _ f (ExpressionProduct es) = f es
+          ([Expression] -> a) -> (Expression -> Integer -> a) ->
+          Expression -> a
+eMatch f _ _ _ _ (ExpressionInteger n) = f n
+eMatch _ f _ _ _ (ExpressionVariable s) = f s
+eMatch _ _ f _ _ (ExpressionSum es) = f es
+eMatch _ _ _ f _ (ExpressionProduct es) = f es
+eMatch _ _ _ _ f (ExpressionIntPow e n) = f e n
 
 {-
 pullCoeffSum :: [Expression] -> (Integer,[Expression])

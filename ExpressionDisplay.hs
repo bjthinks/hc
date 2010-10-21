@@ -11,6 +11,7 @@ displayWithPrecedence = eMatch
                         displayVariable
                         displaySum
                         displayProduct
+                        displayIntPow
 
 displayInteger n = (show n,10)
 
@@ -32,9 +33,12 @@ displayProduct es = let
   displayTerm e = parenthesize (displayWithPrecedence e) 1
   in case filter isConstant es of
     [] -> (rest,1)
-    [c] -> case eMatch id (error "") (error "") (error "") c of
+    [c] -> case eMatch id (error "") (error "") (error "") (error "") c of
       (-1) -> ("-" ++ rest,1)
       cc -> (show cc ++ " " ++ rest,1)
+
+displayIntPow e n =
+  (parenthesize (displayWithPrecedence e) 2 ++ "^" ++ show n,1)
 
 withspace :: String -> String -> String
 withspace s t = s ++ " " ++ t
@@ -45,7 +49,7 @@ parenthesize (str,x) y
   | otherwise = str
 
 isConstant :: Expression -> Bool
-isConstant = eMatch fTrue fFalse fFalse fFalse
+isConstant = eMatch fTrue fFalse fFalse fFalse (\_ -> fFalse)
 
 isNonConstant :: Expression -> Bool
 isNonConstant = not . isConstant
