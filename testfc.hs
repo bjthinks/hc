@@ -250,7 +250,17 @@ expressionDisplayTests = [
   testDisplay "-x-y-1" "-x - y - 1",
   testDisplay "-1*x-1*y-1" "-x - y - 1",
   testDisplay "-2*x-2*y-2" "-2 x - 2 y - 2",
-  testDisplay "x^2" "x^2"
+  testDisplay "x^2" "x^2",
+  testDisplay "x^2+y^2" "x^2 + y^2",
+  testDisplay "x^2+1" "x^2 + 1",
+  testDisplay "1+x^2" "x^2 + 1",
+  testDisplay "x^2+y" "x^2 + y",
+  testDisplay "a*b+c^2" "a b + c^2",
+  testDisplay "2*y^2" "2 y^2",
+  testDisplay "x*y^2" "x y^2",
+  testDisplay "(a+b)*x^2" "x^2 (a + b)",
+  testDisplay "x^2+x" "x^2 + x",
+  testDisplay "x^3+x^2" "x^3 + x^2"
   ]
 
 storeTests = [
