@@ -177,6 +177,7 @@ eProd :: [Expression] -> Expression
 eProd exprs = makeProduct $
               detectZeroFactors $
               combineConstantFactors $
+              combineFactors $
               sort $
               flattenFactors $
               exprs
@@ -186,9 +187,43 @@ flattenFactors (ExpressionProduct terms:es) = terms ++ flattenFactors es
 flattenFactors (e:es) = e:flattenFactors es
 flattenFactors [] = []
 
-combineConstantFactors :: [Expression] -> [Expression]
+combineFactors :: [Expression] -> [Expression]
+combineFactors es = map pushPower $ combineFactors' $ map popPower es
+popPower :: Expression -> (Expression,Integer)
+popPower (ExpressionIntPow e n) = (e,n)
+popPower e = (e,1)
+combineFactors' :: [(Expression,Integer)] -> [(Expression,Integer)]
+combineFactors' ((e,m):(f,n):gs)
+  | e == f = combineFactors' ((e,m+n):gs)
+  | m == 0 = combineFactors' ((f,n):gs)
+  | otherwise = (e,m):combineFactors' ((f,n):gs)
+combineFactors' xs = xs
+pushPower :: (Expression,Integer) -> Expression
+pushPower (e,1) = e
+pushPower (ExpressionInteger x,n)
+  | n < 0 = ExpressionIntPow (eInt (x^(-n))) (-1)
+  | otherwise = eInt (x^n)
+pushPower (e,n) = ExpressionIntPow e n
+
 combineConstantFactors (ExpressionInteger m:ExpressionInteger n:es) =
   combineConstantFactors (ExpressionInteger (m*n):es)
+combineConstantFactors (ExpressionIntPow (ExpressionInteger m) (-1):
+                        ExpressionIntPow (ExpressionInteger n) (-1):es) =
+  combineConstantFactors (ExpressionIntPow (ExpressionInteger (m*n)) (-1):es)
+combineConstantFactors (ExpressionIntPow (ExpressionInteger m) (-1):
+                        ExpressionInteger n:es) =
+  combineConstantFactors (ExpressionInteger n:
+                          ExpressionIntPow (ExpressionInteger m) (-1):es)
+combineConstantFactors (ExpressionInteger m:
+                        ExpressionIntPow (ExpressionInteger n) (-1):
+                        ExpressionInteger k:es) =
+  combineConstantFactors (ExpressionInteger (m*k):
+                          ExpressionIntPow (ExpressionInteger n) (-1):es)
+combineConstantFactors (ExpressionInteger m:
+                        ExpressionIntPow (ExpressionInteger n) (-1):
+                        ExpressionIntPow (ExpressionInteger k) (-1):es) =
+  combineConstantFactors (ExpressionInteger m:
+                          ExpressionIntPow (ExpressionInteger (n*k)) (-1):es)
 combineConstantFactors (ExpressionInteger 1:es) = es
 combineConstantFactors es = es
 
