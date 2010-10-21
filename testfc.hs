@@ -277,7 +277,8 @@ expressionDisplayTests = [
   testDisplay "2^3*3^2*5*7^2" "17640",
   testDisplay "2^-3*3^-2*5^-1*7^-2" "1 / 17640",
   testDisplay "2*3^-1*5" "10 / 3",
-  testDisplay "2*3^-1*5^-1*7" "14 / 15"
+  testDisplay "2*3^-1*5^-1*7" "14 / 15",
+  testDisplay "2^-1*x^-1" "1 / 2 / x"
   ]
 
 storeTests = [

@@ -27,7 +27,9 @@ displaySum es =
     intLastExprs = filter isNonConstant es ++ filter isConstant es
 
 displayProduct es = let
-  rest = foldl withspace f fs
+  rest = foldl withspace f (map eatUnitNumerator fs)
+  eatUnitNumerator ('1':' ':'/':cs) = '/':cs
+  eatUnitNumerator cs = cs
   (f:fs) = map displayTerm (filter isNonConstant es)
   displayTerm :: Expression -> String
   displayTerm e = parenthesize (displayWithPrecedence e) 1
@@ -35,11 +37,11 @@ displayProduct es = let
     [] -> (rest,1)
     [c] -> case eMatch id (error "") (error "") (error "") (error "") c of
       (-1) -> ("-" ++ rest,1)
-      cc -> (show cc ++ " " ++ rest,1)
+      cc -> (show cc ++ " " ++ eatUnitNumerator rest,1)
 
 displayIntPow e n
-  | n == (-1) = ("/ " ++ parenthesize (displayWithPrecedence e) 2,1)
-  | n < 0     = ("/ " ++ parenthesize (displayWithPrecedence e) 2 ++
+  | n == (-1) = ("1 / " ++ parenthesize (displayWithPrecedence e) 2,1)
+  | n < 0     = ("1 / " ++ parenthesize (displayWithPrecedence e) 2 ++
                  "^" ++ show (-n),1)
   | otherwise = (parenthesize (displayWithPrecedence e) 2 ++ "^" ++ show n,1)
 
