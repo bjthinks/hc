@@ -14,7 +14,9 @@ BUILD INSTRUCTIONS
 2. make
 
 FEATURES
-* Addition, subtraction, and multiplication of integers and variables
+* Exact integer and rational number arithmetic
+* Addition, subtraction, multiplication, division of integers and variables
+* Raising to integer powers
 * Various simplifications are performed
 * Assignment to variables with :=
 * Input via the GNU readline library with history and tab completion
