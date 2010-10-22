@@ -30,17 +30,37 @@ displaySum es =
     (f:fs) = map displayExpr intLastExprs
     intLastExprs = filter isNonConstant es ++ filter isConstant es
 
-displayProduct es = let
-  eatUnitNumerator ('1':' ':'/':cs) = '/':cs
-  eatUnitNumerator cs = cs
-  displayTerm :: Expression -> String
-  displayTerm e = parenthesize (displayWithPrecedence e) 1
-  displayProduct' es =
-    let (f:fs) = map displayTerm es in
-    foldl withspace f (map eatUnitNumerator fs)
-  in case eMatch isNegOne fFalse fFalse fFalse (\_ -> fFalse) (head es) of
+displayProduct es =
+  case eMatch isNegOne fFalse fFalse fFalse (\_ -> fFalse) (head es) of
     True -> ('-':displayProduct' (tail es),1)
     False -> (displayProduct' es,1)
+
+-- Display a product, without concern for initial constant special cases
+displayProduct' es =
+  case (numeratorTerms,denominatorTerms) of
+    (_,[]) -> numeratorStr
+    ([],_) -> "1 / " ++ denominatorStr
+    _ -> numeratorStr ++ " / " ++ denominatorStr
+    where
+      numeratorTerms :: [Expression]
+      numeratorTerms = filter (not . isNegPow) es
+      denominatorTerms :: [Expression]
+      denominatorTerms = filter isNegPow es
+      denominatorTermsFlipped :: [Expression]
+      denominatorTermsFlipped = map (flip eIntPow (-1)) denominatorTerms
+      displayTerm :: Expression -> String
+      displayTerm e = parenthesize (displayWithPrecedence e) 1
+      displayTerms :: [Expression] -> [String]
+      displayTerms = map displayTerm
+      joinTerms :: [String] -> String
+      joinTerms es = case es of
+        [] -> ""
+        [s] -> s
+        (s:ss) -> foldl withspace s ss
+      numeratorStr :: String
+      numeratorStr = joinTerms (displayTerms numeratorTerms)
+      denominatorStr :: String
+      denominatorStr = joinTerms (displayTerms denominatorTermsFlipped)
 
 displayIntPow e n
   | n == (-1) = ("1 / " ++ parenthesize (displayWithPrecedence e) 2,1)
@@ -65,6 +85,9 @@ isConstant = eMatch fTrue fFalse fFalse fFalse (\_ -> fFalse)
 
 isNonConstant :: Expression -> Bool
 isNonConstant = not . isConstant
+
+isNegPow :: Expression -> Bool
+isNegPow = eMatch fFalse fFalse fFalse fFalse (\_ -> \n -> n<0)
 
 fTrue :: a -> Bool
 fTrue = first True
