@@ -3,6 +3,7 @@ module ExpressionParser (expressionParser) where
 import Parser
 import Tokenizer
 import Expression
+import Data.Ratio
 
 expressionParser :: Parser Token Expression
 expressionParser = do e <- additive
@@ -15,7 +16,7 @@ additive = do a <- multiplicative
                               term <- multiplicative
                               return $ case sign of
                                 TokenPlus -> term
-                                TokenMinus -> eProd [eInt (-1),term])
+                                TokenMinus -> eProd [eRat (-1),term])
               return $ eSum (a:as)
 
 multiplicative :: Parser Token Expression
@@ -29,14 +30,14 @@ unary = minus atom ||| atom
 minus :: Parser Token Expression -> Parser Token Expression
 minus p = do pElt TokenMinus
              expr <- p
-             return $ eProd [eInt (-1),expr]
+             return $ eProd [eRat (-1),expr]
 
 atom :: Parser Token Expression
 atom = integer ||| variable ||| paren
 
 integer :: Parser Token Expression
 integer = do TokenInteger n <- pProp isInteger
-             return $ eInt n
+             return $ eRat (n%1)
 
 variable :: Parser Token Expression
 variable = do TokenWord w <- pProp isWord

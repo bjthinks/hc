@@ -1,18 +1,20 @@
 module ExpressionDisplay (displayExpr) where
 
 import Expression
+import Data.Ratio
 
 displayExpr :: Expression -> String
 displayExpr = fst . displayWithPrecedence
 
 displayWithPrecedence :: Expression -> (String,Int)
 displayWithPrecedence = eMatch
-                        displayInteger
+                        displayRational
                         displayVariable
                         displaySum
                         displayProduct
 
-displayInteger n = (show n,10)
+displayRational n
+  | denominator n == 1 = (show (numerator n),10)
 
 displayVariable v = (v,10)
 
@@ -34,7 +36,7 @@ displayProduct es = let
     [] -> (rest,1)
     [c] -> case eMatch id (error "") (error "") (error "") c of
       (-1) -> ("-" ++ rest,1)
-      cc -> (show cc ++ " " ++ rest,1)
+      cc -> (fst (displayRational cc) ++ " " ++ rest,1)
 
 withspace :: String -> String -> String
 withspace s t = s ++ " " ++ t

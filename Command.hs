@@ -13,7 +13,7 @@ execute s (CommandEval e) = (s, displayExpr (substitute s e))
 
 substitute :: Store -> Expression -> Expression
 substitute s = eMatch
-               eInt                           -- Integer -> Expression
+               eRat                           -- Rational -> Expression
                (get s)                        -- String -> Expression
                (eSum . (map $ substitute s))  -- [Expression] -> Expression
                (eProd . (map $ substitute s)) -- [Expression] -> Expression
