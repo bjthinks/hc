@@ -21,7 +21,11 @@ additive = do a <- multiplicative
 
 multiplicative :: Parser Token Expression
 multiplicative = do a <- unary
-                    as <- pStar (pElt TokenTimes >> unary)
+                    as <- pStar (do inv <- pElt TokenTimes ||| pElt TokenDivide
+                                    term <- unary
+                                    return $ case inv of
+                                      TokenTimes -> term
+                                      TokenDivide -> eIntPow term (-1))
                     return $ eProd (a:as)
 
 unary :: Parser Token Expression

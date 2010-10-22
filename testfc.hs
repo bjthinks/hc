@@ -142,7 +142,8 @@ expressionParserTests = [
          tSum [tRat 1,tVar "a"],
          tSum [tRat 2,tVar "b"],
          tSum [tRat 3,tVar "d"]],
-  testEval "x^2" $ tIntPow (tVar "x") 2
+  testEval "x^2" $ tIntPow (tVar "x") 2,
+  testEval "1/x" $ tIntPow (tVar "x") (-1)
   ]
 
 testDisplay :: String -> String -> Test
@@ -279,7 +280,10 @@ expressionDisplayTests = [
   testDisplay "2^-3*3^-2*5^-1*7^-2" "1 / 17640",
   testDisplay "2*3^-1*5" "10 / 3",
   testDisplay "2*3^-1*5^-1*7" "14 / 15",
-  testDisplay "2^-1*x^-1" "1 / 2 / x"
+  testDisplay "2^-1*x^-1" "1 / 2 / x",
+  testDisplay "1/2" "1 / 2",
+  testDisplay "3/6" "1 / 2",
+  testDisplay "1/x" "1 / x"
   ]
 
 storeTests = [
