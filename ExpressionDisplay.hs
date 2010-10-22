@@ -31,36 +31,64 @@ displaySum es =
     intLastExprs = filter isNonConstant es ++ filter isConstant es
 
 displayProduct es =
-  case eMatch isNegOne fFalse fFalse fFalse (\_ -> fFalse) (head es) of
-    True -> ('-':displayProduct' (tail es),1)
-    False -> (displayProduct' es,1)
+  (minusSign ++ termsStr,1)
+  where
+    termsStr = case (numeratorTerms,denominatorTerms) of
+      (_,[]) -> numeratorStr
+      ([],_) -> "1 / " ++ denominatorStr
+      _ -> numeratorStr ++ " / " ++ denominatorStr
+    numeratorStr = joinTermStrs numeratorTermStrs
+    denominatorStr = joinTermStrs denominatorTermStrs
+    joinTermStrs (t:ts) = foldl withspace t ts
+    numeratorTermStrs = displayTerms numeratorTerms
+    denominatorTermStrs = displayTerms denominatorTerms
+    displayTerms = map displayTerm
+    displayTerm t = parenthesize (displayWithPrecedence t) 1
+    getConstant = eMatch Just fNothing fNothing fNothing (\_ -> fNothing) $
+                  head es
+    fNothing _ = Nothing
+    constant = case getConstant of
+      Nothing -> 1
+      Just c -> c
+    minusSign = if constant < 0 then "-" else ""
+    absConstant = abs constant
+    constOfNum = numerator absConstant
+    constOfDen = denominator absConstant
+    numeratorTerms = case constOfNum of
+      1 -> numeratorNonConstTerms
+      _ -> eRat (constOfNum%1) : numeratorNonConstTerms
+    denominatorTerms = case constOfDen of
+      1 -> denominatorNonConstTerms
+      _ -> eRat (constOfDen%1) : denominatorNonConstTerms
+    numeratorNonConstTerms = filter (not . isNegPow) nonConstTerms
+    denominatorNonConstTerms = map (flip eIntPow (-1)) $
+                               filter isNegPow nonConstTerms
+    nonConstTerms = filter isNonConstant es
 
--- Display a product, without concern for initial constant special cases
-displayProduct' es =
-  case (numeratorTerms,denominatorTerms) of
-    (_,[]) -> numeratorStr
-    ([],_) -> "1 / " ++ denominatorStr
-    _ -> numeratorStr ++ " / " ++ denominatorStr
+{-
+displayProduct es =
+  case eMatch Just fNothing fNothing fNothing (\_ -> fNothing) (head es) of
+    Nothing -> (displayProduct'
+                (filter (not . isNegPow) es)
+                (filter isNegPow es),1)
+    Just c -> if c < 0 then
+                ('-':displayProduct'
+                 (eProd (eRat (-(numerator c%1)):filter (not . isNegPow) (tail es)))
+                 (eProd (eRat (denominator c%1):filter isNegPow (tail es))),1)
+              else
+                (displayProduct'
+                 (eProd (eRat (-(numerator c%1)):filter (not . isNegPow) (tail es)))
+                 (eProd (eRat (denominator c%1):filter isNegPow (tail es))),1)
+
+
+-- Display a quotient of two products, without concern for
+-- negative powers or special-case constants
+displayProduct' :: [Expression] -> [Expression] -> String
+displayProduct' numeratorTerms denominatorTerms =
     where
-      numeratorTerms :: [Expression]
-      numeratorTerms = filter (not . isNegPow) es
-      denominatorTerms :: [Expression]
-      denominatorTerms = filter isNegPow es
       denominatorTermsFlipped :: [Expression]
       denominatorTermsFlipped = map (flip eIntPow (-1)) denominatorTerms
-      displayTerm :: Expression -> String
-      displayTerm e = parenthesize (displayWithPrecedence e) 1
-      displayTerms :: [Expression] -> [String]
-      displayTerms = map displayTerm
-      joinTerms :: [String] -> String
-      joinTerms es = case es of
-        [] -> ""
-        [s] -> s
-        (s:ss) -> foldl withspace s ss
-      numeratorStr :: String
-      numeratorStr = joinTerms (displayTerms numeratorTerms)
-      denominatorStr :: String
-      denominatorStr = joinTerms (displayTerms denominatorTermsFlipped)
+-}
 
 displayIntPow e n
   | n == (-1) = ("1 / " ++ parenthesize (displayWithPrecedence e) 2,1)

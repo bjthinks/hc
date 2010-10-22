@@ -280,7 +280,7 @@ expressionDisplayTests = [
   testDisplay "2^-3*3^-2*5^-1*7^-2" "1 / 17640",
   testDisplay "2*3^-1*5" "10 / 3",
   testDisplay "2*3^-1*5^-1*7" "14 / 15",
-  testDisplay "2^-1*x^-1" "1 / 2 / x", -- Unclear how I want this to ultimately be formatted
+  testDisplay "2^-1*x^-1" "1 / 2 x",
   testDisplay "1/2" "1 / 2",
   testDisplay "3/6" "1 / 2",
   testDisplay "1/x" "1 / x",
@@ -290,7 +290,19 @@ expressionDisplayTests = [
   testDisplay "y/x" "y / x",
   testDisplay "1/(1/x)" "x",
   testDisplay "(x^-1)^-1" "x",
-  testDisplay "x^1" "x"
+  testDisplay "x^1" "x",
+  testDisplay "2/3*x/y" "2 x / 3 y",
+  testDisplay "2/3*y/x" "2 y / 3 x",
+  testDisplay "2*x/y" "2 x / y",
+  testDisplay "1/3*x/y" "x / 3 y",
+  testDisplay "2/3*x" "2 x / 3",
+  testDisplay "2/3/y" "2 / 3 y",
+  testDisplay "2/3" "2 / 3",
+  testDisplay "2*x" "2 x",
+  testDisplay "2/y" "2 / y",
+  testDisplay "1/3*x" "x / 3",
+  testDisplay "1/3/y" "1 / 3 y",
+  testDisplay "x/y" "x / y"
   ]
 
 storeTests = [
