@@ -302,7 +302,19 @@ expressionDisplayTests = [
   testDisplay "2/y" "2 / y",
   testDisplay "1/3*x" "x / 3",
   testDisplay "1/3/y" "1 / 3 y",
-  testDisplay "x/y" "x / y"
+  testDisplay "x/y" "x / y",
+  testDisplay "2/3/5/7/11" "2 / 1155",
+  testDisplay "(2/3)/(5/7)" "14 / 15",
+  testDisplay "((2/3)/(5/7))/((11/13)/(17/19))" "3094 / 3135",
+  testDisplay "((a/b)/(c/d))/((e/f)/(g/h))" "a d f g / b c e h",
+  testDisplay "((a*b)/(c*d))/((e*f)/(g*h))" "a b g h / c d e f",
+  testDisplay "((a/b)*(c/d))/((e/f)*(g/h))" "a c f h / b d e g",
+  testDisplay "((a*b)*(c*d))/((e*f)*(g*h))" "a b c d / e f g h",
+  testDisplay "((a/b)/(c/d))*((e/f)/(g/h))" "a d e h / b c f g",
+  testDisplay "((a*b)/(c*d))*((e*f)/(g*h))" "a b e f / c d g h",
+  testDisplay "((a/b)*(c/d))*((e/f)*(g/h))" "a c e g / b d f h",
+  testDisplay "2/4" "1 / 2",
+  testDisplay "1/2+1/2" "1"
   ]
 
 storeTests = [
