@@ -1,4 +1,4 @@
-module Expression (eInt, eVar, eSum, eProd, eIntPow,
+module Expression (eRat, eVar, eSum, eProd, eIntPow,
                    eMatch,
                    useThisVariableOnlyForTestingTheExpressionConstructors,
                    Expression) where
@@ -7,7 +7,7 @@ import Data.Char (isAlpha)
 import Data.List
 
 data Expression = ExpressionVariable String |
-                  ExpressionInteger Integer |
+                  ExpressionRational Rational |
                   ExpressionSum [Expression] |
                   ExpressionProduct [Expression] |
                   ExpressionIntPow Expression Integer
@@ -15,8 +15,8 @@ data Expression = ExpressionVariable String |
 
 -- This is a TOTAL ORDER
 instance Ord Expression where
-  -- Integers are sorted by value
-  compare (ExpressionInteger x) (ExpressionInteger y) = compare x y
+  -- Rationals are sorted by value
+  compare (ExpressionRational x) (ExpressionRational y) = compare x y
   -- Variables are sorted in alphabetical order
   compare (ExpressionVariable x) (ExpressionVariable y) =
     compare x y
@@ -27,19 +27,19 @@ instance Ord Expression where
   compare (ExpressionProduct x) (ExpressionProduct y) = compareProduct x y
   -- IntPows are compared base first, then by exponent in reverse order
   compare (ExpressionIntPow x a) (ExpressionIntPow y b) = compare (x,-a) (y,-b)
-  -- Integer < Variable < Sum
-  compare (ExpressionInteger _) (ExpressionVariable _) = LT
-  compare (ExpressionVariable _) (ExpressionInteger _) = GT
+  -- Rational < Variable < Sum
+  compare (ExpressionRational _) (ExpressionVariable _) = LT
+  compare (ExpressionVariable _) (ExpressionRational _) = GT
   compare (ExpressionVariable _) (ExpressionSum _) = LT
   compare (ExpressionSum _) (ExpressionVariable _) = GT
-  -- Integer < Product < Sum
-  compare (ExpressionInteger _) (ExpressionProduct _) = LT
-  compare (ExpressionProduct _) (ExpressionInteger _) = GT
+  -- Rational < Product < Sum
+  compare (ExpressionRational _) (ExpressionProduct _) = LT
+  compare (ExpressionProduct _) (ExpressionRational _) = GT
   compare (ExpressionProduct _) (ExpressionSum _) = LT
   compare (ExpressionSum _) (ExpressionProduct _) = GT
-  -- Integer < Sum
-  compare (ExpressionInteger _) (ExpressionSum _) = LT
-  compare (ExpressionSum _) (ExpressionInteger _) = GT
+  -- Rational < Sum
+  compare (ExpressionRational _) (ExpressionSum _) = LT
+  compare (ExpressionSum _) (ExpressionRational _) = GT
   -- Variables are like singleton Products, so Variables and
   -- Products are intermingled in the sort order.
   compare (ExpressionProduct x) y@(ExpressionVariable _) = compareProduct x [y]
@@ -56,14 +56,14 @@ compareSum xs ys = compareSumOrProd (addConstant 0 xs) (addConstant 0 ys)
 compareProduct :: [Expression] -> [Expression] -> Ordering
 compareProduct xs ys = compareSumOrProd (addConstant 1 xs) (addConstant 1 ys)
 
-addConstant :: Integer -> [Expression] -> [Expression]
-addConstant _ xs@(ExpressionInteger _:_) = xs
-addConstant n xs = ExpressionInteger n:xs
+addConstant :: Rational -> [Expression] -> [Expression]
+addConstant _ xs@(ExpressionRational _:_) = xs
+addConstant n xs = ExpressionRational n:xs
 
 -- A sum or product is compared against another sum or product, resp.,
 -- by first trying to compare the nonconstant terms, then the constant.
 compareSumOrProd :: [Expression] -> [Expression] -> Ordering
-compareSumOrProd (ExpressionInteger m:xs) (ExpressionInteger n:ys) =
+compareSumOrProd (ExpressionRational m:xs) (ExpressionRational n:ys) =
   case compareExprList xs ys of
     LT -> LT
     GT -> GT
@@ -79,34 +79,24 @@ compareExprList [] [] = EQ
 compareExprList (_:_) [] = LT
 compareExprList [] (_:_) = GT
 
-eMatch :: (Integer -> a) -> (String -> a) -> ([Expression] -> a) ->
+eMatch :: (Rational -> a) -> (String -> a) -> ([Expression] -> a) ->
           ([Expression] -> a) -> (Expression -> Integer -> a) ->
           Expression -> a
-eMatch f _ _ _ _ (ExpressionInteger n) = f n
+eMatch f _ _ _ _ (ExpressionRational n) = f n
 eMatch _ f _ _ _ (ExpressionVariable s) = f s
 eMatch _ _ f _ _ (ExpressionSum es) = f es
 eMatch _ _ _ f _ (ExpressionProduct es) = f es
 eMatch _ _ _ _ f (ExpressionIntPow e n) = f e n
 
-{-
-pullCoeffSum :: [Expression] -> (Integer,[Expression])
-pullCoeffSum (ExpressionInteger n:es) = (n,es)
-pullCoeffSum es = (0,es)
-pullCoeffProd :: [Expression] -> (Integer,[Expression])
-pullCoeffProd (ExpressionInteger n:es) = (n,es)
-pullCoeffProd es = (1,es)
--}
-
 useThisVariableOnlyForTestingTheExpressionConstructors =
-  (ExpressionInteger, ExpressionVariable,
+  (ExpressionRational, ExpressionVariable,
    ExpressionSum, ExpressionProduct, ExpressionIntPow)
 
--------------------- INTEGERS --------------------
+-------------------- RATIONALS --------------------
 
--- This serves little purpose now, but may later if
--- we change it so signs are stored separately
-eInt :: Integer -> Expression
-eInt n = ExpressionInteger n
+-- This serves little purpose now.
+eRat :: Rational -> Expression
+eRat n = ExpressionRational n
 
 -------------------- VARIABLES --------------------
 
@@ -140,26 +130,27 @@ flattenSummands [] = []
 
 combineSummands :: [Expression] -> [Expression]
 combineSummands es = map pushCoeff $ combineSummands' $ map popCoeff es
-popCoeff :: Expression -> (Integer,Expression)
-popCoeff (ExpressionInteger n) = (n,ExpressionInteger 1)
-popCoeff (ExpressionProduct [ExpressionInteger n,e]) = (n,e)
-popCoeff (ExpressionProduct (ExpressionInteger n:es)) =
+popCoeff :: Expression -> (Rational,Expression)
+popCoeff (ExpressionRational n) = (n,ExpressionRational 1)
+popCoeff (ExpressionProduct [ExpressionRational n,e]) = (n,e)
+popCoeff (ExpressionProduct (ExpressionRational n:es)) =
   (n,ExpressionProduct es)
 popCoeff x = (1,x)
-combineSummands' :: [(Integer,Expression)] -> [(Integer,Expression)]
+combineSummands' :: [(Rational,Expression)] -> [(Rational,Expression)]
 combineSummands' ((m,e):(n,f):gs)
   | e == f     = combineSummands' ((m+n,e):gs)
   | m == 0     = combineSummands' ((n,f):gs)
   | otherwise  = (m,e):combineSummands' ((n,f):gs)
 combineSummands' xs = xs
-pushCoeff :: (Integer,Expression) -> Expression
+pushCoeff :: (Rational,Expression) -> Expression
 pushCoeff (1,e) = e
-pushCoeff (n,ExpressionInteger 1) = ExpressionInteger n
-pushCoeff (n,ExpressionProduct es) = ExpressionProduct (ExpressionInteger n:es)
-pushCoeff (n,e) = ExpressionProduct [ExpressionInteger n,e]
+pushCoeff (n,ExpressionRational 1) = ExpressionRational n
+pushCoeff (n,ExpressionProduct es) =
+  ExpressionProduct (ExpressionRational n:es)
+pushCoeff (n,e) = ExpressionProduct [ExpressionRational n,e]
 
 makeSum :: [Expression] -> Expression
-makeSum [] = eInt 0
+makeSum [] = eRat 0
 makeSum [e] = e
 makeSum es = ExpressionSum es
 
@@ -200,39 +191,23 @@ combineFactors' ((e,m):(f,n):gs)
 combineFactors' xs = xs
 pushPower :: (Expression,Integer) -> Expression
 pushPower (e,1) = e
-pushPower (ExpressionInteger x,n)
-  | n < 0 = ExpressionIntPow (eInt (x^(-n))) (-1)
-  | otherwise = eInt (x^n)
+pushPower (ExpressionRational x,n)
+  | n < 0 = ExpressionIntPow (eRat (x^(-n))) (-1)
+  | otherwise = eRat (x^n)
 pushPower (e,n) = ExpressionIntPow e n
 
-combineConstantFactors (ExpressionInteger m:ExpressionInteger n:es) =
-  combineConstantFactors (ExpressionInteger (m*n):es)
-combineConstantFactors (ExpressionIntPow (ExpressionInteger m) (-1):
-                        ExpressionIntPow (ExpressionInteger n) (-1):es) =
-  combineConstantFactors (ExpressionIntPow (ExpressionInteger (m*n)) (-1):es)
-combineConstantFactors (ExpressionIntPow (ExpressionInteger m) (-1):
-                        ExpressionInteger n:es) =
-  combineConstantFactors (ExpressionInteger n:
-                          ExpressionIntPow (ExpressionInteger m) (-1):es)
-combineConstantFactors (ExpressionInteger m:
-                        ExpressionIntPow (ExpressionInteger n) (-1):
-                        ExpressionInteger k:es) =
-  combineConstantFactors (ExpressionInteger (m*k):
-                          ExpressionIntPow (ExpressionInteger n) (-1):es)
-combineConstantFactors (ExpressionInteger m:
-                        ExpressionIntPow (ExpressionInteger n) (-1):
-                        ExpressionIntPow (ExpressionInteger k) (-1):es) =
-  combineConstantFactors (ExpressionInteger m:
-                          ExpressionIntPow (ExpressionInteger (n*k)) (-1):es)
-combineConstantFactors (ExpressionInteger 1:es) = es
+combineConstantFactors :: [Expression] -> [Expression]
+combineConstantFactors (ExpressionRational m:ExpressionRational n:es) =
+  combineConstantFactors (ExpressionRational (m*n):es)
+combineConstantFactors (ExpressionRational 1:es) = es
 combineConstantFactors es = es
 
 detectZeroFactors :: [Expression] -> [Expression]
-detectZeroFactors (ExpressionInteger 0:_) = [ExpressionInteger 0]
+detectZeroFactors (ExpressionRational 0:_) = [ExpressionRational 0]
 detectZeroFactors es = es
 
 makeProduct :: [Expression] -> Expression
-makeProduct [] = eInt 1
+makeProduct [] = eRat 1
 makeProduct [e] = e
 makeProduct es = ExpressionProduct es
 
@@ -241,7 +216,8 @@ makeProduct es = ExpressionProduct es
 eIntPow :: Expression -> Integer -> Expression
 eIntPow (ExpressionProduct xs) n = eProd $ map (flip eIntPow n) xs
 eIntPow (ExpressionIntPow x m) n = eIntPow x (m*n)
-eIntPow (ExpressionInteger x) n
-  | n < 0 = ExpressionIntPow (eInt (x^(-n))) (-1)
-  | otherwise = eInt (x^n)
+eIntPow (ExpressionRational x) n
+  | n < 0 && x == 0 = error "division by zero"
+  | n < 0           = eRat (recip (x^(-n)))
+  | otherwise       = eRat (x^n)
 eIntPow x n = ExpressionIntPow x n
