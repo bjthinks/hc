@@ -8,6 +8,7 @@ data Token = TokenInteger Integer |
              TokenPlus |
              TokenMinus |
              TokenTimes |
+             TokenDivide |
              TokenPower |
              TokenOpenParen |
              TokenCloseParen |
@@ -36,8 +37,8 @@ spaces = do pStar $ pProp isSpace
 
 token :: Parser Char (Int,Token)
 token = do n <- numParsed
-           t <- integer ||| word ||| plus ||| minus ||| times ||| power |||
-                openParen ||| closeParen ||| assign
+           t <- integer ||| word ||| plus ||| minus ||| times ||| divide |||
+                power ||| openParen ||| closeParen ||| assign
            return (n,t)
 
 integer :: Parser Char Token
@@ -49,18 +50,20 @@ word = do c <- pProp isAlpha
           cs <- pStar $ pProp isAlphaNum
           return $ TokenWord (c:cs)
 
-plus  :: Parser Char Token
-minus :: Parser Char Token
-times :: Parser Char Token
-power :: Parser Char Token
+plus   :: Parser Char Token
+minus  :: Parser Char Token
+times  :: Parser Char Token
+divide :: Parser Char Token
+power  :: Parser Char Token
 openParen  :: Parser Char Token
 closeParen :: Parser Char Token
 assign :: Parser Char Token
 
-plus  = pElt '+' >> return TokenPlus
-minus = pElt '-' >> return TokenMinus
-times = pElt '*' >> return TokenTimes
-power = pElt '^' >> return TokenPower
+plus   = pElt '+' >> return TokenPlus
+minus  = pElt '-' >> return TokenMinus
+times  = pElt '*' >> return TokenTimes
+divide = pElt '/' >> return TokenDivide
+power  = pElt '^' >> return TokenPower
 openParen  = pElt '(' >> return TokenOpenParen
 closeParen = pElt ')' >> return TokenCloseParen
 assign = pElt ':' >> pElt '=' >> return TokenAssign
