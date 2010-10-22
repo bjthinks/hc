@@ -14,7 +14,7 @@ data Expression = ExpressionVariable String |
 
 -- This is a TOTAL ORDER
 instance Ord Expression where
-  -- Integers are sorted by value
+  -- Rationals are sorted by value
   compare (ExpressionRational x) (ExpressionRational y) = compare x y
   -- Variables are sorted in alphabetical order
   compare (ExpressionVariable x) (ExpressionVariable y) =
@@ -24,17 +24,17 @@ instance Ord Expression where
   compare (ExpressionSum x) (ExpressionSum y) = compareSum x y
   -- Same for products
   compare (ExpressionProduct x) (ExpressionProduct y) = compareProduct x y
-  -- Integer < Variable < Sum
+  -- Rational < Variable < Sum
   compare (ExpressionRational _) (ExpressionVariable _) = LT
   compare (ExpressionVariable _) (ExpressionRational _) = GT
   compare (ExpressionVariable _) (ExpressionSum _) = LT
   compare (ExpressionSum _) (ExpressionVariable _) = GT
-  -- Integer < Product < Sum
+  -- Rational < Product < Sum
   compare (ExpressionRational _) (ExpressionProduct _) = LT
   compare (ExpressionProduct _) (ExpressionRational _) = GT
   compare (ExpressionProduct _) (ExpressionSum _) = LT
   compare (ExpressionSum _) (ExpressionProduct _) = GT
-  -- Integer < Sum
+  -- Rational < Sum
   compare (ExpressionRational _) (ExpressionSum _) = LT
   compare (ExpressionSum _) (ExpressionRational _) = GT
   -- Variables are like singleton Products, so Variables and
