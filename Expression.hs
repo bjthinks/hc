@@ -143,11 +143,7 @@ combineSummands' ((m,e):(n,f):gs)
   | otherwise  = (m,e):combineSummands' ((n,f):gs)
 combineSummands' xs = xs
 pushCoeff :: (Rational,Expression) -> Expression
-pushCoeff (1,e) = e
-pushCoeff (n,ExpressionRational 1) = ExpressionRational n
-pushCoeff (n,ExpressionProduct es) =
-  ExpressionProduct (ExpressionRational n:es)
-pushCoeff (n,e) = ExpressionProduct [ExpressionRational n,e]
+pushCoeff (c,e) = eProd [eRat c,e]
 
 makeSum :: [Expression] -> Expression
 makeSum [] = eRat 0
