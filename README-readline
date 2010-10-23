@@ -4,11 +4,10 @@ compilers, and host architecture/OS combinations make this problem
 difficult to solve.
 
 Fc uses the GNU readline library.  The following instructions may help
-in getting this library working on MacOS X.  For Linux, you can
-probably adapt the below procedure, skipping the CFLAGS and LDFLAGS
-settings.
+in getting this library working.
 
---------------------------------------------------------------------
+On MacOS X:
+==========
 
 Download the readline source code using your preferred browser, then
 perform the following series of steps into a terminal window.  Do not
@@ -50,3 +49,18 @@ next line, of course.
 
 You should now be able to use the GNU readline library.  Remember to
 compile with ghc --make, or you will probably get linker errors.
+
+On Ubuntu Linux:
+===============
+
+1. Install the development sources for readline
+     sudo aptitude install libreadline-dev
+
+2. Use cabal to build the Haskell interface to readline
+     cabal update
+     cabal install readline
+
+3. Test it
+     ghci
+     import System.Console.Readline
+     readline "prompt "
