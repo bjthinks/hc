@@ -10,6 +10,8 @@ import Store
 (tRat,tVar,tSum,tProd,tIntPow) = useThisVariableOnlyForTestingTheExpressionConstructors
 
 tokenizerTests = [
+  isLeft (parseAll tokenizer "{") ~?= True,
+  isLeft (parseAll tokenizer "abc 123 +-*/ @") ~?= True,
   parseAll tokenizer ""        ~?= Right [(0,TokenEnd)],
   parseAll tokenizer "1"       ~?= Right [(0,TokenInteger 1),(1,TokenEnd)],
   parseAll tokenizer "123"     ~?= Right [(0,TokenInteger 123),(3,TokenEnd)],
@@ -33,6 +35,10 @@ tokenizerTests = [
   parseAll tokenizer "/"       ~?= Right [(0,TokenDivide),(1,TokenEnd)],
   parseAll tokenizer "^"       ~?= Right [(0,TokenPower),(1,TokenEnd)]
   ]
+
+isLeft :: Either a b -> Bool
+isLeft (Left _) = True
+isLeft (Right _) = False
 
 unRight :: Either a b -> b
 unRight (Right b) = b
