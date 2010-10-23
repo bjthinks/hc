@@ -1,13 +1,10 @@
 import Test.HUnit
 
-import MyMaybeT
 import Parser
 import Tokenizer
 import Expression
 import ExpressionParser
 import ExpressionDisplay
-import Command
-import CommandParser
 import Store
 
 (tRat,tVar,tSum,tProd,tIntPow) = useThisVariableOnlyForTestingTheExpressionConstructors
