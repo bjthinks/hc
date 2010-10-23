@@ -9,7 +9,7 @@ import Store
 
 (tRat,tVar,tSum,tProd,tIntPow) = useThisVariableOnlyForTestingTheExpressionConstructors
 
-tokenizerTests = [
+tokenizerTests = test [
   isLeft (parseAll tokenizer "{") ~?= True,
   isLeft (parseAll tokenizer "abc 123 +-*/ @") ~?= True,
   parseAll tokenizer ""        ~?= Right [(0,TokenEnd)],
@@ -46,7 +46,7 @@ unRight _ = error "parse failed"
 
 testEval str expr = parseAll expressionParser (map snd (unRight (parseAll tokenizer str))) ~?= Right expr
 
-expressionParserTests = [
+expressionParserTests = test [
   testEval "4" (tRat 4),
   testEval "-8" (tRat (-8)),
   testEval "foo" $ tVar "foo",
@@ -152,7 +152,7 @@ expressionParserTests = [
 testDisplay :: String -> String -> Test
 testDisplay input output = displayExpr (unRight (parseAll expressionParser (map snd (unRight (parseAll tokenizer input))))) ~?= output
 
-expressionDisplayTests = [
+expressionDisplayTests = test [
   testDisplay "3" "3",
   testDisplay "4" "4",
   testDisplay "-5" "-5",
@@ -326,7 +326,7 @@ expressionDisplayTests = [
   testDisplay "expand(0)" "0"
   ]
 
-storeTests = [
+storeTests = test [
   getValue "a" newStore ~?= Nothing,
   getValue "a" (setValue "a" (tRat 42) newStore) ~?= Just (tRat 42),
   getValue "b" (setValue "a" (tRat 42) newStore) ~?= Nothing,
@@ -335,9 +335,10 @@ storeTests = [
   getValue "a" (setValue "a" (tVar "x") (setValue "b" (tRat 11) newStore)) ~?= Just (tVar "x")
   ]
 
-tests = test (map ("tokenizer" ~:) tokenizerTests ++
-              map ("expression parser" ~:) expressionParserTests ++
-              map ("expression display" ~:) expressionDisplayTests ++
-              map ("store" ~:) storeTests)
+tests = test ["tokenizer" ~: tokenizerTests,
+              "expression parser" ~: expressionParserTests,
+              "expression display" ~: expressionDisplayTests,
+              "store" ~: storeTests
+             ]
 
 main = runTestTT tests
