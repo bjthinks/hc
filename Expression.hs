@@ -190,11 +190,7 @@ combineFactors' ((e,m):(f,n):gs)
   | otherwise = (e,m):combineFactors' ((f,n):gs)
 combineFactors' xs = xs
 pushPower :: (Expression,Integer) -> Expression
-pushPower (e,1) = e
-pushPower (ExpressionRational x,n)
-  | n < 0 = ExpressionIntPow (eRat (x^(-n))) (-1)
-  | otherwise = eRat (x^n)
-pushPower (e,n) = ExpressionIntPow e n
+pushPower = uncurry eIntPow
 
 combineConstantFactors :: [Expression] -> [Expression]
 combineConstantFactors (ExpressionRational m:ExpressionRational n:es) =

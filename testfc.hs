@@ -314,7 +314,12 @@ expressionDisplayTests = [
   testDisplay "((a*b)/(c*d))*((e*f)/(g*h))" "a b e f / c d g h",
   testDisplay "((a/b)*(c/d))*((e/f)*(g/h))" "a c e g / b d f h",
   testDisplay "2/4" "1 / 2",
-  testDisplay "1/2+1/2" "1"
+  testDisplay "1/2+1/2" "1",
+  testDisplay "1/x+1/x" "2 / x",
+  testDisplay "x/2+x/2" "x",
+  testDisplay "1/x*1/x" "1 / x^2",
+  testDisplay "1/(2*x)*1/(x*2)" "1 / 4 x^2",
+  testDisplay "1/(2*x)*x*2" "1"
   ]
 
 storeTests = [
