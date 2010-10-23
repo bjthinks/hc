@@ -4,6 +4,7 @@ import Parser
 import Tokenizer
 import Expression
 import Data.Ratio
+import Control.Monad
 
 expressionParser :: Parser Token Expression
 expressionParser = do e <- additive
@@ -49,11 +50,20 @@ intpow = do b <- atom
               Just ee -> eIntPow b ee
 
 atom :: Parser Token Expression
-atom = integer ||| variable ||| paren
+atom = integer ||| call ||| variable ||| paren
 
 integer :: Parser Token Expression
 integer = do TokenInteger n <- pProp isInteger
              return $ eRat (n%1)
+
+call :: Parser Token Expression
+call = do TokenWord func <- pProp isWord
+          pElt TokenOpenParen
+          arg <- additive
+          pElt TokenCloseParen
+          case func of
+            "expand" -> return arg
+            _ -> mzero
 
 variable :: Parser Token Expression
 variable = do TokenWord w <- pProp isWord

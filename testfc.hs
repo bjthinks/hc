@@ -322,7 +322,8 @@ expressionDisplayTests = [
   testDisplay "x/2+x/2" "x",
   testDisplay "1/x*1/x" "1 / x^2",
   testDisplay "1/(2*x)*1/(x*2)" "1 / 4 x^2",
-  testDisplay "1/(2*x)*x*2" "1"
+  testDisplay "1/(2*x)*x*2" "1",
+  testDisplay "expand(0)" "0"
   ]
 
 storeTests = [
