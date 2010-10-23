@@ -5,6 +5,7 @@ import Tokenizer
 import Expression
 import Data.Ratio
 import Control.Monad
+import Expand
 
 expressionParser :: Parser Token Expression
 expressionParser = do e <- additive
@@ -62,7 +63,7 @@ call = do TokenWord func <- pProp isWord
           arg <- additive
           pElt TokenCloseParen
           case func of
-            "expand" -> return arg
+            "expand" -> return $ expand arg
             _ -> mzero
 
 variable :: Parser Token Expression
