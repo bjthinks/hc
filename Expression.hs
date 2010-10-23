@@ -58,7 +58,7 @@ compareProduct xs ys = compareSumOrProd (addConstant 1 xs) (addConstant 1 ys)
 
 addConstant :: Rational -> [Expression] -> [Expression]
 addConstant _ xs@(ExpressionRational _:_) = xs
-addConstant n xs = ExpressionRational n:xs
+addConstant n xs = eRat n:xs
 
 -- A sum or product is compared against another sum or product, resp.,
 -- by first trying to compare the nonconstant terms, then the constant.
@@ -131,10 +131,8 @@ flattenSummands [] = []
 combineSummands :: [Expression] -> [Expression]
 combineSummands es = map pushCoeff $ combineSummands' $ map popCoeff es
 popCoeff :: Expression -> (Rational,Expression)
-popCoeff (ExpressionRational n) = (n,ExpressionRational 1)
-popCoeff (ExpressionProduct [ExpressionRational n,e]) = (n,e)
-popCoeff (ExpressionProduct (ExpressionRational n:es)) =
-  (n,ExpressionProduct es)
+popCoeff (ExpressionRational n) = (n,eRat 1)
+popCoeff (ExpressionProduct (ExpressionRational n:es)) = (n,eProd es)
 popCoeff x = (1,x)
 combineSummands' :: [(Rational,Expression)] -> [(Rational,Expression)]
 combineSummands' ((m,e):(n,f):gs)
@@ -190,12 +188,12 @@ pushPower = uncurry eIntPow
 
 combineConstantFactors :: [Expression] -> [Expression]
 combineConstantFactors (ExpressionRational m:ExpressionRational n:es) =
-  combineConstantFactors (ExpressionRational (m*n):es)
+  combineConstantFactors (eRat (m*n):es)
 combineConstantFactors (ExpressionRational 1:es) = es
 combineConstantFactors es = es
 
 detectZeroFactors :: [Expression] -> [Expression]
-detectZeroFactors (ExpressionRational 0:_) = [ExpressionRational 0]
+detectZeroFactors (ExpressionRational 0:_) = [eRat 0]
 detectZeroFactors es = es
 
 makeProduct :: [Expression] -> Expression
