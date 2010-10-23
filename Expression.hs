@@ -88,6 +88,10 @@ eMatch _ _ f _ _ (ExpressionSum es) = f es
 eMatch _ _ _ f _ (ExpressionProduct es) = f es
 eMatch _ _ _ _ f (ExpressionIntPow e n) = f e n
 
+useThisVariableOnlyForTestingTheExpressionConstructors ::
+  (Rational -> Expression, String -> Expression,
+   [Expression] -> Expression, [Expression] -> Expression,
+   Expression -> Integer -> Expression)
 useThisVariableOnlyForTestingTheExpressionConstructors =
   (ExpressionRational, ExpressionVariable,
    ExpressionSum, ExpressionProduct, ExpressionIntPow)

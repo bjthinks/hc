@@ -14,13 +14,16 @@ displayWithPrecedence = eMatch
                         displayProduct
                         displayIntPow
 
+displayRational :: Rational -> (String,Int)
 displayRational n
   | denominator n == 1 = (show (numerator n),10)
   | otherwise          = (show (numerator n) ++ " / " ++
                           show (denominator n),1)
 
+displayVariable :: String -> (String,Int)
 displayVariable v = (v,10)
 
+displaySum :: [Expression] -> (String,Int)
 displaySum es =
   (foldl withspace f fs',0) where
     fs' = map expandSign fs
@@ -30,6 +33,7 @@ displaySum es =
     (f:fs) = map displayExpr intLastExprs
     intLastExprs = filter isNonConstant es ++ filter isConstant es
 
+displayProduct :: [Expression] -> (String,Int)
 displayProduct es =
   (minusSign ++ termsStr,1)
   where
@@ -65,31 +69,7 @@ displayProduct es =
                                filter isNegPow nonConstTerms
     nonConstTerms = filter isNonConstant es
 
-{-
-displayProduct es =
-  case eMatch Just fNothing fNothing fNothing (\_ -> fNothing) (head es) of
-    Nothing -> (displayProduct'
-                (filter (not . isNegPow) es)
-                (filter isNegPow es),1)
-    Just c -> if c < 0 then
-                ('-':displayProduct'
-                 (eProd (eRat (-(numerator c%1)):filter (not . isNegPow) (tail es)))
-                 (eProd (eRat (denominator c%1):filter isNegPow (tail es))),1)
-              else
-                (displayProduct'
-                 (eProd (eRat (-(numerator c%1)):filter (not . isNegPow) (tail es)))
-                 (eProd (eRat (denominator c%1):filter isNegPow (tail es))),1)
-
-
--- Display a quotient of two products, without concern for
--- negative powers or special-case constants
-displayProduct' :: [Expression] -> [Expression] -> String
-displayProduct' numeratorTerms denominatorTerms =
-    where
-      denominatorTermsFlipped :: [Expression]
-      denominatorTermsFlipped = map (flip eIntPow (-1)) denominatorTerms
--}
-
+displayIntPow :: Expression -> Integer -> (String,Int)
 displayIntPow e n
   | n == (-1) = ("1 / " ++ parenthesize (displayWithPrecedence e) 2,1)
   | n < 0     = ("1 / " ++ parenthesize (displayWithPrecedence e) 2 ++
