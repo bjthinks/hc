@@ -6,6 +6,7 @@ import Expression
 import ExpressionParser
 import ExpressionDisplay
 import Store
+import Expand
 
 (tRat,tVar,tSum,tProd,tIntPow) = useThisVariableOnlyForTestingTheExpressionConstructors
 
@@ -323,7 +324,9 @@ expressionDisplayTests = test [
   testDisplay "1/x*1/x" "1 / x^2",
   testDisplay "1/(2*x)*1/(x*2)" "1 / 4 x^2",
   testDisplay "1/(2*x)*x*2" "1",
-  testDisplay "expand(0)" "0"
+  testDisplay "expand(0)" "0",
+  testDisplay "expand(5/3)" "5 / 3",
+  testDisplay "expand(x)" "x"
   ]
 
 storeTests = test [
@@ -338,7 +341,8 @@ storeTests = test [
 tests = test ["tokenizer" ~: tokenizerTests,
               "expression parser" ~: expressionParserTests,
               "expression display" ~: expressionDisplayTests,
-              "store" ~: storeTests
+              "store" ~: storeTests,
+              "expand" ~: test_Expand
              ]
 
 main = runTestTT tests
