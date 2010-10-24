@@ -10,6 +10,7 @@ import Command
 import CommandParser
 import Store
 import Data.Char
+import Control.Exception as C
 
 main :: IO ()
 main = do putStrLn "Don't type control-c"
@@ -24,7 +25,12 @@ prompt = "> "
 
 mainloop :: Store -> MaybeT IO ()
 mainloop store = do str <- MaybeT (readline prompt)
-                    store' <- liftIO $ processLine store str
+                    store' <- liftIO (C.catch
+                                      (processLine store str)
+                                      (\e -> if e == UserInterrupt
+                                             then do putStrLn "\nCOMPUTATION INTERRUPTED! NOW YOU WILL NEVER KNOW THE ANSWER! MUAHAHAHAHA!"
+                                                     return store
+                                             else throwIO e))
                     liftIO $ setCompletionEntryFunction $ Just $
                       (return . makeCompletionFunction store')
                     mainloop store'
