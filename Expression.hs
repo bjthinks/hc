@@ -92,10 +92,10 @@ eTransform :: (Rational -> Expression) -> (String -> Expression) ->
               ([Expression] -> Expression) -> ([Expression] -> Expression) ->
               (Expression -> Integer -> Expression) -> Expression -> Expression
 eTransform p q r s t =
-  eMatch p q
-  (r . map (eTransform p q r s t))
-  (s . map (eTransform p q r s t))
-  (\e n -> t (eTransform p q r s t e) n)
+  eMatch p q (r . map myself) (s . map myself) (\e n -> t (myself e) n)
+    where
+      myself :: Expression -> Expression
+      myself = eTransform p q r s t
 
 fTrue :: a -> Bool
 fTrue _ = True
