@@ -8,7 +8,7 @@ import Data.List (genericReplicate)
 
 expand :: Expression -> Expression
 expand =
-  eMatch eRat eVar (eSum . map expand) (eSum . expandProduct . map expand) (\e n -> expandIntPow ({-expand-} e) n)
+  eMatch eRat eVar (eSum . map expand) (eSum . expandProduct . map expand) (\e n -> expandIntPow (expand e) n)
 
 expandProduct :: [Expression] -> [Expression]
 expandProduct [] = [eRat 1]
@@ -41,7 +41,15 @@ test_Expand = test [
   expand (eProd [b,eSum [c,eProd [d,eSum [e,f]]]]) ~?=
   eSum [eProd [b,c],eProd [b,d,e],eProd [b,d,f]],
   expand (eIntPow (eSum [x,y]) 2) ~?=
-  eSum [eIntPow x 2,eProd [eRat 2,x,y],eIntPow y 2]
+  eSum [eIntPow x 2,eProd [eRat 2,x,y],eIntPow y 2],
+  -- (y+z*(a+b))^2 -> 2 y z a + 2 y z b + y^2 + a^2 z^2 + 2 a b z^2 + b^2 z^2
+  expand (eIntPow (eSum [y,eProd [z,eSum [a,b]]]) 2) ~?=
+  eSum [eProd [eRat 2,y,z,a],
+        eProd [eRat 2,y,z,b],
+        eIntPow y 2,
+        eProd [eIntPow a 2,eIntPow z 2],
+        eProd [eRat 2,a,b,eIntPow z 2],
+        eProd [eIntPow b 2,eIntPow z 2]]
   ]
   where
     a = eVar "a"
