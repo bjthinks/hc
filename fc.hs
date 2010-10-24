@@ -13,8 +13,9 @@ import Data.Char
 import Control.Exception as C
 
 main :: IO ()
-main = do putStrLn "Don't type control-c"
-          putStrLn "Don't make assignments that form a loop"
+main = do putStrLn "Don't type control-c at a prompt!  This will screw up the runtime environment."
+          putStrLn "Do type control-c to interrupt lengthy computations."
+          putStrLn "Note: assignments that form a loop may result in \"lengthy computations\"."
           setCompletionEntryFunction $ Just $ \_ -> return []
           runMaybeT $ mainloop newStore
           putStrLn ""
