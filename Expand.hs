@@ -7,16 +7,22 @@ import Data.Ratio ((%))
 import Data.List (genericReplicate)
 
 expand :: Expression -> Expression
-expand =
-  eMatch eRat eVar (eSum . map expand) (expandProduct . map expand) (\e n -> expandIntPow (expand e) n)
+expand = eMatch
+         eRat
+         eVar
+         (eSum . map expand)
+         (expandProduct . map expand)
+         (\e n -> expandIntPow (expand e) n)
 
 expandProduct :: [Expression] -> Expression
 expandProduct [] = eRat 1
 expandProduct (x:xs) = eSum $
-  [eProd [xTerm,restTerm] | xTerm <- xAsSum, restTerm <- eAsSum $ expandProduct xs]
+  [eProd [xTerm,restTerm] | xTerm <- xAsSum, restTerm <- xsAsSum]
   where
     xAsSum :: [Expression]
     xAsSum = eAsSum x
+    xsAsSum :: [Expression]
+    xsAsSum = eAsSum $ expandProduct xs
 
 -- Note: might want 0 -> [] instead of 0 -> [0]
 eAsSum :: Expression -> [Expression]
