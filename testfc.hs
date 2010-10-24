@@ -326,7 +326,9 @@ expressionDisplayTests = test [
   testDisplay "1/(2*x)*x*2" "1",
   testDisplay "expand(0)" "0",
   testDisplay "expand(5/3)" "5 / 3",
-  testDisplay "expand(x)" "x"
+  testDisplay "expand(x)" "x",
+  testDisplay "expand((a+b)*(u+v)*(x+y+3*z))" "a u x + a u y + 3 a u z + a v x + a v y + 3 a v z + b u x + b u y + 3 b u z + b v x + b v y + 3 b v z",
+  testDisplay "expand(4/5*a^7*b^-2*(x+y))" "4 a^7 x / 5 b^2 + 4 a^7 y / 5 b^2"
   ]
 
 storeTests = test [
