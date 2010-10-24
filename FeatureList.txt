@@ -34,6 +34,10 @@ tab completion is bound to variables
 after sorting, like terms of a sum are combined via products
 negation of an expression is an expression
 handle differences/negatives in sums
+quotients of expressions are expressions
+quotient of quotient is simplified to a quotient of products
+after sorting, like terms of a product are combined via exponentiation
+expand function causes products of sums to be distributed
 
 ----------
 
@@ -43,10 +47,6 @@ unit tests for command parser
 ?? prompts are numbered
 ?? input history accessed by ! number (string or token substitution)
 power of one expression by another is an expression
-quotients of expressions are expressions
-quotient of quotient is simplified to a quotient of products
-after sorting, like terms of a product are combined via exponentiation
-expand function causes products of sums to be distributed
 factor function causes sums of products to be factored
 substitute function causes expression to be evaluated in a sub-context
 	   with additional definitions

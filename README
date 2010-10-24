@@ -18,5 +18,6 @@ FEATURES
 * Addition, subtraction, multiplication, division of integers and variables
 * Raising to integer powers
 * Various simplifications are performed
+* expand() multiplies out products/powers of sums
 * Assignment to variables with :=
 * Input via the GNU readline library with history and tab completion
