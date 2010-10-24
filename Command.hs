@@ -12,12 +12,7 @@ execute s (CommandAssign v e) = (setValue v e s, displayAssignment v e)
 execute s (CommandEval e) = (s, displayExpr (substitute s e))
 
 substitute :: Store -> Expression -> Expression
-substitute s = eMatch
-               eRat                           -- Rational -> Expression
-               (get s)                        -- String -> Expression
-               (eSum . (map $ substitute s))  -- [Expression] -> Expression
-               (eProd . (map $ substitute s)) -- [Expression] -> Expression
-               (\e -> eIntPow (substitute s e))
+substitute s = eTransform eRat (get s) eSum eProd eIntPow
 
 get :: Store -> String -> Expression
 get store str =

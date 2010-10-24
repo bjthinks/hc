@@ -1,10 +1,12 @@
 module Expression (eRat, eVar, eSum, eProd, eIntPow,
-                   eMatch,
+                   eMatch, isRational, isNegPow, eAsSum, eTransform,
+                   prodAsQuot,
                    useThisVariableOnlyForTestingTheExpressionConstructors,
                    Expression) where
 
 import Data.Char (isAlpha)
 import Data.List
+import Data.Ratio ((%),numerator,denominator)
 
 data Expression = ExpressionVariable String |
                   ExpressionRational Rational |
@@ -87,6 +89,57 @@ eMatch _ f _ _ _ (ExpressionVariable s) = f s
 eMatch _ _ f _ _ (ExpressionSum es) = f es
 eMatch _ _ _ f _ (ExpressionProduct es) = f es
 eMatch _ _ _ _ f (ExpressionIntPow e n) = f e n
+
+eTransform :: (Rational -> Expression) -> (String -> Expression) ->
+              ([Expression] -> Expression) -> ([Expression] -> Expression) ->
+              (Expression -> Integer -> Expression) -> Expression -> Expression
+eTransform p q r s t =
+  eMatch p q (r . map myself) (s . map myself) (\e n -> t (myself e) n)
+    where
+      myself :: Expression -> Expression
+      myself = eTransform p q r s t
+
+prodAsQuot :: [Expression] -> (Integer,[Expression],[Expression])
+prodAsQuot [] = (1,[],[])
+prodAsQuot (ExpressionRational q:es) =
+  case (absnum,den) of
+    (1,1) -> (sign*s,                ns,             ds)
+    (_,1) -> (sign*s,eRat (absnum%1):ns,             ds)
+    (1,_) -> (sign*s,                ns,eRat (den%1):ds)
+    (_,_) -> (sign*s,eRat (absnum%1):ns,eRat (den%1):ds)
+    where
+      sign = signum num
+      absnum = abs num
+      num = numerator q
+      den = denominator q
+      (s,ns,ds) = prodAsQuot es
+prodAsQuot (e@(ExpressionIntPow b n):es)
+  | n < 0 = (s,ns,eIntPow b (-n):ds)
+  | otherwise = (s,e:ns,ds)
+    where
+      (s,ns,ds) = prodAsQuot es
+prodAsQuot (e:es) = (s,e:ns,ds)
+  where
+    (s,ns,ds) = prodAsQuot es
+
+fTrue :: a -> Bool
+fTrue _ = True
+fFalse :: a -> Bool
+fFalse _ = False
+
+isRational :: Expression -> Bool
+isRational = eMatch fTrue fFalse fFalse fFalse (\_ -> fFalse)
+
+isNegPow :: Expression -> Bool
+isNegPow = eMatch fFalse fFalse fFalse fFalse (\_ n -> n<0)
+
+-- Note: might want 0 -> [] instead of 0 -> [0]
+eAsSum :: Expression -> [Expression]
+eAsSum =
+  eMatch (list . eRat) (list . eVar) id (list . eProd) (\e n -> [eIntPow e n])
+    where
+      list :: a -> [a]
+      list x = x:[]
 
 useThisVariableOnlyForTestingTheExpressionConstructors ::
   (Rational -> Expression, String -> Expression,
