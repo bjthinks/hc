@@ -329,6 +329,12 @@ expressionDisplayTests = test [
   testDisplay "expand(x)" "x",
   testDisplay "expand((a+b)*(u+v)*(x+y+3*z))" "a u x + a u y + 3 a u z + a v x + a v y + 3 a v z + b u x + b u y + 3 b u z + b v x + b v y + 3 b v z",
   testDisplay "expand(4/5*a^7*b^-2*(x+y))" "4 a^7 x / 5 b^2 + 4 a^7 y / 5 b^2"
+  -- There is a sort order problem here
+  -- Need to separate this into 2 classes of tests:
+  -- 1. tests that two expressions evaluate and display as the same thing
+  -- 2. tests that a certain expression displays in a certain form
+  --testDisplay "expand((1+x)^5)" "x^5 + 5 x^4 + 10 x^3 + 10 x^2 + 5 x + 1",
+  --testDisplay "expand((x+y+1)^3)" "x^3 + 3 x^2 y + 3 x^2 + 3 x y^2 + 6 x y + 3 x + y^3 + 3 y^2 + 3 y + 1"
   ]
 
 storeTests = test [

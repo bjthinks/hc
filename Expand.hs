@@ -3,11 +3,12 @@ module Expand (expand,
 
 import Expression
 import Test.HUnit
-import Data.Ratio
+import Data.Ratio ((%))
+import Data.List (genericReplicate)
 
 expand :: Expression -> Expression
 expand =
-  eMatch eRat eVar (eSum . map expand) (eSum . expandProduct . map expand) eIntPow
+  eMatch eRat eVar (eSum . map expand) (eSum . expandProduct . map expand) (\e n -> expandIntPow ({-expand-} e) n)
 
 expandProduct :: [Expression] -> [Expression]
 expandProduct [] = [eRat 1]
@@ -22,6 +23,11 @@ eAsSum :: Expression -> [Expression]
 eAsSum = eMatch (\c -> [eRat c]) (\v -> [eVar v]) id (\e -> [eProd e])
          (\e n -> [eIntPow e n])
 
+expandIntPow :: Expression -> Integer -> Expression
+expandIntPow e n
+  | n < 0 = eIntPow (expandIntPow e (-n)) (-1)
+  | otherwise = eSum $ expandProduct $ genericReplicate n e
+
 test_Expand :: Test
 test_Expand = test [
   expand (eRat 0) ~?= eRat 0,
@@ -33,7 +39,9 @@ test_Expand = test [
          (eSum [eRat 1,eProd [x,y],eProd [x,z]]),
   -- b*(c+d*(e+f))
   expand (eProd [b,eSum [c,eProd [d,eSum [e,f]]]]) ~?=
-  eSum [eProd [b,c],eProd [b,d,e],eProd [b,d,f]]
+  eSum [eProd [b,c],eProd [b,d,e],eProd [b,d,f]],
+  expand (eIntPow (eSum [x,y]) 2) ~?=
+  eSum [eIntPow x 2,eProd [eRat 2,x,y],eIntPow y 2]
   ]
   where
     a = eVar "a"
