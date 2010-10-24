@@ -8,12 +8,12 @@ import Data.List (genericReplicate)
 
 expand :: Expression -> Expression
 expand =
-  eMatch eRat eVar (eSum . map expand) (eSum . expandProduct . map expand) (\e n -> expandIntPow (expand e) n)
+  eMatch eRat eVar (eSum . map expand) (expandProduct . map expand) (\e n -> expandIntPow (expand e) n)
 
-expandProduct :: [Expression] -> [Expression]
-expandProduct [] = [eRat 1]
-expandProduct (x:xs) = eAsSum $ eSum $
-  [eProd [xTerm,restTerm] | xTerm <- xAsSum, restTerm <- expandProduct xs]
+expandProduct :: [Expression] -> Expression
+expandProduct [] = eRat 1
+expandProduct (x:xs) = eSum $
+  [eProd [xTerm,restTerm] | xTerm <- xAsSum, restTerm <- eAsSum $ expandProduct xs]
   where
     xAsSum :: [Expression]
     xAsSum = eAsSum x
@@ -26,7 +26,7 @@ eAsSum = eMatch (\c -> [eRat c]) (\v -> [eVar v]) id (\e -> [eProd e])
 expandIntPow :: Expression -> Integer -> Expression
 expandIntPow e n
   | n < 0 = eIntPow (expandIntPow e (-n)) (-1)
-  | otherwise = eSum $ expandProduct $ genericReplicate n e
+  | otherwise = expandProduct $ genericReplicate n e
 
 test_Expand :: Test
 test_Expand = test [
