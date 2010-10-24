@@ -15,7 +15,7 @@ data Expression = ExpressionVariable String |
                   ExpressionIntPow Expression Integer
                   deriving (Show, Eq)
 
--- This is a TOTAL ORDER
+-- This ought to be a TOTAL ORDER
 instance Ord Expression where
   -- Rationals are sorted by value
   compare (ExpressionRational x) (ExpressionRational y) = compare x y
