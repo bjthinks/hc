@@ -1,10 +1,12 @@
 module Expression (eRat, eVar, eSum, eProd, eIntPow,
                    eMatch, isRational, isNegPow, eAsSum, eTransform,
+                   prodAsQuot,
                    useThisVariableOnlyForTestingTheExpressionConstructors,
                    Expression) where
 
 import Data.Char (isAlpha)
 import Data.List
+import Data.Ratio ((%),numerator,denominator)
 
 data Expression = ExpressionVariable String |
                   ExpressionRational Rational |
@@ -96,6 +98,29 @@ eTransform p q r s t =
     where
       myself :: Expression -> Expression
       myself = eTransform p q r s t
+
+prodAsQuot :: [Expression] -> (Integer,[Expression],[Expression])
+prodAsQuot [] = (1,[],[])
+prodAsQuot (ExpressionRational q:es) =
+  case (absnum,den) of
+    (1,1) -> (sign*s,                ns,             ds)
+    (_,1) -> (sign*s,eRat (absnum%1):ns,             ds)
+    (1,_) -> (sign*s,                ns,eRat (den%1):ds)
+    (_,_) -> (sign*s,eRat (absnum%1):ns,eRat (den%1):ds)
+    where
+      sign = signum num
+      absnum = abs num
+      num = numerator q
+      den = denominator q
+      (s,ns,ds) = prodAsQuot es
+prodAsQuot (e@(ExpressionIntPow b n):es)
+  | n < 0 = (s,ns,eIntPow b (-n):ds)
+  | otherwise = (s,e:ns,ds)
+    where
+      (s,ns,ds) = prodAsQuot es
+prodAsQuot (e:es) = (s,e:ns,ds)
+  where
+    (s,ns,ds) = prodAsQuot es
 
 fTrue :: a -> Bool
 fTrue _ = True

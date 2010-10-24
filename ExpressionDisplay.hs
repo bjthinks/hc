@@ -41,34 +41,14 @@ displayProduct es =
       (_,[]) -> numeratorStr
       ([],_) -> "1 / " ++ denominatorStr
       _ -> numeratorStr ++ " / " ++ denominatorStr
-
     numeratorStr = termsToStr numeratorTerms
     denominatorStr = termsToStr denominatorTerms
     termsToStr = foldl1 withspace . map displayTerm
     displayTerm t = parenthesize (displayWithPrecedence t) 1
-
-    numeratorTerms = termsWithConst constOfNum numeratorNonConstTerms
-    denominatorTerms = termsWithConst constOfDen denominatorNonConstTerms
-    termsWithConst c ts = case c of
-      1 -> ts
-      _ -> eRat (c%1) : ts
-    constOfNum = numerator absConstant
-    constOfDen = denominator absConstant
-    absConstant = abs constant
-    minusSign = if constant < 0 then "-" else ""
-
-    -- How to refactor this part?
-    getConstant = eMatch Just fNothing fNothing fNothing (\_ -> fNothing) $
-                  head es
-    fNothing _ = Nothing
-    constant = case getConstant of
-      Nothing -> 1
-      Just c -> c
-
-    numeratorNonConstTerms = filter (not . isNegPow) nonConstTerms
-    denominatorNonConstTerms = map (flip eIntPow (-1)) $
-                               filter isNegPow nonConstTerms
-    nonConstTerms = filter (not . isRational) es
+    (sign,numeratorTerms,denominatorTerms) = prodAsQuot es
+    minusSign = case sign of
+      (-1) -> "-"
+      _    -> ""
 
 displayIntPow :: Expression -> Integer -> (String,Int)
 displayIntPow e n
