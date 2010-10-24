@@ -1,5 +1,5 @@
 module Expression (eRat, eVar, eSum, eProd, eIntPow,
-                   eMatch, eAsSum, eTransform,
+                   eMatch, isRational, isNegPow, eAsSum, eTransform,
                    useThisVariableOnlyForTestingTheExpressionConstructors,
                    Expression) where
 
@@ -88,13 +88,24 @@ eMatch _ _ f _ _ (ExpressionSum es) = f es
 eMatch _ _ _ f _ (ExpressionProduct es) = f es
 eMatch _ _ _ _ f (ExpressionIntPow e n) = f e n
 
-list :: a -> [a]
-list x = x:[]
+fTrue :: a -> Bool
+fTrue _ = True
+fFalse :: a -> Bool
+fFalse _ = False
+
+isRational :: Expression -> Bool
+isRational = eMatch fTrue fFalse fFalse fFalse (\_ -> fFalse)
+
+isNegPow :: Expression -> Bool
+isNegPow = eMatch fFalse fFalse fFalse fFalse (\_ n -> n<0)
 
 -- Note: might want 0 -> [] instead of 0 -> [0]
 eAsSum :: Expression -> [Expression]
 eAsSum =
   eMatch (list . eRat) (list . eVar) id (list . eProd) (\e n -> [eIntPow e n])
+    where
+      list :: a -> [a]
+      list x = x:[]
 
 eTransform :: ([Expression] -> Expression) -> ([Expression] -> Expression) ->
               (Expression -> Integer -> Expression) -> Expression -> Expression

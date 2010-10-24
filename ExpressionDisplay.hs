@@ -30,8 +30,8 @@ displaySum es =
     expandSign :: String -> String
     expandSign ('-':cs) = '-':' ':cs
     expandSign cs = '+':' ':cs
-    (f:fs) = map displayExpr intLastExprs
-    intLastExprs = filter isNonConstant es ++ filter isConstant es
+    (f:fs) = map displayExpr constLastExprs
+    constLastExprs = filter (not . isRational) es ++ filter isRational es
 
 displayProduct :: [Expression] -> (String,Int)
 displayProduct es =
@@ -67,7 +67,7 @@ displayProduct es =
     numeratorNonConstTerms = filter (not . isNegPow) nonConstTerms
     denominatorNonConstTerms = map (flip eIntPow (-1)) $
                                filter isNegPow nonConstTerms
-    nonConstTerms = filter isNonConstant es
+    nonConstTerms = filter (not . isRational) es
 
 displayIntPow :: Expression -> Integer -> (String,Int)
 displayIntPow e n
@@ -83,25 +83,3 @@ parenthesize :: (String,Int) -> Int -> String
 parenthesize (str,x) y
   | x < y = "(" ++ str ++ ")"
   | otherwise = str
-
-isNegOne :: Rational -> Bool
-isNegOne (-1) = True
-isNegOne _ = False
-
-isConstant :: Expression -> Bool
-isConstant = eMatch fTrue fFalse fFalse fFalse (\_ -> fFalse)
-
-isNonConstant :: Expression -> Bool
-isNonConstant = not . isConstant
-
-isNegPow :: Expression -> Bool
-isNegPow = eMatch fFalse fFalse fFalse fFalse (\_ -> \n -> n<0)
-
-fTrue :: a -> Bool
-fTrue = first True
-
-fFalse :: a -> Bool
-fFalse = first False
-
-first :: a -> b -> a
-first x _ = x
