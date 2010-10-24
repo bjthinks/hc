@@ -10,14 +10,20 @@ expand :: Expression -> Expression
 expand = eTransform eRat eVar eSum expandProduct expandIntPow
 
 expandProduct :: [Expression] -> Expression
-expandProduct [] = eRat 1
-expandProduct (x:xs) = eSum $
+expandProduct xs =
+  eProd [eRat (s%1),expandProduct' ns,eIntPow (expandProduct' ds) (-1)]
+  where
+    (s,ns,ds) = prodAsQuot xs
+
+expandProduct' :: [Expression] -> Expression
+expandProduct' [] = eRat 1
+expandProduct' (x:xs) = eSum $
   [eProd [xTerm,restTerm] | xTerm <- xAsSum, restTerm <- xsAsSum]
   where
     xAsSum :: [Expression]
     xAsSum = eAsSum x
     xsAsSum :: [Expression]
-    xsAsSum = eAsSum $ expandProduct xs
+    xsAsSum = eAsSum $ expandProduct' xs
 
 expandIntPow :: Expression -> Integer -> Expression
 expandIntPow e n
