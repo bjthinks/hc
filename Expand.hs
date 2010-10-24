@@ -55,7 +55,14 @@ test_Expand = test [
         eIntPow y 2,
         eProd [eIntPow a 2,eIntPow z 2],
         eProd [eRat 2,a,b,eIntPow z 2],
-        eProd [eIntPow b 2,eIntPow z 2]]
+        eProd [eIntPow b 2,eIntPow z 2]],
+  -- 1/(a+b)/(x+y)
+  expand (eProd [eIntPow (eSum [a,b]) (-1),
+                 eIntPow (eSum [x,y]) (-1)]) ~?=
+  eIntPow (eSum [eProd [a,x],
+                 eProd [a,y],
+                 eProd [b,x],
+                 eProd [b,y]]) (-1)
   ]
   where
     a = eVar "a"
