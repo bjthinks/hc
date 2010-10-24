@@ -7,7 +7,7 @@ import Data.Ratio
 
 expand :: Expression -> Expression
 expand =
-  eMatch eRat eVar (eSum . map expand) (eSum . expandProduct) eIntPow
+  eMatch eRat eVar (eSum . map expand) (eSum . expandProduct . map expand) eIntPow
 
 expandProduct :: [Expression] -> [Expression]
 expandProduct [] = [eRat 1]
@@ -26,9 +26,22 @@ test_Expand :: Test
 test_Expand = test [
   expand (eRat 0) ~?= eRat 0,
   expand (eRat (5%3)) ~?= eRat (5%3),
-  expand (eVar "x") ~?= eVar "x",
-  expand (eProd [eVar "x",eSum [eVar "y",eVar "z"]]) ~?=
-         (eSum [eProd [eVar "x",eVar "y"],eProd [eVar "x",eVar "z"]]),
-  expand (eSum [eRat 1,eProd [eVar "x",eSum [eVar "y",eVar "z"]]]) ~?=
-         (eSum [eRat 1,eProd [eVar "x",eVar "y"],eProd [eVar "x",eVar "z"]])
+  expand (x) ~?= x,
+  expand (eProd [x,eSum [y,z]]) ~?=
+         (eSum [eProd [x,y],eProd [x,z]]),
+  expand (eSum [eRat 1,eProd [x,eSum [y,z]]]) ~?=
+         (eSum [eRat 1,eProd [x,y],eProd [x,z]]),
+  -- b*(c+d*(e+f))
+  expand (eProd [b,eSum [c,eProd [d,eSum [e,f]]]]) ~?=
+  eSum [eProd [b,c],eProd [b,d,e],eProd [b,d,f]]
   ]
+  where
+    a = eVar "a"
+    b = eVar "b"
+    c = eVar "c"
+    d = eVar "d"
+    e = eVar "e"
+    f = eVar "f"
+    x = eVar "x"
+    y = eVar "y"
+    z = eVar "z"
