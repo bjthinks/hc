@@ -12,7 +12,7 @@ expand =
 
 expandProduct :: [Expression] -> [Expression]
 expandProduct [] = [eRat 1]
-expandProduct (x:xs) =
+expandProduct (x:xs) = eAsSum $ eSum $
   [eProd [xTerm,restTerm] | xTerm <- xAsSum, restTerm <- expandProduct xs]
   where
     xAsSum :: [Expression]
