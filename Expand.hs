@@ -7,12 +7,7 @@ import Data.Ratio ((%))
 import Data.List (genericReplicate)
 
 expand :: Expression -> Expression
-expand = eMatch
-         eRat
-         eVar
-         (eSum . map expand)
-         (expandProduct . map expand)
-         (\e n -> expandIntPow (expand e) n)
+expand = eTransform eSum expandProduct expandIntPow
 
 expandProduct :: [Expression] -> Expression
 expandProduct [] = eRat 1
@@ -23,11 +18,6 @@ expandProduct (x:xs) = eSum $
     xAsSum = eAsSum x
     xsAsSum :: [Expression]
     xsAsSum = eAsSum $ expandProduct xs
-
--- Note: might want 0 -> [] instead of 0 -> [0]
-eAsSum :: Expression -> [Expression]
-eAsSum = eMatch (\c -> [eRat c]) (\v -> [eVar v]) id (\e -> [eProd e])
-         (\e n -> [eIntPow e n])
 
 expandIntPow :: Expression -> Integer -> Expression
 expandIntPow e n

@@ -1,5 +1,5 @@
 module Expression (eRat, eVar, eSum, eProd, eIntPow,
-                   eMatch,
+                   eMatch, eAsSum, eTransform,
                    useThisVariableOnlyForTestingTheExpressionConstructors,
                    Expression) where
 
@@ -87,6 +87,20 @@ eMatch _ f _ _ _ (ExpressionVariable s) = f s
 eMatch _ _ f _ _ (ExpressionSum es) = f es
 eMatch _ _ _ f _ (ExpressionProduct es) = f es
 eMatch _ _ _ _ f (ExpressionIntPow e n) = f e n
+
+list :: a -> [a]
+list x = x:[]
+
+eAsSum :: Expression -> [Expression]
+eAsSum =
+  eMatch (list . eRat) (list . eVar) id (list . eProd) (\e n -> [eIntPow e n])
+
+eTransform :: ([Expression] -> Expression) -> ([Expression] -> Expression) ->
+              (Expression -> Integer -> Expression) -> Expression -> Expression
+eTransform f g h = eMatch eRat eVar
+                   (f . map (eTransform f g h))
+                   (g . map (eTransform f g h))
+                   (\e n -> h (eTransform f g h e) n)
 
 useThisVariableOnlyForTestingTheExpressionConstructors ::
   (Rational -> Expression, String -> Expression,
