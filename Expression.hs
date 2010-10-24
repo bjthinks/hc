@@ -88,6 +88,15 @@ eMatch _ _ f _ _ (ExpressionSum es) = f es
 eMatch _ _ _ f _ (ExpressionProduct es) = f es
 eMatch _ _ _ _ f (ExpressionIntPow e n) = f e n
 
+eTransform :: (Rational -> Expression) -> (String -> Expression) ->
+              ([Expression] -> Expression) -> ([Expression] -> Expression) ->
+              (Expression -> Integer -> Expression) -> Expression -> Expression
+eTransform p q r s t =
+  eMatch p q
+  (r . map (eTransform p q r s t))
+  (s . map (eTransform p q r s t))
+  (\e n -> t (eTransform p q r s t e) n)
+
 fTrue :: a -> Bool
 fTrue _ = True
 fFalse :: a -> Bool
@@ -106,13 +115,6 @@ eAsSum =
     where
       list :: a -> [a]
       list x = x:[]
-
-eTransform :: ([Expression] -> Expression) -> ([Expression] -> Expression) ->
-              (Expression -> Integer -> Expression) -> Expression -> Expression
-eTransform f g h = eMatch eRat eVar
-                   (f . map (eTransform f g h))
-                   (g . map (eTransform f g h))
-                   (\e n -> h (eTransform f g h e) n)
 
 useThisVariableOnlyForTestingTheExpressionConstructors ::
   (Rational -> Expression, String -> Expression,
