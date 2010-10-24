@@ -91,6 +91,7 @@ eMatch _ _ _ _ f (ExpressionIntPow e n) = f e n
 list :: a -> [a]
 list x = x:[]
 
+-- Note: might want 0 -> [] instead of 0 -> [0]
 eAsSum :: Expression -> [Expression]
 eAsSum =
   eMatch (list . eRat) (list . eVar) id (list . eProd) (\e n -> [eIntPow e n])
