@@ -11,6 +11,7 @@ expand = eTransform eRat eVar eSum expandProduct expandIntPow
 
 expandProduct :: [Expression] -> Expression
 expandProduct xs =
+  -- I can use a "reverse function" here
   eProd [eRat (s%1),expandProduct' ns,eIntPow (expandProduct' ds) (-1)]
   where
     (s,ns,ds) = prodAsQuot xs

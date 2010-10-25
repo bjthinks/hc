@@ -47,10 +47,16 @@ instance Ord Expression where
   -- Products are intermingled in the sort order.
   compare (ExpressionProduct x) y@(ExpressionVariable _) = compareProduct x [y]
   compare x@(ExpressionVariable _) (ExpressionProduct y) = compareProduct [x] y
+  {-
+  -- THIS IS BROKEN
   -- IntPows are compared against anything else by pretending the
   -- something else is raised to the first power.
   compare x y@(ExpressionIntPow _ _) = compare (ExpressionIntPow x 1) y
   compare x@(ExpressionIntPow _ _) y = compare x (ExpressionIntPow y 1)
+  -}
+  compare (ExpressionRational _) (ExpressionIntPow _ _) = LT
+  compare (ExpressionIntPow _ _) (ExpressionRational _) = GT
+  
 
 -- FIXME: I hope there's a cleaner way to do this
 compareSum :: [Expression] -> [Expression] -> Ordering
