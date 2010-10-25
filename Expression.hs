@@ -41,9 +41,64 @@ data Expression = ExpressionVariable String |
 instance Ord Expression where
   -- Rationals are sorted by value
   compare (ExpressionRational x) (ExpressionRational y) = compare x y
-  -- Variables are sorted in alphabetical order
-  compare (ExpressionVariable x) (ExpressionVariable y) =
-    compare x y
+  -- Rationals come before anything else
+  compare (ExpressionRational _) _ = LT
+  compare _ (ExpressionRational _) = GT
+  -- Variables are sorted alphabetically
+  compare (ExpressionVariable x) (ExpressionVariable y) = compare x y
+  -- Variables before sums
+  compare (ExpressionVariable _) (ExpressionSum _) = LT
+  compare (ExpressionSum _) (ExpressionVariable _) = GT
+  -- Variables vs. products: pretend variable is a singleton product
+  compare x@(ExpressionVariable _) (ExpressionProduct ys) = compareAsSum [x] ys
+  compare (ExpressionProduct xs) y@(ExpressionVariable _) = compareAsSum xs [y]
+  -- Variables vs. variable^n: pretend variable is raised to first power
+  compare x@(ExpressionVariable _)
+    (ExpressionIntPow y@(ExpressionVariable _) n) =
+    compare (x,(-1)) (y,(-n))
+  compare (ExpressionIntPow x@(ExpressionVariable _) n)
+    y@(ExpressionVariable _) =
+    compare (x,(-n)) (y,(-1))
+  -- Variable before sum^n
+  compare (ExpressionVariable _) (ExpressionIntPow (ExpressionSum _) _) = LT
+  compare (ExpressionIntPow (ExpressionSum _) _) (ExpressionVariable _) = GT
+  -- Sum vs. sum: recurse, coeffs are tiebreaker
+  compare (ExpressionSum xs) (ExpressionSum ys) = compareAsSum xs ys
+  -- Products before sums (only occurs in user-generated sorts)
+  compare (ExpressionProduct _) (ExpressionSum _) = LT
+  compare (ExpressionSum _) (ExpressionProduct _) = GT
+  -- Variable^n before sums
+  compare (ExpressionIntPow (ExpressionVariable _) _) (ExpressionSum _) = LT
+  compare (ExpressionSum _) (ExpressionIntPow (ExpressionVariable _) _) = GT
+  -- Sum^n vs sum: Pretend sum is raised to first power
+  compare (ExpressionIntPow x@(ExpressionSum _) n) y@(ExpressionSum _) =
+    compare (x,(-n)) (y,(-1))
+  compare x@(ExpressionSum _) (ExpressionIntPow y@(ExpressionSum _) n) =
+    compare (x,(-1)) (y,(-n))
+  -- Product vs product
+  compare (ExpressionProduct xs) (ExpressionProduct ys) = compareAsProd xs ys
+  -- Product vs variable^n: Pretend variable^n is a singleton product
+  compare (ExpressionProduct xs)
+    y@(ExpressionIntPow (ExpressionVariable _) _) = compareAsProd xs [y]
+  compare x@(ExpressionIntPow (ExpressionVariable _) _)
+    (ExpressionProduct ys) = compareAsProd [x] ys
+  -- Product before sum^n
+  compare (ExpressionProduct _) (ExpressionIntPow (ExpressionSum _) _) = LT
+  compare (ExpressionIntPow (ExpressionSum _) _) (ExpressionProduct _) = GT
+  -- Variable^n: sort first by variable, then power
+  compare
+    (ExpressionIntPow x@(ExpressionVariable _) m)
+    (ExpressionIntPow y@(ExpressionVariable _) n) = compare (x,(-m)) (y,(-n))
+  -- Variable^n before sum^n
+  compare (ExpressionIntPow (ExpressionVariable _) _)
+    (ExpressionIntPow (ExpressionSum _) _) = LT
+  compare (ExpressionIntPow (ExpressionSum _) _)
+    (ExpressionIntPow (ExpressionVariable _) _) = GT
+  -- Sum^n: First base, then power
+  compare (ExpressionIntPow x@(ExpressionSum _) m)
+    (ExpressionIntPow y@(ExpressionSum _) n) =
+    compare (x,(-m)) (y,(-n))
+  {-
   -- Sums are compared by comparing their contents, looking first
   -- at nonconstants and using constants as a tiebreaker
   compare (ExpressionSum x) (ExpressionSum y) = compareSum x y
@@ -77,14 +132,13 @@ instance Ord Expression where
   -}
   compare (ExpressionRational _) (ExpressionIntPow _ _) = LT
   compare (ExpressionIntPow _ _) (ExpressionRational _) = GT
-  
+  -}
 
--- FIXME: I hope there's a cleaner way to do this
-compareSum :: [Expression] -> [Expression] -> Ordering
-compareSum xs ys = compareSumOrProd (addConstant 0 xs) (addConstant 0 ys)
+compareAsSum :: [Expression] -> [Expression] -> Ordering
+compareAsSum xs ys = compareAsList (addConstant 0 xs) (addConstant 0 ys)
 
-compareProduct :: [Expression] -> [Expression] -> Ordering
-compareProduct xs ys = compareSumOrProd (addConstant 1 xs) (addConstant 1 ys)
+compareAsProd :: [Expression] -> [Expression] -> Ordering
+compareAsProd xs ys = compareAsList (addConstant 1 xs) (addConstant 1 ys)
 
 addConstant :: Rational -> [Expression] -> [Expression]
 addConstant _ xs@(ExpressionRational _:_) = xs
@@ -92,22 +146,21 @@ addConstant n xs = eRat n:xs
 
 -- A sum or product is compared against another sum or product, resp.,
 -- by first trying to compare the nonconstant terms, then the constant.
-compareSumOrProd :: [Expression] -> [Expression] -> Ordering
-compareSumOrProd (ExpressionRational m:xs) (ExpressionRational n:ys) =
-  case compareExprList xs ys of
+compareAsList :: [Expression] -> [Expression] -> Ordering
+compareAsList (ExpressionRational m:xs) (ExpressionRational n:ys) =
+  case compareAsList xs ys of
     LT -> LT
     GT -> GT
     EQ -> compare m n
-compareExprList :: [Expression] -> [Expression] -> Ordering
-compareExprList (x:xs) (y:ys) =
+compareAsList (x:xs) (y:ys) =
   case compare x y of
     LT -> LT
     GT -> GT
-    EQ -> compareExprList xs ys
-compareExprList [] [] = EQ
+    EQ -> compareAsList xs ys
+compareAsList [] [] = EQ
 -- HERE'S THE BEEF
-compareExprList (_:_) [] = LT
-compareExprList [] (_:_) = GT
+compareAsList (_:_) [] = LT
+compareAsList [] (_:_) = GT
 
 eMatch :: (Rational -> a) -> (String -> a) -> ([Expression] -> a) ->
           ([Expression] -> a) -> (Expression -> Integer -> a) ->

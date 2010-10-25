@@ -304,7 +304,28 @@ expressionDisplayTests = test [
   -- 2. tests that a certain expression displays in a certain form
   testDisplay "expand((1+x)^5)" "x^5 + 5 x^4 + 10 x^3 + 10 x^2 + 5 x + 1",
   testDisplay "expand((x+y+1)^3)" "x^3 + 3 x^2 y + 3 x^2 + 3 x y^2 + 6 x y + 3 x + y^3 + 3 y^2 + 3 y + 1",
-  testDisplay "x^2+x*y" "x^2 + x y"
+  testDisplay "x^2+x*y" "x^2 + x y",
+  testDisplay "(a+b)^2*z" "z (a + b)^2",
+  testDisplay "z*(a+b)^2" "z (a + b)^2",
+  testDisplay "(a+b)*(a+c)^2" "(a + b) (a + c)^2",
+  testDisplay "(a+b)^2*(a+c)" "(a + b)^2 (a + c)",
+  testDisplay "(a+c)*(a+b)^2" "(a + b)^2 (a + c)",
+  testDisplay "(a+c)^2*(a+b)" "(a + b) (a + c)^2",
+  testDisplay "a*b+(c+d)^2" "a b + (c + d)^2",
+  testDisplay "c*d+(a+b)^2" "c d + (a + b)^2",
+  testDisplay "(a+b)^2+c*d" "c d + (a + b)^2",
+  testDisplay "(a+b)*(y+z)^2" "(a + b) (y + z)^2",
+  testDisplay "(y+z)*(a+b)^2" "(a + b)^2 (y + z)",
+  testDisplay "(a+b+1)*(y+z)^2" "(a + b + 1) (y + z)^2",
+  testDisplay "(a+b)*(y+z+1)^2" "(a + b) (y + z + 1)^2",
+  testDisplay "(a+b+1)^2*(y+z)" "(a + b + 1)^2 (y + z)",
+  testDisplay "(a+b)^2*(y+z+1)" "(a + b)^2 (y + z + 1)",
+  testDisplay "(y+z)^2*(a+b+1)" "(a + b + 1) (y + z)^2",
+  testDisplay "(y+z+1)^2*(a+b)" "(a + b) (y + z + 1)^2",
+  testDisplay "(y+z)*(a+b+1)^2" "(a + b + 1)^2 (y + z)",
+  testDisplay "(y+z+1)*(a+b)^2" "(a + b)^2 (y + z + 1)",
+  testDisplay "(a+b)^100+z^2" "z^2 + (a + b)^100",
+  testDisplay "z^2+(a+b)^100" "z^2 + (a + b)^100"
   ]
 
 storeTests = test [
