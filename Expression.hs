@@ -9,6 +9,19 @@ import Data.List
 import Data.Ratio ((%),numerator,denominator)
 import Control.Exception as C
 
+{-
+Expressions only exist in certain forms.
+* Variable names begin with an alphabetic character, and consist of
+  alphanumeric characters.
+* Constants can be any rational number.
+* Sums do not (directly) contain sums.
+* Products do not (directly) contain products.
+* Only variables and sums are raised to integer powers.  (Integer
+  powers of constants are evaluated, integer powers of products are
+  changed into products of integer powers, and integer powers of
+  integer powers are simplified.
+-}
+
 data Expression = ExpressionVariable String |
                   ExpressionRational Rational |
                   ExpressionSum [Expression] |
