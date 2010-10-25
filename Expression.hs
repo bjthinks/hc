@@ -15,11 +15,19 @@ Expressions only exist in certain forms.
   alphanumeric characters.
 * Constants can be any rational number.
 * Sums do not (directly) contain sums.
+* Sums are sorted.
+* Like terms of a sum are combined together (via coefficients).
+* Sums do not contain a coefficient of zero.
+* Sums have at least two terms.
 * Products do not (directly) contain products.
+* Products are sorted.
+* Like terms of a product are combined together (via integer powers).
+* Products do not contain a coefficient of zero or one.
+* Products have at least two terms.
 * Only variables and sums are raised to integer powers.  (Integer
   powers of constants are evaluated, integer powers of products are
   changed into products of integer powers, and integer powers of
-  integer powers are simplified.
+  integer powers are simplified.)
 -}
 
 data Expression = ExpressionVariable String |
