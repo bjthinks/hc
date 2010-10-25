@@ -7,6 +7,7 @@ module Expression (eRat, eVar, eSum, eProd, eIntPow,
 import Data.Char (isAlpha)
 import Data.List
 import Data.Ratio ((%),numerator,denominator)
+import Control.Exception as C
 
 data Expression = ExpressionVariable String |
                   ExpressionRational Rational |
@@ -266,7 +267,7 @@ eIntPow e 0 = eRat 1
 eIntPow (ExpressionProduct xs) n = eProd $ map (flip eIntPow n) xs
 eIntPow (ExpressionIntPow x m) n = eIntPow x (m*n)
 eIntPow (ExpressionRational x) n
-  | n < 0 && x == 0 = error "division by zero"
+  | n < 0 && x == 0 = C.throw DivideByZero
   | n < 0           = eRat (recip (x^(-n)))
   | otherwise       = eRat (x^n)
 eIntPow x n = ExpressionIntPow x n

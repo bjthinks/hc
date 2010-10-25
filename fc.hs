@@ -26,12 +26,17 @@ prompt = "> "
 
 mainloop :: Store -> MaybeT IO ()
 mainloop store = do str <- MaybeT (readline prompt)
-                    store' <- liftIO (C.catch
-                                      (processLine store str)
-                                      (\e -> if e == UserInterrupt
-                                             then do putStrLn "\nCOMPUTATION INTERRUPTED! NOW YOU WILL NEVER KNOW THE ANSWER! MUAHAHAHAHA!"
-                                                     return store
-                                             else throwIO e))
+                    store' <- liftIO ((processLine store str)
+                                      `C.catch`
+                                      (\e -> case e of
+                                          UserInterrupt -> do putStrLn "\nCOMPUTATION INTERRUPTED! NOW YOU WILL NEVER KNOW THE ANSWER! MUAHAHAHAHA!"
+                                                              return store
+                                          _ -> throwIO e)
+                                      `C.catch`
+                                      (\e -> case e of
+                                          DivideByZero -> do putStrLn "Y0U DIVIDED BY ZER0 S0 Y0U L0SE!"
+                                                             return store
+                                          _ -> throwIO e))
                     liftIO $ setCompletionEntryFunction $ Just $
                       (return . makeCompletionFunction store')
                     mainloop store'
