@@ -340,6 +340,7 @@ storeTests = test [
 tests = test ["tokenizer" ~: test_Tokenizer,
               "expression parser" ~: expressionParserTests,
               "expression display" ~: expressionDisplayTests,
+              "expression" ~: test_Expression,
               "store" ~: storeTests,
               "expand" ~: test_Expand
              ]

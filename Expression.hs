@@ -2,12 +2,14 @@ module Expression (eRat, eVar, eSum, eProd, eIntPow,
                    eMatch, isRational, isNegPow, eAsSum, eTransform,
                    prodAsQuot,
                    useThisVariableOnlyForTestingTheExpressionConstructors,
-                   Expression) where
+                   Expression,
+                   test_Expression) where
 
 import Data.Char (isAlpha)
 import Data.List
 import Data.Ratio ((%),numerator,denominator)
 import Control.Exception as C
+import Test.HUnit
 
 {-
 Expressions only exist in certain forms.
@@ -278,9 +280,9 @@ popPower :: Expression -> (Expression,Integer)
 popPower (ExpressionIntPow e n) = (e,n)
 popPower e = (e,1)
 combineFactors' :: [(Expression,Integer)] -> [(Expression,Integer)]
+combineFactors' ((_,0):es) = combineFactors' es
 combineFactors' ((e,m):(f,n):gs)
   | e == f = combineFactors' ((e,m+n):gs)
-  | m == 0 = combineFactors' ((f,n):gs)
   | otherwise = (e,m):combineFactors' ((f,n):gs)
 combineFactors' xs = xs
 pushPower :: (Expression,Integer) -> Expression
@@ -313,3 +315,14 @@ eIntPow (ExpressionRational x) n
   | n < 0           = eRat (recip (x^(-n)))
   | otherwise       = eRat (x^n)
 eIntPow x n = ExpressionIntPow x n
+
+-------------------- TESTS --------------------
+
+test_Expression = [
+  eSum [x,y,eProd [eRat (-1),y]] ~?= x,
+  eProd [x,y,eIntPow y (-1)] ~?= x
+  ]
+  where
+    x = eVar "x"
+    y = eVar "y"
+    z = eVar "z"
