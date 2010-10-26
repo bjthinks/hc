@@ -14,16 +14,13 @@ Expressions only exist in certain forms.
 * Variable names begin with an alphabetic character, and consist of
   alphanumeric characters.
 * Constants can be any rational number.
-* Sums do not (directly) contain sums.
-* Sums are sorted.
+* Sums do not (directly) contain sums, nor do products contain products.
+* Sums and products are sorted, with constant first (if any).
 * Like terms of a sum are combined together (via coefficients).
-* Sums do not contain a coefficient of zero.
-* Sums have at least two terms.
-* Products do not (directly) contain products.
-* Products are sorted.
 * Like terms of a product are combined together (via integer powers).
-* Products do not contain a coefficient of zero or one.
-* Products have at least two terms.
+* Sums do not contain a zero.
+* Products do not contain a zero or one.
+* Sums and products have at least two terms.
 * Only variables and sums are raised to integer powers.  (Integer
   powers of constants are evaluated, integer powers of products are
   changed into products of integer powers, and integer powers of
@@ -98,41 +95,6 @@ instance Ord Expression where
   compare (ExpressionIntPow x@(ExpressionSum _) m)
     (ExpressionIntPow y@(ExpressionSum _) n) =
     compare (x,(-m)) (y,(-n))
-  {-
-  -- Sums are compared by comparing their contents, looking first
-  -- at nonconstants and using constants as a tiebreaker
-  compare (ExpressionSum x) (ExpressionSum y) = compareSum x y
-  -- Same for products
-  compare (ExpressionProduct x) (ExpressionProduct y) = compareProduct x y
-  -- IntPows are compared base first, then by exponent in reverse order
-  compare (ExpressionIntPow x a) (ExpressionIntPow y b) = compare (x,-a) (y,-b)
-  -- Rational < Variable < Sum
-  compare (ExpressionRational _) (ExpressionVariable _) = LT
-  compare (ExpressionVariable _) (ExpressionRational _) = GT
-  compare (ExpressionVariable _) (ExpressionSum _) = LT
-  compare (ExpressionSum _) (ExpressionVariable _) = GT
-  -- Rational < Product < Sum
-  compare (ExpressionRational _) (ExpressionProduct _) = LT
-  compare (ExpressionProduct _) (ExpressionRational _) = GT
-  compare (ExpressionProduct _) (ExpressionSum _) = LT
-  compare (ExpressionSum _) (ExpressionProduct _) = GT
-  -- Rational < Sum
-  compare (ExpressionRational _) (ExpressionSum _) = LT
-  compare (ExpressionSum _) (ExpressionRational _) = GT
-  -- Variables are like singleton Products, so Variables and
-  -- Products are intermingled in the sort order.
-  compare (ExpressionProduct x) y@(ExpressionVariable _) = compareProduct x [y]
-  compare x@(ExpressionVariable _) (ExpressionProduct y) = compareProduct [x] y
-  {-
-  -- THIS IS BROKEN
-  -- IntPows are compared against anything else by pretending the
-  -- something else is raised to the first power.
-  compare x y@(ExpressionIntPow _ _) = compare (ExpressionIntPow x 1) y
-  compare x@(ExpressionIntPow _ _) y = compare x (ExpressionIntPow y 1)
-  -}
-  compare (ExpressionRational _) (ExpressionIntPow _ _) = LT
-  compare (ExpressionIntPow _ _) (ExpressionRational _) = GT
-  -}
 
 compareAsSum :: [Expression] -> [Expression] -> Ordering
 compareAsSum xs ys = compareAsList (addConstant 0 xs) (addConstant 0 ys)
