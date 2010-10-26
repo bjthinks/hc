@@ -12,7 +12,7 @@ expand = eTransform eRat eVar eSum expandProduct expandIntPow
 expandProduct :: [Expression] -> Expression
 expandProduct xs =
   -- I can use a "reverse function" here
-  eProd [eRat (s%1),expandProduct' ns,eIntPow (expandProduct' ds) (-1)]
+  eProd [expandProduct' (eRat (s%1):ns),eIntPow (expandProduct' ds) (-1)]
   where
     (s,ns,ds) = prodAsQuot xs
 
@@ -59,7 +59,8 @@ test_Expand = test [
   eIntPow (eSum [eProd [a,x],
                  eProd [a,y],
                  eProd [b,x],
-                 eProd [b,y]]) (-1)
+                 eProd [b,y]]) (-1),
+  expand (eSum [x,eProd [eRat (-1),eSum [x,eRat (-1)]]]) ~?= eRat 1
   ]
   where
     a = eVar "a"

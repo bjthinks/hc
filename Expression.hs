@@ -235,9 +235,9 @@ popCoeff (ExpressionRational n) = (n,eRat 1)
 popCoeff (ExpressionProduct (ExpressionRational n:es)) = (n,eProd es)
 popCoeff x = (1,x)
 combineSummands' :: [(Rational,Expression)] -> [(Rational,Expression)]
+combineSummands' ((0,_):xs) = combineSummands' xs
 combineSummands' ((m,e):(n,f):gs)
   | e == f     = combineSummands' ((m+n,e):gs)
-  | m == 0     = combineSummands' ((n,f):gs)
   | otherwise  = (m,e):combineSummands' ((n,f):gs)
 combineSummands' xs = xs
 pushCoeff :: (Rational,Expression) -> Expression
