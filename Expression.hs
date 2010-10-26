@@ -231,17 +231,11 @@ flattenSummands (e:es) = e:flattenSummands es
 flattenSummands [] = []
 
 combineSummands :: [Expression] -> [Expression]
-combineSummands es = map pushCoeff $ combineSummands' $ map popCoeff es
+combineSummands es = map pushCoeff $ combineTerms $ map popCoeff es
 popCoeff :: Expression -> (Rational,Expression)
 popCoeff (ExpressionRational n) = (n,eRat 1)
 popCoeff (ExpressionProduct (ExpressionRational n:es)) = (n,eProd es)
 popCoeff x = (1,x)
-combineSummands' :: [(Rational,Expression)] -> [(Rational,Expression)]
-combineSummands' ((0,_):xs) = combineSummands' xs
-combineSummands' ((m,e):(n,f):gs)
-  | e == f     = combineSummands' ((m+n,e):gs)
-  | otherwise  = (m,e):combineSummands' ((n,f):gs)
-combineSummands' xs = xs
 pushCoeff :: (Rational,Expression) -> Expression
 pushCoeff (c,e) = eProd [eRat c,e]
 
@@ -275,16 +269,10 @@ flattenFactors (e:es) = e:flattenFactors es
 flattenFactors [] = []
 
 combineFactors :: [Expression] -> [Expression]
-combineFactors es = map pushPower $ combineFactors' $ map popPower es
+combineFactors es = map pushPower $ combineTerms $ map popPower es
 popPower :: Expression -> (Integer,Expression)
 popPower (ExpressionIntPow e n) = (n,e)
 popPower e = (1,e)
-combineFactors' :: [(Integer,Expression)] -> [(Integer,Expression)]
-combineFactors' ((0,_):es) = combineFactors' es
-combineFactors' ((m,e):(n,f):gs)
-  | e == f = combineFactors' ((m+n,e):gs)
-  | otherwise = (m,e):combineFactors' ((n,f):gs)
-combineFactors' xs = xs
 pushPower :: (Integer,Expression) -> Expression
 pushPower = uncurry (flip eIntPow)
 
@@ -302,6 +290,15 @@ makeProduct :: [Expression] -> Expression
 makeProduct [] = eRat 1
 makeProduct [e] = e
 makeProduct es = ExpressionProduct es
+
+-------------------- COMMON CODE FOR SUMS & PRODUCTS --------------------
+
+combineTerms :: (Num a) => [(a,Expression)] -> [(a,Expression)]
+combineTerms ((0,_):es) = combineTerms es
+combineTerms ((m,e):(n,f):gs)
+  | e == f    = combineTerms ((m+n,e):gs)
+  | otherwise = (m,e):combineTerms ((n,f):gs)
+combineTerms es = es
 
 -------------------- INTEGER POWERS --------------------
 
