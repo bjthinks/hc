@@ -276,17 +276,17 @@ flattenFactors [] = []
 
 combineFactors :: [Expression] -> [Expression]
 combineFactors es = map pushPower $ combineFactors' $ map popPower es
-popPower :: Expression -> (Expression,Integer)
-popPower (ExpressionIntPow e n) = (e,n)
-popPower e = (e,1)
-combineFactors' :: [(Expression,Integer)] -> [(Expression,Integer)]
-combineFactors' ((_,0):es) = combineFactors' es
-combineFactors' ((e,m):(f,n):gs)
-  | e == f = combineFactors' ((e,m+n):gs)
-  | otherwise = (e,m):combineFactors' ((f,n):gs)
+popPower :: Expression -> (Integer,Expression)
+popPower (ExpressionIntPow e n) = (n,e)
+popPower e = (1,e)
+combineFactors' :: [(Integer,Expression)] -> [(Integer,Expression)]
+combineFactors' ((0,_):es) = combineFactors' es
+combineFactors' ((m,e):(n,f):gs)
+  | e == f = combineFactors' ((m+n,e):gs)
+  | otherwise = (m,e):combineFactors' ((n,f):gs)
 combineFactors' xs = xs
-pushPower :: (Expression,Integer) -> Expression
-pushPower = uncurry eIntPow
+pushPower :: (Integer,Expression) -> Expression
+pushPower = uncurry (flip eIntPow)
 
 combineConstantFactors :: [Expression] -> [Expression]
 combineConstantFactors (ExpressionRational m:ExpressionRational n:es) =
