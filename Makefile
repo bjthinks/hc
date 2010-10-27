@@ -1,10 +1,10 @@
-all: fc testfc
+all: hc testhc
 
-fc: *.hs
-	ghc --make fc && touch fc
+hc: *.hs
+	ghc --make hc && touch hc
 
-testfc: *.hs
-	ghc --make testfc && touch testfc
+testhc: *.hs
+	ghc --make testhc && touch testhc
 
 clean:
-	rm -f *.hi *.o *~ fc testfc
+	rm -f *.hi *.o *~ hc testhc
