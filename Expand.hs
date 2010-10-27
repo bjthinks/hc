@@ -29,17 +29,7 @@ expandProduct' (x:xs) = eSum $
 expandIntPow :: Expression -> Integer -> Expression
 expandIntPow e n
   | n < 0 = eIntPow (expandIntPow e (-n)) (-1)
-  | n == 0 = eRat 1
-  | n == 1 = e
-  | n `mod` 2 == 0 =
-    expandProduct $
-    genericReplicate 2 $
-    expandIntPow e $ n `div` 2
-  | otherwise =
-    expandProduct $ (e:) $
-    genericReplicate 2 $
-    expandIntPow e $ n `div` 2
-  -- | otherwise = expandProduct $ genericReplicate n e
+  | otherwise = expandProduct $ genericReplicate n e
 
 test_Expand :: Test
 test_Expand = test [
