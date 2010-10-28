@@ -87,6 +87,11 @@ subtractPolyMod p f g = reducePolyMod p (subtractPoly f g)
 divideTermMod :: Integer -> Term -> Term -> Term
 divideTermMod p (e1,c1) (e2,c2) = (e1-e2,(c1 * inverseMod p c2) `mod` p)
 
+divideTerm :: Term -> Term -> Term
+divideTerm (e1,c1) (e2,c2)
+  | c1 `mod` c2 == 0 = (e1-e2,c1 `div` c2)
+  | otherwise = error "Problem dividing terms"
+
 inverseMod :: Integer -> Integer -> Integer
 inverseMod p 1 = 1
 inverseMod p a = (n * p + 1) `div` a
@@ -101,6 +106,15 @@ polynomialDivideByMod p d f
       (subq,subr) = polynomialDivideByMod p d subf
       subf = subtractPolyMod p f (multiplyTermByPolyMod p thisq d)
       thisq = divideTermMod p (head f) (head d)
+
+polynomialDivideBy :: [Term] -> [Term] -> ([Term],[Term])
+polynomialDivideBy d f
+  | degree f < degree d = ([],f)
+  | otherwise = (thisq:subq,subr)
+    where
+      (subq,subr) = polynomialDivideBy d subf
+      subf = subtractPoly f (multiplyTermByPoly thisq d)
+      thisq = divideTerm (head f) (head d)
 
 polynomialGCDMod :: Integer -> [Term] -> [Term] -> [Term]
 polynomialGCDMod _ [] g = g
