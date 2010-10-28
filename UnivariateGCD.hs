@@ -17,6 +17,13 @@ univariateGCD f g = map (\(e,c) -> (e,c%1)) (polynomialGCDInteger (sanitize f) (
 polynomialGCDInteger :: [Term] -> [Term] -> [Term]
 polynomialGCDInteger = undefined
 
+polynomialGCDListModPrimes :: [Term] -> [Term] -> [(Integer,[Term])]
+polynomialGCDListModPrimes f g = [
+  (p, setLeadingCoeffMod p k (polynomialGCDMod p (reducePolyMod p f)
+                              (reducePolyMod p g))) |
+  p <- primeList]
+  where k = gcd (snd (head f)) (snd (head g))
+
 sanitize :: [(Integer,Rational)] -> [Term]
 sanitize = clearContent . removeZeroTerms . reverse . sort . clearDenominators
 
