@@ -1,6 +1,7 @@
 module UnivariateGCD where
 
-import Data.Ratio (Rational)
+import Data.Ratio (Rational, numerator, denominator, (%))
+import Data.List (sort)
 import PrimeList
 import Test.HUnit
 
@@ -11,7 +12,35 @@ type Term = (Integer,Integer)
 -- FIXME: Need to sanitize the input.
 univariateGCD :: [(Integer,Rational)] -> [(Integer,Rational)] ->
                  [(Integer,Rational)]
-univariateGCD f g = undefined
+univariateGCD f g = map (\(e,c) -> (e,c%1)) (polynomialGCDInteger (sanitize f) (sanitize g))
+
+polynomialGCDInteger :: [Term] -> [Term] -> [Term]
+polynomialGCDInteger = undefined
+
+sanitize :: [(Integer,Rational)] -> [Term]
+sanitize = clearContent . removeZeroTerms . reverse . sort . clearDenominators
+
+clearDenominators :: [(Integer,Rational)] -> [Term]
+clearDenominators ts = clearDenominators' m ts where
+  m = lcmDenominators (map snd ts)
+
+lcmDenominators :: [Rational] -> Integer
+lcmDenominators [] = 1
+lcmDenominators (x:xs) = lcm (denominator x) (lcmDenominators xs)
+
+clearDenominators' :: Integer -> [(Integer,Rational)] -> [Term]
+clearDenominators' _ [] = []
+clearDenominators' m ((e,c):ts) = (e,numerator c*(m `div` denominator c)) : clearDenominators' m ts
+
+clearContent :: [Term] -> [Term]
+clearContent ts = map (\(e,c) -> (e,div c g)) ts where
+  g = gcdList (map snd ts)
+
+-- NOTE: Some things probably screw up when the LC is negative
+gcdList :: [Integer] -> Integer
+gcdList [] = 1
+gcdList [n] = n
+gcdList (n:ns) = gcd n (gcdList ns)
 
 reducePolyMod :: Integer -> [Term] -> [Term]
 reducePolyMod p = removeZeroTerms . map (reduceTermMod p)
@@ -72,6 +101,13 @@ polynomialGCDMod _ f [] = f
 polynomialGCDMod p f g = polynomialGCDMod p g h
   where
     (_,h) = polynomialDivideByMod p g f
+
+setLeadingCoeffMod :: Integer -> Integer -> [Term] -> [Term]
+setLeadingCoeffMod p k f =
+  multiplyTermByPolyMod p (0,k) (makeMonicMod p f)
+
+makeMonicMod :: Integer -> [Term] -> [Term]
+makeMonicMod p f@((e,c):ts) = multiplyTermByPolyMod p (0,inverseMod p c) f
 
 test_UnivariateGCD = [
   reducePolyMod 3 [(18,6),(11,1),(9,(-8)),(2,(-1)),(0,5)] ~?=
