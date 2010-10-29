@@ -15,7 +15,58 @@ univariateGCD :: [(Integer,Rational)] -> [(Integer,Rational)] ->
 univariateGCD f g = map (\(e,c) -> (e,c%1)) (polynomialGCDInteger (sanitize f) (sanitize g))
 
 polynomialGCDInteger :: [Term] -> [Term] -> [Term]
-polynomialGCDInteger = undefined
+polynomialGCDInteger f g = goUntilDivides firstgood f g restgood
+  where
+    (firstgood:restgood) = goodList f g
+
+goUntilDivides :: (Integer,[Term]) -> [Term] -> [Term] -> [(Integer,[Term])] -> [Term]
+goUntilDivides sofar f g (next:rest)
+  | snd (polynomialDivideBy (snd sofar) f) == [] &&
+    snd (polynomialDivideBy (snd sofar) g) == [] = (snd sofar)
+  | degree (snd next) < degree (snd sofar) = goUntilDivides next f g rest
+  | otherwise = goUntilDivides (chinesePolys sofar next) f g rest
+
+chinesePolys :: (Integer,[Term]) -> (Integer,[Term]) -> (Integer,[Term])
+chinesePolys (p,f) (q,g) = liftToIntegers (p*q,chinesePolys' (p,f) (q,g))
+
+chinesePolys' :: (Integer,[Term]) -> (Integer,[Term]) -> [Term]
+chinesePolys' (p,(e1,c1):fs) (q,(e2,c2):gs)
+  | e1 > e2 = (e1,chinese c1 p 0 q) : chinesePolys' (p,fs) (q,(e2,c2):gs)
+  | e2 > e1 = (e2,chinese 0 p c2 q) : chinesePolys' (p,(e1,c1):fs) (q,gs)
+  | otherwise = (e1,chinese c1 p c2 q) : chinesePolys' (p,fs) (q,gs)
+chinesePolys' (p,(e1,c1):fs) (q,[]) = (e1,chinese c1 p 0 q) : chinesePolys' (p,fs) (q,[])
+chinesePolys' (p,[]) (q,(e2,c2):gs) = (e2,chinese 0 p c2 q) : chinesePolys' (p,[]) (q,gs)
+chinesePolys' (p,[]) (q,[]) = []
+
+-- a p b q -> chinese(a mod p, b mod q) = result mod p*q
+chinese :: Integer -> Integer -> Integer -> Integer -> Integer
+chinese a p b q = (b * g1 * p + a * g2 * q) `mod` (p*q)
+  where
+    (_, g1, g2) = fullgcd p q
+
+-- a -> b -> (g, m, n) such that gcd(a,b) = g = m*a + n*b
+fullgcd :: Integer -> Integer -> (Integer, Integer, Integer)
+fullgcd 0 b = (abs b, 0, signum b)
+fullgcd a 0 = (abs a, signum a, 0)
+fullgcd a b = (g, n - m * (b `div` a), m)
+  where
+    (g, m, n) = fullgcd (b `mod` a) a
+
+goodList :: [Term] -> [Term] -> [(Integer,[Term])]
+goodList f g = map liftToIntegers $
+               filter (\(p,_) -> lcmLC `mod` p /= 0)
+               (polynomialGCDListModPrimes f g)
+  where
+    lcmLC = lcm (snd (head f)) (snd (head g))
+
+liftToIntegers :: (Integer,[Term]) -> (Integer,[Term])
+liftToIntegers (p,ts) = (p, liftToIntegers' p ts)
+
+liftToIntegers' :: Integer -> [Term] -> [Term]
+liftToIntegers' _ [] = []
+liftToIntegers' p ((e,c):ts)
+  | c <= p `div` 2 = (e,c):liftToIntegers' p ts
+  | otherwise = (e,c-p):liftToIntegers' p ts
 
 polynomialGCDListModPrimes :: [Term] -> [Term] -> [(Integer,[Term])]
 polynomialGCDListModPrimes f g = [
@@ -79,6 +130,7 @@ subtractPoly [] g = multiplyTermByPoly (0,(-1)) g
 subtractPoly ((e1,c1):f) ((e2,c2):g)
   | e1 > e2 = (e1,c1) : subtractPoly f ((e2,c2):g)
   | e1 < e2 = (e2,(-c2)) : subtractPoly ((e1,c1):f) g
+  | e1 == e2 && c1 == c2 = subtractPoly f g
   | e1 == e2 = (e1,c1-c2) : subtractPoly f g
 
 subtractPolyMod :: Integer -> [Term] -> [Term] -> [Term]
@@ -110,6 +162,7 @@ polynomialDivideByMod p d f
 polynomialDivideBy :: [Term] -> [Term] -> ([Term],[Term])
 polynomialDivideBy d f
   | degree f < degree d = ([],f)
+  | (snd $ head f) `mod` (snd $ head d) /= 0 = ([],[(1,1)]) -- what a HORRIBLE HACK
   | otherwise = (thisq:subq,subr)
     where
       (subq,subr) = polynomialDivideBy d subf
