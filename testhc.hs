@@ -2,6 +2,7 @@ import Test.HUnit
 
 import Parser
 import Tokenizer
+import ASTParser
 import Expression
 import ExpressionParser
 import ExpressionDisplay
@@ -339,6 +340,7 @@ storeTests = test [
   ]
 
 tests = test ["tokenizer" ~: test_Tokenizer,
+              "ast parser" ~: test_ASTParser,
               "expression parser" ~: expressionParserTests,
               "expression display" ~: expressionDisplayTests,
               "expression" ~: test_Expression,
