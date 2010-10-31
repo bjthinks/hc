@@ -42,23 +42,18 @@ unary = do sign <- pMaybe $ pElt TokenMinus
              Nothing -> a
              Just TokenMinus -> ASTNegation a
 
--- Temporary, for testing
-power = integer ||| variable
-
-{-
-intpow :: Parser Token Expression
-intpow = do b <- atom
-            e <- pMaybe (do pElt TokenPower
-                            sign <- pMaybe $ pElt TokenMinus
-                            TokenInteger val <- pProp isInteger
-                            return $ case sign of
-                              Nothing -> val
-                              Just TokenMinus -> (-val))
-            return $ case e of
-              Nothing -> b
-              Just ee -> eIntPow b ee
+power :: Parser Token ASTExpr
+power = do b <- atom
+           e <- pMaybe (do pElt TokenPower
+                           unary)
+           return $ case e of
+             Nothing -> b
+             Just ee -> ASTPower b ee
 
 atom :: Parser Token Expression
+-- Temporary, for testing
+atom = integer ||| variable
+{-
 atom = integer ||| call ||| variable ||| paren
 
 call :: Parser Token Expression
@@ -135,6 +130,7 @@ test_ASTParser = [
   Right (ASTQuotient (ASTProduct (ASTQuotient (ASTNegation (ASTInteger 1))
                                   (ASTNegation (ASTInteger 2)))
                       (ASTInteger 3)) (ASTNegation (ASTInteger 4))),
+
   parseAll additive [TokenInteger 1,TokenPlus,TokenInteger 2,
                      TokenPlus,TokenInteger 3] ~?=
   Right (ASTSum (ASTSum (ASTInteger 1) (ASTInteger 2)) (ASTInteger 3)),
@@ -161,5 +157,25 @@ test_ASTParser = [
                              TokenInteger 2]) ~?= True,
   parseAll additive [TokenMinus,TokenInteger 3] ~?=
   Right (ASTNegation (ASTInteger 3)),
-  isLeft (parseAll additive [TokenMinus,TokenMinus,TokenInteger 3]) ~?= True
+  isLeft (parseAll additive [TokenMinus,TokenMinus,TokenInteger 3]) ~?= True,
+
+  parseAll unary [TokenInteger 1,TokenPower,TokenInteger 2] ~?=
+  Right (ASTPower (ASTInteger 1) (ASTInteger 2)),
+  parseAll unary [TokenMinus,TokenInteger 1,TokenPower,TokenInteger 2] ~?=
+  Right (ASTNegation (ASTPower (ASTInteger 1) (ASTInteger 2))),
+  parseAll unary [TokenInteger 1,TokenPower,TokenMinus,TokenInteger 2] ~?=
+  Right (ASTPower (ASTInteger 1) (ASTNegation (ASTInteger 2))),
+  parseAll unary [TokenMinus,TokenInteger 1,TokenPower,TokenMinus,
+                  TokenInteger 2] ~?=
+  Right (ASTNegation (ASTPower (ASTInteger 1) (ASTNegation (ASTInteger 2)))),
+  isLeft (parseAll unary [TokenMinus,TokenMinus,TokenInteger 1,TokenPower,
+                          TokenInteger 2]) ~?= True,
+  isLeft (parseAll unary [TokenInteger 1,TokenPower,TokenMinus,TokenMinus,
+                          TokenInteger 2]) ~?= True,
+  parseAll unary [TokenInteger 1,TokenPower,TokenInteger 2,TokenPower,
+                  TokenInteger 3,TokenPower,TokenInteger 4] ~?=
+  Right (ASTPower (ASTInteger 1)
+         (ASTPower (ASTInteger 2)
+          (ASTPower (ASTInteger 3)
+           (ASTInteger 4))))
   ]
