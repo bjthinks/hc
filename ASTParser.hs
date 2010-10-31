@@ -3,7 +3,6 @@ module ASTParser (test_ASTParser) where
 import Parser
 import Tokenizer
 import AST
---import Control.Monad
 import Test.HUnit
 
 astExprParser :: Parser Token ASTExpr
