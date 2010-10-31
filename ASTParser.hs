@@ -152,5 +152,14 @@ test_ASTParser = [
    TokenInteger 3,TokenMinus,TokenMinus,TokenInteger 4] ~?=
   Right (ASTDifference (ASTSum (ASTDifference (ASTNegation (ASTInteger 1))
                                 (ASTNegation (ASTInteger 2)))
-                        (ASTInteger 3)) (ASTNegation (ASTInteger 4)))
+                        (ASTInteger 3)) (ASTNegation (ASTInteger 4))),
+  parseAll additive [TokenInteger 1,TokenMinus,TokenInteger 2] ~?=
+  Right (ASTDifference (ASTInteger 1) (ASTInteger 2)),
+  parseAll additive [TokenInteger 1,TokenMinus,TokenMinus,TokenInteger 2] ~?=
+  Right (ASTDifference (ASTInteger 1) (ASTNegation (ASTInteger 2))),
+  isLeft (parseAll additive [TokenInteger 1,TokenMinus,TokenMinus,TokenMinus,
+                             TokenInteger 2]) ~?= True,
+  parseAll additive [TokenMinus,TokenInteger 3] ~?=
+  Right (ASTNegation (ASTInteger 3)),
+  isLeft (parseAll additive [TokenMinus,TokenMinus,TokenInteger 3]) ~?= True
   ]
