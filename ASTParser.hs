@@ -50,7 +50,7 @@ power = do b <- atom
              Nothing -> b
              Just ee -> ASTPower b ee
 
-atom :: Parser Token Expression
+atom :: Parser Token ASTExpr
 -- Temporary, for testing
 atom = integer ||| variable
 {-
