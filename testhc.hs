@@ -4,7 +4,7 @@ import Parser
 import Tokenizer
 import ASTParser
 import Expression
-import ExpressionParser
+import ExprFromAST
 import ExpressionDisplay
 import Store
 import Expand
@@ -15,6 +15,8 @@ import PrimeList
 unRight :: Either a b -> b
 unRight (Right b) = b
 unRight _ = error "parse failed"
+
+expressionParser = (astExprParser >>= \ast -> pElt TokenEnd >> return (fromAST ast))
 
 testEval str expr = parseAll expressionParser (map snd (unRight (parseAll tokenizer str))) ~?= Right expr
 
