@@ -1,4 +1,4 @@
-module ASTParser (test_ASTParser) where
+module ASTParser (astExprParser,test_ASTParser) where
 
 import Parser
 import Tokenizer
