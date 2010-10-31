@@ -6,7 +6,15 @@ import Expression
 import Data.Ratio
 import Control.Monad
 import Expand
+import ExprFromAST
+import ASTParser
 
+expressionParser :: Parser Token Expression
+expressionParser = do ast <- astExprParser
+                      pElt TokenEnd
+                      return (fromAST ast)
+
+{-
 expressionParser :: Parser Token Expression
 expressionParser = do e <- additive
                       pElt TokenEnd
@@ -75,3 +83,4 @@ paren = do pElt TokenOpenParen
            e <- additive
            pElt TokenCloseParen
            return e
+-}
