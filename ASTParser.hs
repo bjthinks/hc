@@ -51,20 +51,14 @@ power = do b <- atom
              Just ee -> ASTPower b ee
 
 atom :: Parser Token ASTExpr
--- Temporary, for testing
-atom = integer ||| variable ||| paren
-{-
 atom = integer ||| call ||| variable ||| paren
 
-call :: Parser Token Expression
+call :: Parser Token ASTExpr
 call = do TokenWord func <- pProp isWord
           pElt TokenOpenParen
           arg <- additive
           pElt TokenCloseParen
-          case func of
-            "expand" -> return $ expand arg
-            _ -> mzero
--}
+          return (ASTCall func [arg])
 
 paren :: Parser Token ASTExpr
 paren = do pElt TokenOpenParen
@@ -183,5 +177,15 @@ test_ASTParser = [
                      TokenInteger 2,TokenCloseParen,TokenPower,
                      TokenInteger 3] ~?=
   Right (ASTNegation (ASTPower (ASTSum (ASTInteger 1) (ASTInteger 2))
-                      (ASTInteger 3)))
+                      (ASTInteger 3))),
+
+  parseAll additive [TokenWord "a",TokenOpenParen,TokenWord "b",
+                     TokenCloseParen] ~?=
+  Right (ASTCall "a" [ASTVariable "b"]),
+  parseAll additive [TokenWord "a",TokenOpenParen,TokenInteger 1,
+                     TokenCloseParen] ~?= Right (ASTCall "a" [ASTInteger 1]),
+  isLeft (parseAll additive [TokenInteger 1,TokenOpenParen,TokenInteger 2,
+                             TokenCloseParen]) ~?= True,
+  isLeft (parseAll additive [TokenInteger 1,TokenOpenParen,TokenWord "b",
+                             TokenCloseParen]) ~?= True
   ]
