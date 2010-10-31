@@ -6,7 +6,6 @@ import AST
 --import Control.Monad
 import Test.HUnit
 
-{-
 astExprParser :: Parser Token ASTExpr
 astExprParser = additive
 
@@ -19,8 +18,8 @@ additive = do a <- multiplicative
   where
     makeAdditive :: ASTExpr -> [(Token,ASTExpr)] -> ASTExpr
     makeAdditive a [] = a
-    makeAdditive a ((TokenPlus,b):bs) = makeAdditive (ASTPlus a b) bs
-    makeAdditive a ((TokenMinus,b):bs) = makeAdditive (ASTMinus a b) bs
+    makeAdditive a ((TokenPlus,b):bs) = makeAdditive (ASTSum a b) bs
+    makeAdditive a ((TokenMinus,b):bs) = makeAdditive (ASTDifference a b) bs
 
 multiplicative :: Parser Token ASTExpr
 multiplicative = do a <- unary
@@ -32,17 +31,19 @@ multiplicative = do a <- unary
     makeMultiplicative :: ASTExpr -> [(Token,ASTExpr)] -> ASTExpr
     makeMultiplicative a [] = a
     makeMultiplicative a ((TokenTimes,b):bs) =
-      makeMultiplicative (ASTTimes a b) bs
+      makeMultiplicative (ASTProduct a b) bs
     makeMultiplicative a ((TokenDivide,b):bs) =
-      makeMultiplicative (ASTDivide a b) bs
+      makeMultiplicative (ASTQuotient a b) bs
 
 unary :: Parser Token ASTExpr
 unary = do sign <- pMaybe $ pElt TokenMinus
            a <- power
            return $ case sign of
              Nothing -> a
-             Just TokenMinus -> ASTNegative a
--}
+             Just TokenMinus -> ASTNegation a
+
+-- Temporary, for testing
+power = integer ||| variable
 
 {-
 intpow :: Parser Token Expression
@@ -114,5 +115,24 @@ test_ASTParser = [
   isLeft (parseAll integer [TokenOpenParen]) ~?= True,
   isLeft (parseAll integer [TokenCloseParen]) ~?= True,
   isLeft (parseAll integer [TokenAssign]) ~?= True,
-  isLeft (parseAll integer [TokenEnd]) ~?= True
+  isLeft (parseAll integer [TokenEnd]) ~?= True,
+
+  parseAll multiplicative [TokenInteger 1,TokenTimes,TokenInteger 2,
+                           TokenTimes, TokenInteger 3] ~?=
+  Right (ASTProduct (ASTProduct (ASTInteger 1) (ASTInteger 2)) (ASTInteger 3)),
+  parseAll multiplicative [TokenInteger 1,TokenDivide,TokenInteger 2,
+                           TokenDivide, TokenInteger 3] ~?=
+  Right (ASTQuotient (ASTQuotient (ASTInteger 1) (ASTInteger 2))
+         (ASTInteger 3)),
+  parseAll multiplicative
+  [TokenInteger 1,TokenDivide,TokenInteger 2,TokenTimes,TokenInteger 3,
+   TokenDivide,TokenInteger 4] ~?=
+  Right (ASTQuotient (ASTProduct (ASTQuotient (ASTInteger 1) (ASTInteger 2))
+                      (ASTInteger 3)) (ASTInteger 4)),
+  parseAll multiplicative
+  [TokenMinus,TokenInteger 1,TokenDivide,TokenMinus,TokenInteger 2,TokenTimes,
+   TokenInteger 3,TokenDivide,TokenMinus,TokenInteger 4] ~?=
+  Right (ASTQuotient (ASTProduct (ASTQuotient (ASTNegation (ASTInteger 1))
+                                  (ASTNegation (ASTInteger 2)))
+                      (ASTInteger 3)) (ASTNegation (ASTInteger 4)))
   ]
