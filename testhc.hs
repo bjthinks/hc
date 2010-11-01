@@ -5,6 +5,8 @@ import Tokenizer
 import ASTParser
 import Expression
 import ExprFromAST
+--import ASTFromExpr
+import ASTDisplay
 import ExpressionDisplay
 import Store
 import Expand
@@ -341,8 +343,9 @@ storeTests = test [
   getValue "a" (setValue "a" (tVar "x") (setValue "b" (tRat 11) newStore)) ~?= Just (tVar "x")
   ]
 
-tests = test ["tokenizer" ~: test_Tokenizer,
-              "ast parser" ~: test_ASTParser,
+tests = test ["Tokenizer" ~: test_Tokenizer,
+              "ASTParser" ~: test_ASTParser,
+              "ASTDisplay" ~: test_ASTDisplay,
               "expression parser" ~: expressionParserTests,
               "expression display" ~: expressionDisplayTests,
               "expression" ~: test_Expression,
