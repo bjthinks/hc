@@ -9,17 +9,16 @@ astDisplay = fst . astDisplayPrec
 astDisplayPrec :: ASTExpr -> (String, Int)
 astDisplayPrec (ASTInteger n) = (show n, 10)
 astDisplayPrec (ASTVariable v) = (v, 10)
-astDisplayPrec (ASTSum x y)        = ((dp x 0) ++ " + " ++ (dp y 0), 0)
+astDisplayPrec (ASTSum        x y) = ((dp x 0) ++ " + " ++ (dp y 0), 0)
 astDisplayPrec (ASTDifference x y) = ((dp x 0) ++ " - " ++ (dp y 1), 0)
-astDisplayPrec (ASTProduct x y)    = ((dp x 1) ++ " "   ++ (dp y 1), 1)
+astDisplayPrec (ASTProduct    x y) = ((dp x 1) ++ " "   ++ (dp y 1), 1)
 {-
-astDisplayWithPrecedence (ASTQuotient x y) = (astDisplayWithPrecedence x) ++ " / " ++ (astDisplayWithPrecedence y)
-astDisplayWithPrecedence (ASTPower x y) = (astDisplayWithPrecedence x) ++ "^" ++ (astDisplayWithPrecedence y)
-astDisplayWithPrecedence (ASTNegation x) = "-" ++ (astDisplayWithPrecedence x)
-astDisplayWithPrecedence (ASTCall f []) = f ++ "()"
-astDisplayWithPrecedence (ASTCall f (a:as)) = f ++ "(" ++ (astDisplayWithPrecedence a) ++
-                                concat (map (", " ++) (map astDisplayWithPrecedence as)) ++
-                                ")"
+astDisplayPrec (ASTQuotient   x y) = ((dp x ?) ++ " / " ++ (dp y ?), ?)
+astDisplayPrec (ASTPower      x y) = ((dp x ?) ++ "^"   ++ (dp y ?), ?)
+astDisplayPrec (ASTNegation x) = ("-" ++ (dp x ?), ?)
+astDisplayPrec (ASTCall f []) = (f ++ "()", ?)
+astDisplayPrec (ASTCall f (a:as)) =
+  (f ++ "(" ++ dp a 0 ++ concat (map (", "++) $ map (flip dp 0) as) ++ ")", ?)
 -}
 
 parenthesize :: (String, Int) -> Int -> String
