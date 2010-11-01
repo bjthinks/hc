@@ -11,8 +11,8 @@ astDisplayPrec (ASTInteger n) = (show n, 10)
 astDisplayPrec (ASTVariable v) = (v, 10)
 astDisplayPrec (ASTSum x y)        = ((dp x 0) ++ " + " ++ (dp y 0), 0)
 astDisplayPrec (ASTDifference x y) = ((dp x 0) ++ " - " ++ (dp y 1), 0)
+astDisplayPrec (ASTProduct x y)    = ((dp x 1) ++ " "   ++ (dp y 1), 1)
 {-
-astDisplayWithPrecedence (ASTProduct x y) = (astDisplayWithPrecedence x) ++ " " ++ (astDisplayWithPrecedence y)
 astDisplayWithPrecedence (ASTQuotient x y) = (astDisplayWithPrecedence x) ++ " / " ++ (astDisplayWithPrecedence y)
 astDisplayWithPrecedence (ASTPower x y) = (astDisplayWithPrecedence x) ++ "^" ++ (astDisplayWithPrecedence y)
 astDisplayWithPrecedence (ASTNegation x) = "-" ++ (astDisplayWithPrecedence x)
@@ -32,17 +32,24 @@ dp x n = parenthesize (astDisplayPrec x) n
 
 test_ASTDisplay = [
   astDisplay (ASTInteger 3) ~?= "3",
-  astDisplay (ASTVariable "a") ~?= "a",
-  astDisplay (ASTSum (ASTVariable "a") (ASTVariable "b")) ~?= "a + b",
-  astDisplay (ASTSum (ASTSum (ASTVariable "a") (ASTVariable "b"))
-              (ASTVariable "c")) ~?= "a + b + c",
-  astDisplay (ASTSum (ASTVariable "a") (ASTSum (ASTVariable "b")
-                                        (ASTVariable "c"))) ~?= "a + b + c",
-  astDisplay (ASTDifference (ASTVariable "a") (ASTVariable "b")) ~?= "a - b",
-  astDisplay (ASTDifference (ASTDifference (ASTVariable "a")
-                             (ASTVariable "b")) (ASTVariable "c")) ~?=
-  "a - b - c",
-  astDisplay (ASTDifference (ASTVariable "a")
-              (ASTDifference (ASTVariable "b")
-               (ASTVariable "c"))) ~?= "a - (b - c)"
+  astDisplay a ~?= "a",
+  astDisplay (ASTSum a b) ~?= "a + b",
+  astDisplay (ASTSum (ASTSum a b) c) ~?= "a + b + c",
+  astDisplay (ASTSum a (ASTSum b c)) ~?= "a + b + c",
+  astDisplay (ASTDifference a b) ~?= "a - b",
+  astDisplay (ASTDifference (ASTDifference a b) c) ~?= "a - b - c",
+  astDisplay (ASTDifference a (ASTDifference b c)) ~?= "a - (b - c)",
+  astDisplay (ASTProduct a b) ~?= "a b",
+  astDisplay (ASTProduct a (ASTSum b c)) ~?= "a (b + c)",
+  astDisplay (ASTProduct a (ASTDifference b c)) ~?= "a (b - c)",
+  astDisplay (ASTProduct (ASTSum a b) c) ~?= "(a + b) c",
+  astDisplay (ASTProduct (ASTDifference a b) c) ~?= "(a - b) c",
+  astDisplay (ASTSum a (ASTProduct b c)) ~?= "a + b c",
+  astDisplay (ASTDifference a (ASTProduct b c)) ~?= "a - b c",
+  astDisplay (ASTSum (ASTProduct a b) c) ~?= "a b + c",
+  astDisplay (ASTDifference (ASTProduct a b) c) ~?= "a b - c"
   ]
+  where
+    a = ASTVariable "a"
+    b = ASTVariable "b"
+    c = ASTVariable "c"
