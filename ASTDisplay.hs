@@ -11,10 +11,10 @@ astDisplayPrec (ASTInteger n) = (show n, 10)
 astDisplayPrec (ASTVariable v) = (v, 10)
 astDisplayPrec (ASTSum        x y) = ((dp x 0) ++ " + " ++ (dp y 0), 0)
 astDisplayPrec (ASTDifference x y) = ((dp x 0) ++ " - " ++ (dp y 1), 0)
-astDisplayPrec (ASTProduct    x y) = ((dp x 1) ++ " "   ++ (dp y 1), 1)
+astDisplayPrec (ASTProduct    x y) = ((dp x 2) ++ " "   ++ (dp y 2), 2)
+astDisplayPrec (ASTQuotient   x y) = ((dp x 2) ++ " / " ++ (dp y 2), 1)
+astDisplayPrec (ASTPower      x y) = ((dp x 4) ++ "^"   ++ (dp y 3), 3)
 {-
-astDisplayPrec (ASTQuotient   x y) = ((dp x ?) ++ " / " ++ (dp y ?), ?)
-astDisplayPrec (ASTPower      x y) = ((dp x ?) ++ "^"   ++ (dp y ?), ?)
 astDisplayPrec (ASTNegation x) = ("-" ++ (dp x ?), ?)
 astDisplayPrec (ASTCall f []) = (f ++ "()", ?)
 astDisplayPrec (ASTCall f (a:as)) =
@@ -46,9 +46,33 @@ test_ASTDisplay = [
   astDisplay (ASTSum a (ASTProduct b c)) ~?= "a + b c",
   astDisplay (ASTDifference a (ASTProduct b c)) ~?= "a - b c",
   astDisplay (ASTSum (ASTProduct a b) c) ~?= "a b + c",
-  astDisplay (ASTDifference (ASTProduct a b) c) ~?= "a b - c"
+  astDisplay (ASTDifference (ASTProduct a b) c) ~?= "a b - c",
+  astDisplay (ASTQuotient a b) ~?= "a / b",
+  astDisplay (ASTQuotient (ASTProduct a b) (ASTProduct c d)) ~?= "a b / c d",
+  astDisplay (ASTProduct (ASTQuotient a b) (ASTQuotient c d))
+  ~?= "(a / b) (c / d)",
+  astDisplay (ASTProduct (ASTProduct a b) (ASTProduct c d)) ~?= "a b c d",
+  astDisplay (ASTQuotient (ASTQuotient a b) (ASTQuotient c d))
+  ~?= "(a / b) / (c / d)",
+  astDisplay (ASTSum (ASTProduct a b) (ASTProduct c d)) ~?= "a b + c d",
+  astDisplay (ASTDifference (ASTProduct a b) (ASTProduct c d)) ~?= "a b - c d",
+  astDisplay (ASTSum (ASTQuotient a b) (ASTQuotient c d)) ~?= "a / b + c / d",
+  astDisplay (ASTDifference (ASTQuotient a b) (ASTQuotient c d))
+  ~?= "a / b - c / d",
+  astDisplay (ASTProduct (ASTSum a b) (ASTSum c d)) ~?= "(a + b) (c + d)",
+  astDisplay (ASTProduct (ASTDifference a b) (ASTDifference c d))
+  ~?= "(a - b) (c - d)",
+  astDisplay (ASTQuotient (ASTSum a b) (ASTSum c d)) ~?= "(a + b) / (c + d)",
+  astDisplay (ASTQuotient (ASTDifference a b) (ASTDifference c d))
+  ~?= "(a - b) / (c - d)",
+  astDisplay (ASTPower a b) ~?= "a^b",
+  astDisplay (ASTPower a (ASTPower b c)) ~?= "a^b^c",
+  astDisplay (ASTPower (ASTPower a b) c) ~?= "(a^b)^c",
+  astDisplay (ASTProduct (ASTPower a b) (ASTPower c d)) ~?= "a^b c^d",
+  astDisplay (ASTPower (ASTProduct a b) (ASTProduct c d)) ~?= "(a b)^(c d)"
   ]
   where
     a = ASTVariable "a"
     b = ASTVariable "b"
     c = ASTVariable "c"
+    d = ASTVariable "d"
