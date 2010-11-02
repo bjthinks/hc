@@ -31,18 +31,24 @@ fromExprSum (e:es) =
       c -> ASTSum (fromExprSum es) c
 
 fromExprProd :: [Expression] -> ASTExpr
-fromExprProd es = signop $
-                  (case (nt,dt) of
-                      (_,[]) -> fromExprProd' nt
-                      ([],_) -> ASTQuotient (ASTInteger 1) (fromExprProd' dt)
-                      _ -> ASTQuotient (fromExprProd' nt) (fromExprProd' dt))
+fromExprProd es =
+  signop $ case (numTerms,denTerms) of
+    (_,[]) -> numAST
+    ([],_) -> ASTQuotient (ASTInteger 1) denAST
+    _ -> ASTQuotient numAST denAST
   where
-    fromExprProd' (p:ps) = foldl (\x y -> ASTProduct x $ fromExpr y)
-                           (fromExpr p) ps
-    signop = case s of
+    numAST = simpleProductToAST numTerms
+    denAST = simpleProductToAST denTerms
+    signop = case sign of
       1 -> id
       (-1) -> ASTNegation
-    (s, nt, dt) = prodAsQuot es
+    (sign, numTerms, denTerms) = prodAsQuot es
+
+-- Turn a list of expressions to be multiplied into an AST, assuming
+-- no negative powers, denominators, reciprocals, or minus signs.
+simpleProductToAST :: [Expression] -> ASTExpr
+simpleProductToAST (e:es) =
+  foldl (\x y -> ASTProduct x (fromExpr y)) (fromExpr e) es
 
 fromExprIntPow :: Expression -> Integer -> ASTExpr
 fromExprIntPow e n =
