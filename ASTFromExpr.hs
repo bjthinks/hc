@@ -31,12 +31,14 @@ fromExprSum (e:es) =
       c -> ASTSum (fromExprSum es) c
 
 fromExprProd :: [Expression] -> ASTExpr
-fromExprProd es = signop $ (case (nt,dt) of
-                               (_,[]) -> fromExprProd' nt
-                               ([],_) -> ASTQuotient (ASTInteger 1) (fromExprProd' dt)
-                               _ -> ASTQuotient (fromExprProd' nt) (fromExprProd' dt))
+fromExprProd es = signop $
+                  (case (nt,dt) of
+                      (_,[]) -> fromExprProd' nt
+                      ([],_) -> ASTQuotient (ASTInteger 1) (fromExprProd' dt)
+                      _ -> ASTQuotient (fromExprProd' nt) (fromExprProd' dt))
   where
-    fromExprProd' (p:ps) = foldl (\x y -> ASTProduct x $ fromExpr y) (fromExpr p) ps
+    fromExprProd' (p:ps) = foldl (\x y -> ASTProduct x $ fromExpr y)
+                           (fromExpr p) ps
     signop = case s of
       1 -> id
       (-1) -> ASTNegation
