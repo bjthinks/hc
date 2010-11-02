@@ -1,7 +1,8 @@
 module Command (Command(..), execute) where
 
 import Expression
-import ExpressionDisplay
+import ASTFromExpr
+import ASTDisplay
 import Store
 
 data Command = CommandAssign String Expression |
@@ -9,7 +10,7 @@ data Command = CommandAssign String Expression |
 
 execute :: Store -> Command -> (Store, String)
 execute s (CommandAssign v e) = (setValue v e s, displayAssignment v e)
-execute s (CommandEval e) = (s, displayExpr (substitute s e))
+execute s (CommandEval e) = (s, (astDisplay . fromExpr) (substitute s e))
 
 substitute :: Store -> Expression -> Expression
 substitute s = eTransform eRat (get s) eSum eProd eIntPow
@@ -21,4 +22,4 @@ get store str =
     Nothing -> eVar str
 
 displayAssignment :: String -> Expression -> String
-displayAssignment v e = v ++ " := " ++ displayExpr e
+displayAssignment v e = v ++ " := " ++ astDisplay (fromExpr e)

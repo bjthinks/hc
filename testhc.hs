@@ -5,9 +5,8 @@ import Tokenizer
 import ASTParser
 import Expression
 import ExprFromAST
---import ASTFromExpr
+import ASTFromExpr
 import ASTDisplay
-import ExpressionDisplay
 import Store
 import Expand
 import PrimeList
@@ -126,7 +125,7 @@ expressionParserTests = test [
   ]
 
 testDisplay :: String -> String -> Test
-testDisplay input output = displayExpr (unRight (parseAll expressionParser (map snd (unRight (parseAll tokenizer input))))) ~?= output
+testDisplay input output = astDisplay (fromExpr (unRight (parseAll expressionParser (map snd (unRight (parseAll tokenizer input)))))) ~?= output
 
 expressionDisplayTests = test [
   testDisplay "3" "3",

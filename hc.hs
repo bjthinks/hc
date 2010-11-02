@@ -4,7 +4,6 @@ import MyMaybeT
 import Parser
 import Tokenizer
 import Expression
-import ExpressionDisplay
 import Command
 import CommandParser
 import Store
