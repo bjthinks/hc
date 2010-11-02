@@ -1,27 +1,15 @@
 module ExpressionDisplay (displayExpr) where
 
 import Expression
-import Data.Ratio
+import ASTFromExpr
+import ASTDisplay
 
 displayExpr :: Expression -> String
-displayExpr = fst . displayWithPrecedence
+displayExpr = astDisplay . fromExpr
 
-displayWithPrecedence :: Expression -> (String,Int)
-displayWithPrecedence = eMatch
-                        displayRational
-                        displayVariable
-                        displaySum
-                        displayProduct
-                        displayIntPow
-
-displayRational :: Rational -> (String,Int)
-displayRational n
-  | denominator n == 1 = (show (numerator n),10)
-  | otherwise          = (show (numerator n) ++ " / " ++
-                          show (denominator n),1)
-
-displayVariable :: String -> (String,Int)
-displayVariable v = (v,10)
+{-
+import Expression
+import Data.Ratio
 
 displaySum :: [Expression] -> (String,Int)
 displaySum es =
@@ -49,18 +37,4 @@ displayProduct es =
     minusSign = case sign of
       (-1) -> "-"
       _    -> ""
-
-displayIntPow :: Expression -> Integer -> (String,Int)
-displayIntPow e n
-  | n == (-1) = ("1 / " ++ parenthesize (displayWithPrecedence e) 2,1)
-  | n < 0     = ("1 / " ++ parenthesize (displayWithPrecedence e) 2 ++
-                 "^" ++ show (-n),1)
-  | otherwise = (parenthesize (displayWithPrecedence e) 2 ++ "^" ++ show n,1)
-
-withspace :: String -> String -> String
-withspace s t = s ++ " " ++ t
-
-parenthesize :: (String,Int) -> Int -> String
-parenthesize (str,x) y
-  | x < y = "(" ++ str ++ ")"
-  | otherwise = str
+-}
