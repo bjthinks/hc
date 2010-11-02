@@ -14,8 +14,8 @@ astDisplayPrec (ASTDifference x y) = ((dp x 0) ++ " - " ++ (dp y 1), 0)
 astDisplayPrec (ASTProduct    x y) = ((dp x 2) ++ " "   ++ (dp y 2), 2)
 astDisplayPrec (ASTQuotient   x y) = ((dp x 2) ++ " / " ++ (dp y 2), 1)
 astDisplayPrec (ASTPower      x y) = ((dp x 4) ++ "^"   ++ (dp y 3), 3)
+astDisplayPrec (ASTNegation x) = ("-" ++ (dp x 1), 1)
 {-
-astDisplayPrec (ASTNegation x) = ("-" ++ (dp x ?), ?)
 astDisplayPrec (ASTCall f []) = (f ++ "()", ?)
 astDisplayPrec (ASTCall f (a:as)) =
   (f ++ "(" ++ dp a 0 ++ concat (map (", "++) $ map (flip dp 0) as) ++ ")", ?)
@@ -69,7 +69,22 @@ test_ASTDisplay = [
   astDisplay (ASTPower a (ASTPower b c)) ~?= "a^b^c",
   astDisplay (ASTPower (ASTPower a b) c) ~?= "(a^b)^c",
   astDisplay (ASTProduct (ASTPower a b) (ASTPower c d)) ~?= "a^b c^d",
-  astDisplay (ASTPower (ASTProduct a b) (ASTProduct c d)) ~?= "(a b)^(c d)"
+  astDisplay (ASTPower (ASTProduct a b) (ASTProduct c d)) ~?= "(a b)^(c d)",
+  astDisplay (ASTSum a (ASTNegation b)) ~?= "a + -b",
+  astDisplay (ASTSum (ASTNegation a) b) ~?= "-a + b",
+  astDisplay (ASTDifference a (ASTNegation b)) ~?= "a - -b",
+  astDisplay (ASTDifference (ASTNegation a) b) ~?= "-a - b",
+  astDisplay (ASTProduct a (ASTNegation b)) ~?= "a (-b)",
+  astDisplay (ASTProduct (ASTNegation a) b) ~?= "(-a) b",
+  astDisplay (ASTQuotient a (ASTNegation b)) ~?= "a / (-b)",
+  astDisplay (ASTQuotient (ASTNegation a) b) ~?= "(-a) / b",
+  astDisplay (ASTPower a (ASTNegation b)) ~?= "a^(-b)",
+  astDisplay (ASTPower (ASTNegation a) b) ~?= "(-a)^b",
+  astDisplay (ASTNegation (ASTSum a b)) ~?= "-(a + b)",
+  astDisplay (ASTNegation (ASTDifference a b)) ~?= "-(a - b)",
+  astDisplay (ASTNegation (ASTProduct a b)) ~?= "-a b",
+  astDisplay (ASTNegation (ASTQuotient a b)) ~?= "-a / b",
+  astDisplay (ASTNegation (ASTPower a b)) ~?= "-a^b"
   ]
   where
     a = ASTVariable "a"
