@@ -3,7 +3,7 @@ headaches in Haskell programming.  Diverse libraries, Haskell
 compilers, and host architecture/OS combinations make this problem
 difficult to solve.
 
-Fc uses the GNU readline library.  The following instructions may help
+Hc uses the GNU readline library.  The following instructions may help
 in getting this library working.
 
 On MacOS X:

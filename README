@@ -1,10 +1,10 @@
-fc: the Functional Calculator
+hc: An Algebraic Calculator
 Copyright 2010, Brian Johnson
 
 This is my attempt to write something that bridges the gap between a
 simple calculator and a full-fledged computer algebra system.  "bc"
 and "dc" are extant command-line calculators with various features,
-hence "fc".  fc is written in Haskell, and one of its design goals is
+hence "hc".  hc is written in Haskell, and one of its design goals is
 to demonstrate that Haskell is practical as a language for medium-size
 projects.
 
