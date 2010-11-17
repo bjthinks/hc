@@ -34,7 +34,9 @@ mainloop store = do str <- MaybeT (readline prompt)
                                       `C.catch`
                                       (\e -> case e of
                                           HCDivideByZero -> do putStrLn "Y0U DIVIDED BY ZER0 S0 Y0U L0SE!"
-                                                               return store))
+                                                               return store
+                                          HCNonIntegerPower -> do putStrLn "Input is well formed, but contains a noninteger power.\nOnly integer powers are currently supported."
+                                                                  return store))
                     liftIO $ setCompletionEntryFunction $ Just $
                       (return . makeCompletionFunction store')
                     mainloop store'
