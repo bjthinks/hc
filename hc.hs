@@ -9,6 +9,7 @@ import CommandParser
 import Store
 import Data.Char
 import Control.Exception as C
+import HCException
 
 main :: IO ()
 main = do putStrLn "Don't type control-c at a prompt!  This will screw up the runtime environment."
@@ -32,9 +33,8 @@ mainloop store = do str <- MaybeT (readline prompt)
                                           _ -> throwIO e)
                                       `C.catch`
                                       (\e -> case e of
-                                          DivideByZero -> do putStrLn "Y0U DIVIDED BY ZER0 S0 Y0U L0SE!"
-                                                             return store
-                                          _ -> throwIO e))
+                                          HCDivideByZero -> do putStrLn "Y0U DIVIDED BY ZER0 S0 Y0U L0SE!"
+                                                               return store))
                     liftIO $ setCompletionEntryFunction $ Just $
                       (return . makeCompletionFunction store')
                     mainloop store'
