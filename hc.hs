@@ -1,4 +1,4 @@
-import System.Console.Readline
+module Main where
 
 import MyMaybeT
 import Parser
@@ -11,52 +11,58 @@ import Data.Char
 import Control.Exception as C
 import HCException
 
+import Data.List (isPrefixOf)
+import Data.IORef
+import System.Console.Haskeline
+
+varsBeginningWith :: IORef Store -> String -> (MaybeT IO) [Completion]
+varsBeginningWith s str = do
+  store <- lift $ readIORef s
+  let currentVars = getVariables store
+  lift $ return $ map simpleCompletion $ filter (isPrefixOf str) currentVars
+
+completeVars :: IORef Store -> CompletionFunc (MaybeT IO)
+completeVars s =
+  completeWord Nothing " \t\n\r" $ varsBeginningWith s
+
+inputSettings :: IORef Store -> Settings (MaybeT IO)
+inputSettings s = setComplete (completeVars s) defaultSettings
+
 main :: IO ()
-main = do putStrLn "Don't type control-c at a prompt!  This will screw up the runtime environment."
-          putStrLn "Do type control-c to interrupt lengthy computations."
+main = do putStrLn "Type control-c to interrupt lengthy computations."
           putStrLn "Note: assignments that form a loop may result in \"lengthy computations\"."
-          setCompletionEntryFunction $ Just $ \_ -> return []
-          runMaybeT $ mainloop newStore
-          putStrLn ""
+          s <- newIORef newStore
+          runMaybeT (runInputT (inputSettings s) (mainloop s))
+          -- putStrLn ""
           return ()
 
 prompt :: String
 prompt = "> "
 
-mainloop :: Store -> MaybeT IO ()
-mainloop store = do str <- MaybeT (readline prompt)
-                    store' <- liftIO ((processLine store str)
-                                      `C.catch`
-                                      (\e -> case e of
-                                          UserInterrupt -> do putStrLn "\nCOMPUTATION INTERRUPTED! NOW YOU WILL NEVER KNOW THE ANSWER! MUAHAHAHAHA!"
-                                                              return store
-                                          _ -> throwIO e)
-                                      `C.catch`
-                                      (\e -> case e of
-                                          HCDivideByZero -> do putStrLn "Y0U DIVIDED BY ZER0 S0 Y0U L0SE!"
-                                                               return store
-                                          HCNonIntegerPower -> do putStrLn "Input is well formed, but contains a noninteger power.\nOnly integer powers are currently supported."
-                                                                  return store))
-                    liftIO $ setCompletionEntryFunction $ Just $
-                      (return . makeCompletionFunction store')
-                    mainloop store'
-
-makeCompletionFunction :: Store -> String -> [String]
-makeCompletionFunction store prefix =
-  filter (startsWith prefix) $
-  getVariables store
-
-startsWith :: String -> String -> Bool
-startsWith prefix str = take (length prefix) str == prefix
+mainloop :: IORef Store -> InputT (MaybeT IO) ()
+mainloop s = do str <- liftIO $ getInputLine prompt
+                store <- readIORef s
+                store' <- liftIO ((processLine store str)
+                                  `C.catch`
+                                  (\e -> case e of
+                                      UserInterrupt -> do putStrLn "\nCOMPUTATION INTERRUPTED! NOW YOU WILL NEVER KNOW THE ANSWER! MUAHAHAHAHA!"
+                                                          return store
+                                      _ -> C.throwIO e)
+                                  `C.catch`
+                                  (\e -> case e of
+                                      HCDivideByZero -> do putStrLn "Y0U DIVIDED BY ZER0 S0 Y0U L0SE!"
+                                                           return store
+                                      HCNonIntegerPower -> do putStrLn "Input is well formed, but contains a noninteger power.\nOnly integer powers are currently supported."
+                                                              return store))
+                liftIO $ writeIORef s store'
+                mainloop s
 
 processLine :: Store -> String -> IO Store
 processLine store str =
   case parseAll tokenizer str of
     Right [(_,TokenEnd)] -> return store
-    Right tokens -> do addHistory str
-                       processTokens store tokens
-    Left err -> do addHistory str
-                   printError $ errorLocation err
+    Right tokens -> processTokens store tokens
+    Left err -> do printError $ errorLocation err
                    return store
 
 processTokens :: Store -> [(Int,Token)] -> IO Store

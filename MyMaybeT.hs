@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -XUndecidableInstances #-}
+{-# OPTIONS_GHC -XFlexibleInstances -XMultiParamTypeClasses -XUndecidableInstances #-}
 
 module MyMaybeT
   (MaybeT(..),
