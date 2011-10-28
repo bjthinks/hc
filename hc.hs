@@ -36,12 +36,13 @@ inputSettings s = setComplete (completeVars s) defaultSettings
 prompt :: String
 prompt = "> "
 
-processCommand :: Store -> Command -> IO Store
-processCommand store cmd =
-  let (store', output) = execute store cmd in
-  do putStrLn output
-     return store'
-  `C.catch` (\e -> putStrLn (hcErrorMessage e) >> return store)
+processCommand :: IORef Store -> Command -> IO ()
+processCommand storeRef cmd =
+  do store <- readIORef storeRef
+     let (store', output) = execute store cmd
+     putStrLn output
+     writeIORef storeRef store'
+  `C.catch` (putStrLn . hcErrorMessage)
 
 printError :: Int -> IO ()
 printError d = do
@@ -51,28 +52,24 @@ printError d = do
       spaces = replicate (length prompt) ' '
       dashes = replicate d '-'
 
-processTokens :: Store -> [(Int,Token)] -> IO Store
-processTokens store tokens =
+processTokens :: IORef Store -> [(Int,Token)] -> IO ()
+processTokens storeRef tokens =
   case parseAll commandParser (map snd tokens) of
-    Right cmd -> processCommand store cmd
+    Right cmd -> processCommand storeRef cmd
     Left err -> let errorIndex = fst $ tokens !! errorLocation err in
-      do printError errorIndex
-         return store
+      printError errorIndex
 
-processLine :: Store -> String -> IO Store
-processLine store str =
+processLine :: IORef Store -> String -> IO ()
+processLine storeRef str =
   case parseAll tokenizer str of
-    Right [(_,TokenEnd)] -> return store
-    Right tokens -> processTokens store tokens
-    Left err -> do printError $ errorLocation err
-                   return store
+    Right [(_,TokenEnd)] -> return ()
+    Right tokens -> processTokens storeRef tokens
+    Left err -> printError $ errorLocation err
 
 mainloop :: IORef Store -> MaybeT (InputT IO) ()
-mainloop s = do str <- MaybeT $ getInputLine prompt
-                store <- liftIO $ readIORef s
-                store' <- liftIO $ processLine store str
-                liftIO $ writeIORef s store'
-                mainloop s
+mainloop storeRef = do str <- MaybeT $ getInputLine prompt
+                       liftIO $ processLine storeRef str
+                       mainloop storeRef
 {-
 UserInterrupt -> do putStrLn "\nCOMPUTATION INTERRUPTED! NOW YOU WILL NEVER KNOW THE ANSWER! MUAHAHAHAHA!"
                     return store
