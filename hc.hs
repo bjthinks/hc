@@ -11,9 +11,11 @@ import Data.List (isPrefixOf)
 import Data.IORef
 import Control.Monad.IO.Class
 import Control.Monad.Trans.Maybe
-import qualified Control.Exception as C
 import System.Console.Haskeline
+import qualified Control.Exception as E
 import qualified System.Console.Haskeline.MonadException as ME
+import qualified Control.Concurrent as C
+import qualified System.Posix.Signals as S
 
 -- tab completion
 
@@ -38,7 +40,7 @@ processCommand storeRef cmd =
      let (store', output) = execute store cmd
      putStrLn output
      writeIORef storeRef store'
-  `C.catch` (putStrLn . hcErrorMessage)
+  `E.catch` (putStrLn . hcErrorMessage)
 
 printError :: Int -> IO ()
 printError d = do
@@ -68,9 +70,9 @@ interruptMessage = "\nInterrupted"
 processLineCatchingInterrupt :: IORef Store -> String -> IO ()
 processLineCatchingInterrupt storeRef str =
   processLine storeRef str
-  `C.catch` (\e -> case e of
-                C.UserInterrupt -> putStrLn interruptMessage
-                _ -> C.throwIO e)
+  `E.catch` (\e -> case e of
+                E.UserInterrupt -> putStrLn interruptMessage
+                _ -> E.throwIO e)
 
 -- get input
 
@@ -81,7 +83,7 @@ getInputLineCatchingInterrupt :: InputT IO (Maybe String)
 getInputLineCatchingInterrupt =
   getInputLine prompt
   `ME.catch` (\e -> case e of
-                 C.UserInterrupt -> liftIO $ return $ Just ""
+                 E.UserInterrupt -> liftIO $ return $ Just ""
                  _ -> ME.throwIO e)
 
 -- master control program
@@ -93,8 +95,15 @@ mainloop storeRef = do
   mainloop storeRef
 
 main :: IO ()
-main = do putStrLn "Type control-c to interrupt lengthy computations and control-d to exit."
-          putStrLn "Note: assignments that form a loop may result in \"lengthy computations\"."
-          s <- newIORef newStore
-          runInputT (inputSettings s) (runMaybeT (mainloop s))
-          return ()
+main = do
+  -- Compensate for RTS brokenness
+  tid <- C.myThreadId
+  S.installHandler S.keyboardSignal
+    (S.Catch (E.throwTo tid E.UserInterrupt)) Nothing
+  -- Now we can proclaim proper control-C handling
+  putStrLn "Type control-c to interrupt lengthy computations and control-d to exit."
+  putStrLn "Note: assignments that form a loop may result in \"lengthy computations\"."
+  -- Enter haskeline world
+  s <- newIORef newStore
+  runInputT (inputSettings s) (runMaybeT (mainloop s))
+  return ()
