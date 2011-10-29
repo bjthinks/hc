@@ -2,21 +2,18 @@ module Main where
 
 import Parser
 import Tokenizer
-import Expression
-import Command
 import CommandParser
+import Command
 import Store
 import HCException
 
-import Data.Char
-import Control.Exception as C
-import Control.Exception.Base
-import Control.Monad.Trans.Maybe
 import Data.List (isPrefixOf)
 import Data.IORef
-import System.Console.Haskeline as HL
-import System.Console.Haskeline.MonadException as ME
 import Control.Monad.IO.Class
+import Control.Monad.Trans.Maybe
+import qualified Control.Exception as C
+import System.Console.Haskeline
+import qualified System.Console.Haskeline.MonadException as ME
 
 -- tab completion
 
@@ -72,7 +69,7 @@ processLineCatchingInterrupt :: IORef Store -> String -> IO ()
 processLineCatchingInterrupt storeRef str =
   processLine storeRef str
   `C.catch` (\e -> case e of
-                UserInterrupt -> putStrLn interruptMessage
+                C.UserInterrupt -> putStrLn interruptMessage
                 _ -> C.throwIO e)
 
 -- get input
@@ -84,7 +81,7 @@ getInputLineCatchingInterrupt :: InputT IO (Maybe String)
 getInputLineCatchingInterrupt =
   getInputLine prompt
   `ME.catch` (\e -> case e of
-                 UserInterrupt -> liftIO $ return $ Just ""
+                 C.UserInterrupt -> liftIO $ return $ Just ""
                  _ -> ME.throwIO e)
 
 -- master control program
