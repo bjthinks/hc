@@ -6,17 +6,19 @@ import Expression
 import Command
 import CommandParser
 import Store
-import Data.Char
-import Control.Exception as C
 import HCException
 
+import Data.Char
+import Control.Exception as C
+import Control.Exception.Base
 import Control.Monad.Trans.Maybe
 import Data.List (isPrefixOf)
 import Data.IORef
-import System.Console.Haskeline
+import System.Console.Haskeline as HL
+import System.Console.Haskeline.MonadException as ME
 import Control.Monad.IO.Class
 
--- inputSettings
+-- tab completion
 
 varsBeginningWith :: IORef Store -> String -> IO [Completion]
 varsBeginningWith s str = do
@@ -31,10 +33,7 @@ completeVars s =
 inputSettings :: IORef Store -> Settings IO
 inputSettings s = setComplete (completeVars s) defaultSettings
 
--- mainloop
-
-prompt :: String
-prompt = "> "
+-- handle input
 
 processCommand :: IORef Store -> Command -> IO ()
 processCommand storeRef cmd =
@@ -47,7 +46,7 @@ processCommand storeRef cmd =
 printError :: Int -> IO ()
 printError d = do
   putStrLn $ spaces ++ dashes ++ "^"
-  putStrLn $ "ERROR: YOUR FAULT"
+  putStrLn $ "Error: "
     where
       spaces = replicate (length prompt) ' '
       dashes = replicate d '-'
@@ -56,8 +55,8 @@ processTokens :: IORef Store -> [(Int,Token)] -> IO ()
 processTokens storeRef tokens =
   case parseAll commandParser (map snd tokens) of
     Right cmd -> processCommand storeRef cmd
-    Left err -> let errorIndex = fst $ tokens !! errorLocation err in
-      printError errorIndex
+    Left err -> let errorIndex = fst $ tokens !! errorLocation err
+                in printError errorIndex
 
 processLine :: IORef Store -> String -> IO ()
 processLine storeRef str =
@@ -66,19 +65,39 @@ processLine storeRef str =
     Right tokens -> processTokens storeRef tokens
     Left err -> printError $ errorLocation err
 
+interruptMessage :: String
+interruptMessage = "\nInterrupted"
+
+processLineCatchingInterrupt :: IORef Store -> String -> IO ()
+processLineCatchingInterrupt storeRef str =
+  processLine storeRef str
+  `C.catch` (\e -> case e of
+                UserInterrupt -> putStrLn interruptMessage
+                _ -> C.throwIO e)
+
+-- get input
+
+prompt :: String
+prompt = "> "
+
+getInputLineCatchingInterrupt :: InputT IO (Maybe String)
+getInputLineCatchingInterrupt =
+  getInputLine prompt
+  `ME.catch` (\e -> case e of
+                 UserInterrupt -> liftIO $ return $ Just ""
+                 _ -> ME.throwIO e)
+
+-- master control program
+
 mainloop :: IORef Store -> MaybeT (InputT IO) ()
-mainloop storeRef = do str <- MaybeT $ getInputLine prompt
-                       liftIO $ processLine storeRef str
-                       mainloop storeRef
-{-
-UserInterrupt -> do putStrLn "\nCOMPUTATION INTERRUPTED! NOW YOU WILL NEVER KNOW THE ANSWER! MUAHAHAHAHA!"
-                    return store
--}
+mainloop storeRef = do
+  str <- MaybeT $ getInputLineCatchingInterrupt
+  liftIO $ processLineCatchingInterrupt storeRef str
+  mainloop storeRef
 
 main :: IO ()
-main = do putStrLn "Type control-c to interrupt lengthy computations."
+main = do putStrLn "Type control-c to interrupt lengthy computations and control-d to exit."
           putStrLn "Note: assignments that form a loop may result in \"lengthy computations\"."
           s <- newIORef newStore
           runInputT (inputSettings s) (runMaybeT (mainloop s))
-          -- putStrLn ""
           return ()
