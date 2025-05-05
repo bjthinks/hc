@@ -7,6 +7,7 @@ module Parser (Parser, parseSome, parseAll,
                numParsed, ParseError, errorLocation, errorNames,
                pNamed, ($=)) where
 
+import Control.Applicative
 import Control.Monad.Error
 import Control.Monad.State
 
@@ -126,13 +127,16 @@ numParsed = MakeParser $ \_ ->
 
 -- PEG functionality
 
-instance Applicative (Parser t) where
-  pure = MakeParser . const . return
+instance Functor (Parser t)
+
+instance Applicative (Parser t)
 
 instance Monad (Parser t) where
   p >>= f = MakeParser $ \names ->
             getParser p names >>= flip getParser names . f
-  return  = pure
+  return  = MakeParser . const . return
+
+instance Alternative (Parser t)
 
 instance MonadFail (Parser t) where
   fail s  = mzero
