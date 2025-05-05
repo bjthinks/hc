@@ -125,9 +125,11 @@ numParsed = MakeParser $ \_ ->
 
 -- PEG functionality
 
-instance Functor (Parser t)
+instance Functor (Parser t) where
+  fmap f p = p >>= return . f
 
 instance Applicative (Parser t) where
+  p <*> q = p >>= \f -> q >>= \x -> return (f x)
   pure = MakeParser . const . return
 
 instance Monad (Parser t) where
