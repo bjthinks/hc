@@ -13,7 +13,7 @@ import Control.Monad.IO.Class
 import Control.Monad.Trans.Maybe
 import System.Console.Haskeline
 import qualified Control.Exception as E
-import qualified System.Console.Haskeline.MonadException as ME
+--import qualified System.Console.Haskeline.MonadException as ME
 import qualified Control.Concurrent as C
 import qualified System.Posix.Signals as S
 
@@ -82,9 +82,9 @@ prompt = "> "
 getInputLineCatchingInterrupt :: InputT IO (Maybe String)
 getInputLineCatchingInterrupt =
   getInputLine prompt
-  `ME.catch` (\e -> case e of
+  {-`ME.catch` (\e -> case e of
                  E.UserInterrupt -> liftIO $ return $ Just ""
-                 _ -> ME.throwIO e)
+                 _ -> ME.throwIO e)-}
 
 -- master control program
 
