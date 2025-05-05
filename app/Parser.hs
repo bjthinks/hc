@@ -34,7 +34,7 @@ pWord :: (Eq t) => [t] -> Parser t [t] -- A sequence of specific t's
 -- Sequencing is monadic
 -- Either-or alternatives are via mplus
 -- mzero is a parser that always fails
--- Since there is no syntactic sugar for mplus, we provide some:
+-- TODO: remove this operator
 infixl 5 |||
 (|||) :: Parser t a -> Parser t a -> Parser t a
 (|||) = mplus
@@ -80,11 +80,9 @@ instance Error ParseError where
 
 data ParseState t = ParseState Int [t] ParseError
 
-instance Show (ParseState Char)
-
 makeError :: [(Int, String)] -> ParseState t -> ParseError
-makeError names state = bestError pastError currentError where
-  ParseState loc _ pastError = state
+makeError names st = bestError pastError currentError where
+  ParseState loc _ pastError = st
   currentError = MakeParseError loc names
 
 bestError :: ParseError -> ParseError -> ParseError
@@ -111,35 +109,38 @@ parseSome parser input =
 -- Basic parsers
 
 pProp p = MakeParser $ \names ->
-  do state <- get
-     let ParseState num rest err = state
+  do st <- get
+     let ParseState num rest err = st
      case rest of
        (x:xs) | p x ->
          do put $ ParseState (num+1) xs err
             return x
-       _ -> throwError $ makeError names state
+       _ -> throwError $ makeError names st
 
 numParsed :: Parser t Int
 numParsed = MakeParser $ \_ ->
-  do state <- get
-     let ParseState num _ _ = state
+  do st <- get
+     let ParseState num _ _ = st
      return num
 
 -- PEG functionality
 
 instance Functor (Parser t)
 
-instance Applicative (Parser t)
+instance Applicative (Parser t) where
+  pure = MakeParser . const . return
 
 instance Monad (Parser t) where
   p >>= f = MakeParser $ \names ->
             getParser p names >>= flip getParser names . f
-  return  = MakeParser . const . return
+  return  = pure
 
-instance Alternative (Parser t)
+instance Alternative (Parser t) where
+  (<|>) = mplus
+  empty = mzero
 
 instance MonadFail (Parser t) where
-  fail s  = mzero
+  fail _  = mzero
 
 instance MonadPlus (Parser t) where
   mplus p q = MakeParser $ \names ->
@@ -149,12 +150,12 @@ instance MonadPlus (Parser t) where
                  put $ addError s e
                  getParser q names
   mzero = MakeParser $ \names ->
-    do state <- get
-       throwError $ makeError names state
+    do st <- get
+       throwError $ makeError names st
 
-pIf p = MakeParser $ \names -> do state <- get
+pIf p = MakeParser $ \names -> do st <- get
                                   x <- getParser p names
-                                  put state
+                                  put st
                                   return x
 
 pNamed a p = MakeParser $ \names ->
@@ -180,7 +181,7 @@ parseAll parser input =
 
 pEnd = pNot pGet
 
-pGet = pProp (\x -> True)
+pGet = pProp (const True)
 
 pElt c = pProp (== c)
 

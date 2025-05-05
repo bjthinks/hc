@@ -21,6 +21,7 @@ fromExprVar :: String -> ASTExpr
 fromExprVar v = ASTVariable v
 
 fromExprSum :: [Expression] -> ASTExpr
+fromExprSum [] = undefined
 fromExprSum (e:es) =
   case isRational e of
     False -> simpleSumToAST (e:es)
@@ -32,7 +33,10 @@ fromExprSum (e:es) =
 -- This simpler function doesn't worry about constants
 simpleSumToAST :: [Expression] -> ASTExpr
 simpleSumToAST es = foldl astSumOrDifference a as
-  where (a:as) = map fromExpr es
+  where
+    xs = map fromExpr es
+    a = head xs
+    as = tail xs
 
 -- Adds together its two args, using ASTSum or ASTDifference depending
 -- on whether the second arg is negated or not
@@ -53,13 +57,17 @@ fromExprProd es =
     signop = case sign of
       1 -> id
       (-1) -> ASTNegation
+      _ -> undefined
     (sign, numTerms, denTerms) = prodAsQuot es
 
 -- Turn a list of expressions to be multiplied into an AST, assuming
 -- no negative powers, denominators, reciprocals, or minus signs.
 simpleProductToAST :: [Expression] -> ASTExpr
 simpleProductToAST es = foldl ASTProduct a as
-  where (a:as) = map fromExpr es
+  where
+    xs = map fromExpr es
+    a = head xs
+    as = tail xs
 
 fromExprIntPow :: Expression -> Integer -> ASTExpr
 fromExprIntPow e n =
@@ -68,3 +76,4 @@ fromExprIntPow e n =
     (-1) -> case n of
       (-1) -> ASTQuotient (ASTInteger 1) (fromExpr e)
       _ -> ASTQuotient (ASTInteger 1) (ASTPower (fromExpr e) (ASTInteger (-n)))
+    _ -> undefined

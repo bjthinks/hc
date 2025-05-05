@@ -11,12 +11,12 @@ commandParser = assign ||| eval
 
 assign :: Parser Token Command
 assign = do TokenWord v <- pProp isWord
-            pElt TokenAssign
+            _ <- pElt TokenAssign
             ast <- astExprParser
-            pElt TokenEnd
+            _ <- pElt TokenEnd
             return $ CommandAssign v (fromAST ast)
 
 eval :: Parser Token Command
 eval = do ast <- astExprParser
-          pElt TokenEnd
+          _ <- pElt TokenEnd
           return $ CommandEval (fromAST ast)

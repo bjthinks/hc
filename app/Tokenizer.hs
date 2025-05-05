@@ -37,7 +37,7 @@ tokenizer = do ts <- pStar (spaces >> token)
                return $ ts ++ [(n,TokenEnd)]
 
 spaces :: Parser Char ()
-spaces = do pStar $ pProp isSpace
+spaces = do _ <- pStar $ pProp isSpace
             return ()
 
 token :: Parser Char (Int,Token)

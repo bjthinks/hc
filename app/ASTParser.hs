@@ -19,6 +19,7 @@ additive = do a <- multiplicative
     makeAdditive a [] = a
     makeAdditive a ((TokenPlus,b):bs) = makeAdditive (ASTSum a b) bs
     makeAdditive a ((TokenMinus,b):bs) = makeAdditive (ASTDifference a b) bs
+    makeAdditive _ _ = undefined
 
 multiplicative :: Parser Token ASTExpr
 multiplicative = do a <- unary
@@ -33,17 +34,18 @@ multiplicative = do a <- unary
       makeMultiplicative (ASTProduct a b) bs
     makeMultiplicative a ((TokenDivide,b):bs) =
       makeMultiplicative (ASTQuotient a b) bs
+    makeMultiplicative _ _ = undefined
 
 unary :: Parser Token ASTExpr
 unary = do sign <- pMaybe $ pElt TokenMinus
            a <- power
            return $ case sign of
              Nothing -> a
-             Just TokenMinus -> ASTNegation a
+             Just _ -> ASTNegation a
 
 power :: Parser Token ASTExpr
 power = do b <- atom
-           e <- pMaybe (do pElt TokenPower
+           e <- pMaybe (do _ <- pElt TokenPower
                            unary)
            return $ case e of
              Nothing -> b
@@ -54,15 +56,15 @@ atom = integer ||| call ||| variable ||| paren
 
 call :: Parser Token ASTExpr
 call = do TokenWord func <- pProp isWord
-          pElt TokenOpenParen
+          _ <- pElt TokenOpenParen
           arg <- additive
-          pElt TokenCloseParen
+          _ <- pElt TokenCloseParen
           return (ASTCall func [arg])
 
 paren :: Parser Token ASTExpr
-paren = do pElt TokenOpenParen
+paren = do _ <- pElt TokenOpenParen
            e <- additive
-           pElt TokenCloseParen
+           _ <- pElt TokenCloseParen
            return e
 
 integer :: Parser Token ASTExpr
@@ -78,6 +80,7 @@ isLeft :: Either a b -> Bool
 isLeft (Left _) = True
 isLeft _ = False
 
+test_ASTParser :: [Test]
 test_ASTParser = [
   parseAll variable [TokenWord "abc"] ~?= Right (ASTVariable "abc"),
   parseAll variable [TokenWord "Aa1"] ~?= Right (ASTVariable "Aa1"),

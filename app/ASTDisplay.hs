@@ -15,11 +15,9 @@ astDisplayPrec (ASTProduct    x y) = ((dp x 2) ++ " "   ++ (dp y 2), 2)
 astDisplayPrec (ASTQuotient   x y) = ((dp x 2) ++ " / " ++ (dp y 2), 1)
 astDisplayPrec (ASTPower      x y) = ((dp x 4) ++ "^"   ++ (dp y 3), 3)
 astDisplayPrec (ASTNegation x) = ("-" ++ (dp x 1), 1)
-{-
-astDisplayPrec (ASTCall f []) = (f ++ "()", ?)
+astDisplayPrec (ASTCall f []) = (f ++ "()", 4)
 astDisplayPrec (ASTCall f (a:as)) =
-  (f ++ "(" ++ dp a 0 ++ concat (map (", "++) $ map (flip dp 0) as) ++ ")", ?)
--}
+  (f ++ "(" ++ dp a 0 ++ concat (map (", "++) $ map (flip dp 0) as) ++ ")", 4)
 
 parenthesize :: (String, Int) -> Int -> String
 parenthesize (str, p) q
@@ -29,6 +27,7 @@ parenthesize (str, p) q
 dp :: ASTExpr -> Int -> String
 dp x n = parenthesize (astDisplayPrec x) n
 
+test_ASTDisplay :: [Test]
 test_ASTDisplay = [
   astDisplay (ASTInteger 3) ~?= "3",
   astDisplay a ~?= "a",

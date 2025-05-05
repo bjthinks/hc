@@ -98,12 +98,12 @@ main :: IO ()
 main = do
   -- Compensate for RTS brokenness
   tid <- C.myThreadId
-  S.installHandler S.keyboardSignal
+  _ <- S.installHandler S.keyboardSignal
     (S.Catch (E.throwTo tid E.UserInterrupt)) Nothing
   -- Now we can proclaim proper control-C handling
   putStrLn "Type control-c to interrupt lengthy computations and control-d to exit."
   putStrLn "Note: assignments that form a loop may result in \"lengthy computations\"."
   -- Enter haskeline world
   s <- newIORef newStore
-  runInputT (inputSettings s) (runMaybeT (mainloop s))
+  _ <- runInputT (inputSettings s) (runMaybeT (mainloop s))
   return ()

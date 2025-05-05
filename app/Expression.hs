@@ -305,7 +305,7 @@ combineTerms es = es
 
 eIntPow :: Expression -> Integer -> Expression
 eIntPow e 1 = e
-eIntPow e 0 = eRat 1
+eIntPow _ 0 = eRat 1
 eIntPow (ExpressionProduct xs) n = eProd $ map (flip eIntPow n) xs
 eIntPow (ExpressionIntPow x m) n = eIntPow x (m*n)
 eIntPow (ExpressionRational x) n
@@ -316,6 +316,7 @@ eIntPow x n = ExpressionIntPow x n
 
 -------------------- TESTS --------------------
 
+test_Expression :: [Test]
 test_Expression = [
   eSum [x,y,eProd [eRat (-1),y]] ~?= x,
   eProd [x,y,eIntPow y (-1)] ~?= x
@@ -323,4 +324,3 @@ test_Expression = [
   where
     x = eVar "x"
     y = eVar "y"
-    z = eVar "z"
