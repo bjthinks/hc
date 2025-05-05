@@ -8,7 +8,7 @@ module Parser (Parser, parseSome, parseAll,
                pNamed, ($=)) where
 
 import Control.Applicative
-import Control.Monad.Error
+import Control.Monad.Except
 import Control.Monad.State
 
 -------------------- Module interface --------------------
@@ -67,9 +67,6 @@ infixr 4 $=
 data ParseError = MakeParseError { errorLocation :: Int,
                                    errorNames ::  [(Int, String)] }
                 deriving (Eq, Show)
-
-instance Error ParseError where
-  strMsg = error
 
 -------------------- Innards --------------------
 
