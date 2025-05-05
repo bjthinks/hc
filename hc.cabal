@@ -71,7 +71,7 @@ executable hc
 
     -- Other library packages from which modules are imported.
     build-depends:    base ^>=4.17.2.1, HUnit, mtl, containers, transformers,
-                      haskeline, unix
+                      haskeline
 
     -- Directories containing source files.
     hs-source-dirs:   app
