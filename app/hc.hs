@@ -13,9 +13,6 @@ import Control.Monad.IO.Class
 import Control.Monad.Trans.Maybe
 import System.Console.Haskeline
 import qualified Control.Exception as E
---import qualified System.Console.Haskeline.MonadException as ME
-import qualified Control.Concurrent as C
-import qualified System.Posix.Signals as S
 
 -- tab completion
 
@@ -81,10 +78,7 @@ prompt = "> "
 
 getInputLineCatchingInterrupt :: InputT IO (Maybe String)
 getInputLineCatchingInterrupt =
-  getInputLine prompt
-  {-`ME.catch` (\e -> case e of
-                 E.UserInterrupt -> liftIO $ return $ Just ""
-                 _ -> ME.throwIO e)-}
+  handleInterrupt (return $ Just "") $ withInterrupt $ getInputLine prompt
 
 -- master control program
 
@@ -96,13 +90,10 @@ mainloop storeRef = do
 
 main :: IO ()
 main = do
-  -- Compensate for RTS brokenness
-  tid <- C.myThreadId
-  _ <- S.installHandler S.keyboardSignal
-    (S.Catch (E.throwTo tid E.UserInterrupt)) Nothing
-  -- Now we can proclaim proper control-C handling
-  putStrLn "Type control-c to interrupt lengthy computations and control-d to exit."
-  putStrLn "Note: assignments that form a loop may result in \"lengthy computations\"."
+  putStrLn
+    "Type control-c to interrupt lengthy computations and control-d to exit."
+  putStrLn
+    "Note: assignments that form a loop may result in \"lengthy computations\"."
   -- Enter haskeline world
   s <- newIORef newStore
   _ <- runInputT (inputSettings s) (runMaybeT (mainloop s))
