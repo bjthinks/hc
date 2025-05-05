@@ -78,3 +78,14 @@ executable hc
 
     -- Base language which the package is written in.
     default-language: Haskell2010
+
+executable testhc
+    import:           warnings
+    main-is:          testhc.hs
+    other-modules: AST, ASTDisplay, ASTFromExpr, ASTParser, Command,
+                   CommandParser, Expand, ExprFromAST, Expression,
+                   HCException, Parser, Store, Tokenizer, PrimeList
+    build-depends:    base ^>=4.17.2.1, HUnit, mtl, containers, transformers,
+                      haskeline, unix
+    hs-source-dirs:   app
+    default-language: Haskell2010

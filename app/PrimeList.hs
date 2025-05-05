@@ -19,7 +19,9 @@ primeList = primeListFrom 2
       | n `mod` p == 0  =  True
       | p * p > n       =  False
       | otherwise       =  divisibleByList n ps
+    divisibleByList _ _ = undefined
 
+test_PrimeList :: [Test]
 test_PrimeList = [
   primeList !! 1000 ~?= 7927,
   take (length knownPrimes) primeList ~?= knownPrimes

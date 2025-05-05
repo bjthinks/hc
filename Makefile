@@ -1,10 +1,10 @@
 all: hc testhc
 
 hc:
-	cabal build
+	cabal build hc
 
 testhc:
-	#ghc --make testhc && touch testhc
+	cabal run testhc
 
 clean:
 	cabal clean

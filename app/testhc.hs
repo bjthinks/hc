@@ -11,16 +11,24 @@ import Store
 import Expand
 import PrimeList
 
+tRat :: Rational -> Expression
+tVar :: String -> Expression
+tSum :: [Expression] -> Expression
+tProd :: [Expression] -> Expression
+tIntPow :: Expression -> Integer -> Expression
 (tRat,tVar,tSum,tProd,tIntPow) = useThisVariableOnlyForTestingTheExpressionConstructors
 
 unRight :: Either a b -> b
 unRight (Right b) = b
 unRight _ = error "parse failed"
 
+expressionParser :: Parser Token Expression
 expressionParser = (astExprParser >>= \ast -> pElt TokenEnd >> return (fromAST ast))
 
+testEval :: String -> Expression -> Test
 testEval str expr = parseAll expressionParser (map snd (unRight (parseAll tokenizer str))) ~?= Right expr
 
+expressionParserTests :: Test
 expressionParserTests = test [
   testEval "4" (tRat 4),
   testEval "-8" (tRat (-8)),
@@ -127,6 +135,7 @@ expressionParserTests = test [
 testDisplay :: String -> String -> Test
 testDisplay input output = astDisplay (fromExpr (unRight (parseAll expressionParser (map snd (unRight (parseAll tokenizer input)))))) ~?= output
 
+expressionDisplayTests :: Test
 expressionDisplayTests = test [
   testDisplay "3" "3",
   testDisplay "4" "4",
@@ -333,6 +342,7 @@ expressionDisplayTests = test [
   testDisplay "z^2+(a+b)^100" "z^2 + (a + b)^100"
   ]
 
+storeTests :: Test
 storeTests = test [
   getValue "a" newStore ~?= Nothing,
   getValue "a" (setValue "a" (tRat 42) newStore) ~?= Just (tRat 42),
@@ -342,6 +352,7 @@ storeTests = test [
   getValue "a" (setValue "a" (tVar "x") (setValue "b" (tRat 11) newStore)) ~?= Just (tVar "x")
   ]
 
+tests :: Test
 tests = test ["Tokenizer" ~: test_Tokenizer,
               "ASTParser" ~: test_ASTParser,
               "ASTDisplay" ~: test_ASTDisplay,
@@ -353,4 +364,5 @@ tests = test ["Tokenizer" ~: test_Tokenizer,
               "prime list" ~: test_PrimeList
              ]
 
-main = runTestTT tests
+main :: IO ()
+main = runTestTT tests >> return ()
