@@ -126,10 +126,15 @@ numParsed = MakeParser $ \_ ->
 
 -- PEG functionality
 
+instance Applicative (Parser t) where
+  pure = MakeParser . const . return
+
 instance Monad (Parser t) where
   p >>= f = MakeParser $ \names ->
             getParser p names >>= flip getParser names . f
-  return  = MakeParser . const . return
+  return  = pure
+
+instance MonadFail (Parser t) where
   fail s  = mzero
 
 instance MonadPlus (Parser t) where
