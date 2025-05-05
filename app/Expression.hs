@@ -98,6 +98,7 @@ instance Ord Expression where
   compare (ExpressionIntPow x@(ExpressionSum _) m)
     (ExpressionIntPow y@(ExpressionSum _) n) =
     compare (x,(-m)) (y,(-n))
+  compare _ _ = EQ -- prevent warnings about patterns not matched
 
 compareAsSum :: [Expression] -> [Expression] -> Ordering
 compareAsSum xs ys = compareAsList (addConstant 0 xs) (addConstant 0 ys)
