@@ -294,7 +294,7 @@ makeProduct es = ExpressionProduct es
 
 -------------------- COMMON CODE FOR SUMS & PRODUCTS --------------------
 
-combineTerms :: (Num a) => [(a,Expression)] -> [(a,Expression)]
+combineTerms :: (Eq a, Num a) => [(a,Expression)] -> [(a,Expression)]
 combineTerms ((0,_):es) = combineTerms es
 combineTerms ((m,e):(n,f):gs)
   | e == f    = combineTerms ((m+n,e):gs)
