@@ -6,6 +6,7 @@ module Tokenizer (Token(..),
 
 import Parser
 import Data.Char
+import Control.Applicative
 import Test.HUnit
 
 data Token = TokenInteger Integer |
@@ -42,8 +43,8 @@ spaces = do _ <- pStar $ pProp isSpace
 
 token :: Parser Char (Int,Token)
 token = do n <- numParsed
-           t <- integer ||| word ||| plus ||| minus ||| times ||| divide |||
-                power ||| openParen ||| closeParen ||| assign
+           t <- integer <|> word <|> plus <|> minus <|> times <|> divide <|>
+                power <|> openParen <|> closeParen <|> assign
            return (n,t)
 
 integer :: Parser Char Token

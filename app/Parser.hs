@@ -2,8 +2,7 @@
 
 module Parser (Parser, parseSome, parseAll,
                pEnd, pGet, pProp, pElt, pWord,
-               -- (>>=), (>>), return, fail, mzero, mplus,
-               (|||), pStar, pPlus, pMaybe, pIf, pNot,
+               pStar, pPlus, pMaybe, pIf, pNot,
                numParsed, ParseError, errorLocation, errorNames,
                pNamed, ($=)) where
 
@@ -32,12 +31,8 @@ pWord :: (Eq t) => [t] -> Parser t [t] -- A sequence of specific t's
 -- How to build parsers (PEG functionality)
 
 -- Sequencing is monadic
--- Either-or alternatives are via mplus
--- mzero is a parser that always fails
--- TODO: remove this operator
-infixl 5 |||
-(|||) :: Parser t a -> Parser t a -> Parser t a
-(|||) = mplus
+-- Either-or alternatives are via <|> or mplus
+-- empty or mzero is a parser that always fails
 
 -- Zero-or-more
 pStar :: Parser t a -> Parser t [a]
@@ -188,12 +183,12 @@ pWord w = sequence (map pElt w)
 
 -- PEG functionality
 
-pStar p = pPlus p ||| return []
+pStar p = pPlus p <|> return []
 
 pPlus p = do x <- p
              xs <- pStar p
              return (x:xs)
 
-pMaybe p = (p >>= (return . Just)) ||| return Nothing
+pMaybe p = (p >>= (return . Just)) <|> return Nothing
 
-pNot p = join $ pIf ((p >> return mzero) ||| return (return ()))
+pNot p = join $ pIf ((p >> return mzero) <|> return (return ()))

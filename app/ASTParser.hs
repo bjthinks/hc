@@ -3,6 +3,7 @@ module ASTParser (astExprParser,test_ASTParser) where
 import Parser
 import Tokenizer
 import AST
+import Control.Applicative
 import Test.HUnit
 
 astExprParser :: Parser Token ASTExpr
@@ -10,7 +11,7 @@ astExprParser = additive
 
 additive :: Parser Token ASTExpr
 additive = do a <- multiplicative
-              as <- pStar (do op <- pElt TokenPlus ||| pElt TokenMinus
+              as <- pStar (do op <- pElt TokenPlus <|> pElt TokenMinus
                               rhs <- multiplicative
                               return (op,rhs))
               return $ makeAdditive a as
@@ -23,7 +24,7 @@ additive = do a <- multiplicative
 
 multiplicative :: Parser Token ASTExpr
 multiplicative = do a <- unary
-                    as <- pStar (do op <- pElt TokenTimes ||| pElt TokenDivide
+                    as <- pStar (do op <- pElt TokenTimes <|> pElt TokenDivide
                                     rhs <- unary
                                     return (op,rhs))
                     return $ makeMultiplicative a as
@@ -52,7 +53,7 @@ power = do b <- atom
              Just ee -> ASTPower b ee
 
 atom :: Parser Token ASTExpr
-atom = integer ||| call ||| variable ||| paren
+atom = integer <|> call <|> variable <|> paren
 
 call :: Parser Token ASTExpr
 call = do TokenWord func <- pProp isWord

@@ -1,5 +1,6 @@
 module CommandParser (commandParser) where
 
+import Control.Applicative
 import Parser
 import Tokenizer
 import ASTParser
@@ -7,7 +8,7 @@ import ExprFromAST
 import Command
 
 commandParser :: Parser Token Command
-commandParser = assign ||| eval
+commandParser = assign <|> eval
 
 assign :: Parser Token Command
 assign = do TokenWord v <- pProp isWord
