@@ -5,7 +5,7 @@ module Expression (eRat, eVar, eSum, eProd, eIntPow,
                    Expression,
                    test_Expression) where
 
-import Data.Char (isAlpha)
+import Data.Char (isAlpha, isAlphaNum)
 import Data.List
 import Data.Ratio ((%),numerator,denominator)
 import Control.Exception as C
@@ -206,9 +206,8 @@ eRat n = ExpressionRational n
 
 eVar :: String -> Expression
 eVar "" = error "invalid variable name"
--- FIXME: should also check that subsequent chars are alphanumeric
 eVar (v:vs)
-  | isAlpha v = ExpressionVariable (v:vs)
+  | isAlpha v && all isAlphaNum vs = ExpressionVariable (v:vs)
   | otherwise = error "invalid variable name"
 
 -------------------- SUMS --------------------
