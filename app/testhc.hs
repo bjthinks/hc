@@ -133,7 +133,16 @@ expressionParserTests = test [
   testEval "1/x" $ tIntPow (tVar "x") (-1),
   testEval "f()" $ tCall "f" [],
   testEval "f(x)" $ tCall "f" [tVar "x"],
-  testEval "f(x,y)" $ tCall "f" [tVar "x", tVar "y"]
+  testEval "f(x,y)" $ tCall "f" [tVar "x", tVar "y"],
+  testEval "f()*2" $ tProd [tRat 2,tCall "f" []],
+  testEval "f()*x" $ tProd [tVar "x",tCall "f" []],
+  testEval "f()^2*x" $ tProd [tVar "x",tIntPow (tCall "f" []) 2],
+  testEval "f()+2" $ tSum [tRat 2,tCall "f" []],
+  testEval "f()+x" $ tSum [tVar "x",tCall "f" []],
+  testEval "f()^2+x" $ tSum [tVar "x",tIntPow (tCall "f" []) 2],
+  testEval "(x+1)*f()" $ tProd [tCall "f" [],tSum [tRat 1,tVar "x"]],
+  testEval "(x+1)*f()^2" $
+    tProd [tIntPow (tCall "f" []) 2,tSum [tRat 1,tVar "x"]]
   ]
 
 testDisplay :: String -> String -> Test

@@ -51,6 +51,7 @@ instance Ord Expression where
   compare (ExpressionVariable _) (ExpressionSum _) = LT
   compare (ExpressionSum _) (ExpressionVariable _) = GT
   -- Variables vs. products: pretend variable is a singleton product
+  -- TODO: should this use compareAsProd instead of compareAsSum?
   compare x@(ExpressionVariable _) (ExpressionProduct ys) = compareAsSum [x] ys
   compare (ExpressionProduct xs) y@(ExpressionVariable _) = compareAsSum xs [y]
   -- Variables vs. variable^n: pretend variable is raised to first power
@@ -64,10 +65,10 @@ instance Ord Expression where
   compare (ExpressionVariable _) (ExpressionIntPow (ExpressionSum _) _) = LT
   compare (ExpressionIntPow (ExpressionSum _) _) (ExpressionVariable _) = GT
   -- Variable before call and call^n
-  --compare (ExpressionVariable _) (ExpressionCall _ _) = LT
-  --compare (ExpressionCall _ _) (ExpressionVariable _) = GT
-  --compare (ExpressionVariable _) (ExpressionIntPow (ExpressionCall _ _) _) = LT
-  --compare (ExpressionIntPow (ExpressionCall _ _) _) (ExpressionVariable _) = GT
+  compare (ExpressionVariable _) (ExpressionCall _ _) = LT
+  compare (ExpressionCall _ _) (ExpressionVariable _) = GT
+  compare (ExpressionVariable _) (ExpressionIntPow (ExpressionCall _ _) _) = LT
+  compare (ExpressionIntPow (ExpressionCall _ _) _) (ExpressionVariable _) = GT
   -- Sum vs. sum: recurse, coeffs are tiebreaker
   compare (ExpressionSum xs) (ExpressionSum ys) = compareAsSum xs ys
   -- Products before sums (only occurs in user-generated sorts)
@@ -81,11 +82,11 @@ instance Ord Expression where
     compare (x,(-n)) (y,(-1))
   compare x@(ExpressionSum _) (ExpressionIntPow y@(ExpressionSum _) n) =
     compare (x,(-1)) (y,(-n))
-  -- Sums before call and call^n
-  --compare (ExpressionSum _) (ExpressionCall _ _) = LT
-  --compare (ExpressionCall _ _) (ExpressionSum _) = GT
-  --compare (ExpressionSum _) (ExpressionIntPow (ExpressionCall _ _) _) = LT
-  --compare (ExpressionIntPow (ExpressionCall _ _) _) (ExpressionSum _) = GT
+  -- Call and call^n before sums
+  compare (ExpressionSum _) (ExpressionCall _ _) = GT
+  compare (ExpressionCall _ _) (ExpressionSum _) = LT
+  compare (ExpressionSum _) (ExpressionIntPow (ExpressionCall _ _) _) = GT
+  compare (ExpressionIntPow (ExpressionCall _ _) _) (ExpressionSum _) = LT
   -- Product vs product
   compare (ExpressionProduct xs) (ExpressionProduct ys) = compareAsProd xs ys
   -- Product vs variable^n: Pretend variable^n is a singleton product
@@ -96,7 +97,7 @@ instance Ord Expression where
   -- Product before sum^n
   compare (ExpressionProduct _) (ExpressionIntPow (ExpressionSum _) _) = LT
   compare (ExpressionIntPow (ExpressionSum _) _) (ExpressionProduct _) = GT
-  -- Product before calls
+  -- Product vs calls ???
   --compare (ExpressionProduct _) (ExpressionCall _ _) = LT
   --compare (ExpressionCall _ _) (ExpressionProduct _) = GT
   -- Variable^n: sort first by variable, then power
