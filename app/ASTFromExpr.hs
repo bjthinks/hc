@@ -7,6 +7,7 @@ import Data.Ratio (numerator,denominator)
 fromExpr :: Expression -> ASTExpr
 fromExpr =
   eMatch fromExprRat fromExprVar fromExprSum fromExprProd fromExprIntPow
+    fromExprCall
 
 fromExprRat :: Rational -> ASTExpr
 fromExprRat c
@@ -77,3 +78,6 @@ fromExprIntPow e n =
       (-1) -> ASTQuotient (ASTInteger 1) (fromExpr e)
       _ -> ASTQuotient (ASTInteger 1) (ASTPower (fromExpr e) (ASTInteger (-n)))
     _ -> undefined
+
+fromExprCall :: String -> [Expression] -> ASTExpr
+fromExprCall f xs = ASTCall f (map fromExpr xs)

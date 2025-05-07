@@ -16,7 +16,8 @@ tVar :: String -> Expression
 tSum :: [Expression] -> Expression
 tProd :: [Expression] -> Expression
 tIntPow :: Expression -> Integer -> Expression
-(tRat,tVar,tSum,tProd,tIntPow) = useThisVariableOnlyForTestingTheExpressionConstructors
+tCall :: String -> [Expression] -> Expression
+(tRat,tVar,tSum,tProd,tIntPow,tCall) = useThisVariableOnlyForTestingTheExpressionConstructors
 
 unRight :: Either a b -> b
 unRight (Right b) = b
@@ -129,7 +130,10 @@ expressionParserTests = test [
          tSum [tRat 2,tVar "b"],
          tSum [tRat 3,tVar "d"]],
   testEval "x^2" $ tIntPow (tVar "x") 2,
-  testEval "1/x" $ tIntPow (tVar "x") (-1)
+  testEval "1/x" $ tIntPow (tVar "x") (-1),
+  testEval "f()" $ tCall "f" [],
+  testEval "f(x)" $ tCall "f" [tVar "x"],
+  testEval "f(x,y)" $ tCall "f" [tVar "x", tVar "y"]
   ]
 
 testDisplay :: String -> String -> Test

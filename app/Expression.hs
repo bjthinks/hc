@@ -1,4 +1,4 @@
-module Expression (eRat, eVar, eSum, eProd, eIntPow,
+module Expression (eRat, eVar, eSum, eProd, eIntPow, eCall,
                    eMatch, isRational, isNegPow, eAsSum, eTransform,
                    prodAsQuot,
                    useThisVariableOnlyForTestingTheExpressionConstructors,
@@ -24,9 +24,9 @@ Expressions only exist in certain forms.
 * Sums do not contain a zero.
 * Products do not contain a zero or one.
 * Sums and products have at least two terms.
-* Only variables and sums are raised to integer powers.  (Integer
-  powers of constants are evaluated, integer powers of products are
-  changed into products of integer powers, and integer powers of
+* Only variables, sums, and calls are raised to integer powers.
+  (Integer powers of constants are evaluated, integer powers of products
+  are changed into products of integer powers, and integer powers of
   integer powers are simplified.)
 -}
 
@@ -34,7 +34,8 @@ data Expression = ExpressionVariable String |
                   ExpressionRational Rational |
                   ExpressionSum [Expression] |
                   ExpressionProduct [Expression] |
-                  ExpressionIntPow Expression Integer
+                  ExpressionIntPow Expression Integer |
+                  ExpressionCall String [Expression]
                   deriving (Show, Eq)
 
 -- This ought to be a TOTAL ORDER
@@ -62,6 +63,11 @@ instance Ord Expression where
   -- Variable before sum^n
   compare (ExpressionVariable _) (ExpressionIntPow (ExpressionSum _) _) = LT
   compare (ExpressionIntPow (ExpressionSum _) _) (ExpressionVariable _) = GT
+  -- Variable before call and call^n
+  --compare (ExpressionVariable _) (ExpressionCall _ _) = LT
+  --compare (ExpressionCall _ _) (ExpressionVariable _) = GT
+  --compare (ExpressionVariable _) (ExpressionIntPow (ExpressionCall _ _) _) = LT
+  --compare (ExpressionIntPow (ExpressionCall _ _) _) (ExpressionVariable _) = GT
   -- Sum vs. sum: recurse, coeffs are tiebreaker
   compare (ExpressionSum xs) (ExpressionSum ys) = compareAsSum xs ys
   -- Products before sums (only occurs in user-generated sorts)
@@ -75,6 +81,11 @@ instance Ord Expression where
     compare (x,(-n)) (y,(-1))
   compare x@(ExpressionSum _) (ExpressionIntPow y@(ExpressionSum _) n) =
     compare (x,(-1)) (y,(-n))
+  -- Sums before call and call^n
+  --compare (ExpressionSum _) (ExpressionCall _ _) = LT
+  --compare (ExpressionCall _ _) (ExpressionSum _) = GT
+  --compare (ExpressionSum _) (ExpressionIntPow (ExpressionCall _ _) _) = LT
+  --compare (ExpressionIntPow (ExpressionCall _ _) _) (ExpressionSum _) = GT
   -- Product vs product
   compare (ExpressionProduct xs) (ExpressionProduct ys) = compareAsProd xs ys
   -- Product vs variable^n: Pretend variable^n is a singleton product
@@ -85,6 +96,9 @@ instance Ord Expression where
   -- Product before sum^n
   compare (ExpressionProduct _) (ExpressionIntPow (ExpressionSum _) _) = LT
   compare (ExpressionIntPow (ExpressionSum _) _) (ExpressionProduct _) = GT
+  -- Product before calls
+  --compare (ExpressionProduct _) (ExpressionCall _ _) = LT
+  --compare (ExpressionCall _ _) (ExpressionProduct _) = GT
   -- Variable^n: sort first by variable, then power
   compare
     (ExpressionIntPow x@(ExpressionVariable _) m)
@@ -98,7 +112,7 @@ instance Ord Expression where
   compare (ExpressionIntPow x@(ExpressionSum _) m)
     (ExpressionIntPow y@(ExpressionSum _) n) =
     compare (x,(-m)) (y,(-n))
-  compare _ _ = EQ -- prevent warnings about patterns not matched
+  compare _ _ = undefined -- prevent warnings about patterns not matched
 
 compareAsSum :: [Expression] -> [Expression] -> Ordering
 compareAsSum xs ys = compareAsList (addConstant 0 xs) (addConstant 0 ys)
@@ -130,21 +144,25 @@ compareAsList [] (_:_) = GT
 
 eMatch :: (Rational -> a) -> (String -> a) -> ([Expression] -> a) ->
           ([Expression] -> a) -> (Expression -> Integer -> a) ->
-          Expression -> a
-eMatch f _ _ _ _ (ExpressionRational n) = f n
-eMatch _ f _ _ _ (ExpressionVariable s) = f s
-eMatch _ _ f _ _ (ExpressionSum es) = f es
-eMatch _ _ _ f _ (ExpressionProduct es) = f es
-eMatch _ _ _ _ f (ExpressionIntPow e n) = f e n
+          (String -> [Expression] -> a) -> Expression -> a
+eMatch f _ _ _ _ _ (ExpressionRational n) = f n
+eMatch _ f _ _ _ _ (ExpressionVariable s) = f s
+eMatch _ _ f _ _ _ (ExpressionSum es) = f es
+eMatch _ _ _ f _ _ (ExpressionProduct es) = f es
+eMatch _ _ _ _ f _ (ExpressionIntPow e n) = f e n
+-- TODO: improve eMatch
+eMatch _ _ _ _ _ f (ExpressionCall g xs) = f g xs
 
 eTransform :: (Rational -> Expression) -> (String -> Expression) ->
               ([Expression] -> Expression) -> ([Expression] -> Expression) ->
-              (Expression -> Integer -> Expression) -> Expression -> Expression
-eTransform p q r s t =
+              (Expression -> Integer -> Expression) ->
+              (String -> [Expression] -> Expression) -> Expression -> Expression
+eTransform p q r s t u =
   eMatch p q (r . map myself) (s . map myself) (\e n -> t (myself e) n)
-    where
-      myself :: Expression -> Expression
-      myself = eTransform p q r s t
+    (\g xs -> u g (map myself xs))
+  where
+    myself :: Expression -> Expression
+    myself = eTransform p q r s t u
 
 prodAsQuot :: [Expression] -> (Integer,[Expression],[Expression])
 prodAsQuot [] = (1,[],[])
@@ -170,31 +188,33 @@ prodAsQuot (e:es) = (s,e:ns,ds)
     (s,ns,ds) = prodAsQuot es
 
 fTrue :: a -> Bool
-fTrue _ = True
+fTrue = const True
 fFalse :: a -> Bool
-fFalse _ = False
+fFalse = const False
 
 isRational :: Expression -> Bool
-isRational = eMatch fTrue fFalse fFalse fFalse (\_ -> fFalse)
+isRational = eMatch fTrue fFalse fFalse fFalse (const fFalse) (const fFalse)
 
 isNegPow :: Expression -> Bool
-isNegPow = eMatch fFalse fFalse fFalse fFalse (\_ n -> n<0)
+isNegPow = eMatch fFalse fFalse fFalse fFalse (\_ n -> n<0) (const fFalse)
 
 -- Note: might want 0 -> [] instead of 0 -> [0]
 eAsSum :: Expression -> [Expression]
 eAsSum =
   eMatch (list . eRat) (list . eVar) id (list . eProd) (\e n -> [eIntPow e n])
-    where
-      list :: a -> [a]
-      list x = x:[]
+    (\s xs -> [eCall s xs])
+  where
+    list :: a -> [a]
+    list x = [x]
 
 useThisVariableOnlyForTestingTheExpressionConstructors ::
   (Rational -> Expression, String -> Expression,
    [Expression] -> Expression, [Expression] -> Expression,
-   Expression -> Integer -> Expression)
+   Expression -> Integer -> Expression, String -> [Expression] -> Expression)
 useThisVariableOnlyForTestingTheExpressionConstructors =
   (ExpressionRational, ExpressionVariable,
-   ExpressionSum, ExpressionProduct, ExpressionIntPow)
+   ExpressionSum, ExpressionProduct,
+   ExpressionIntPow, ExpressionCall)
 
 -------------------- RATIONALS --------------------
 
@@ -313,6 +333,14 @@ eIntPow (ExpressionRational x) n
   | n < 0           = eRat (recip (x^(-n)))
   | otherwise       = eRat (x^n)
 eIntPow x n = ExpressionIntPow x n
+
+-------------------- CALLS --------------------
+
+eCall :: String -> [Expression] -> Expression
+eCall "" _ = error "invalid function name"
+eCall (g:gs) xs
+  | isAlpha g && all isAlphaNum gs = ExpressionCall (g:gs) xs
+  | otherwise = error "invalid function name"
 
 -------------------- TESTS --------------------
 

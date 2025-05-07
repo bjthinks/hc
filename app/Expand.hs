@@ -7,7 +7,7 @@ import Data.Ratio ((%))
 import Data.List (genericReplicate)
 
 expand :: Expression -> Expression
-expand = eTransform eRat eVar eSum expandProduct expandIntPow
+expand = eTransform eRat eVar eSum expandProduct expandIntPow eCall
 
 expandProduct :: [Expression] -> Expression
 expandProduct xs =

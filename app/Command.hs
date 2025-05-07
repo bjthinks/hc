@@ -13,7 +13,7 @@ execute s (CommandAssign v e) = (setValue v e s, displayAssignment v e)
 execute s (CommandEval e) = (s, (astDisplay . fromExpr) (substitute s e))
 
 substitute :: Store -> Expression -> Expression
-substitute s = eTransform eRat (get s) eSum eProd eIntPow
+substitute s = eTransform eRat (get s) eSum eProd eIntPow eCall
 
 get :: Store -> String -> Expression
 get store str =
