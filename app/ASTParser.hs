@@ -56,11 +56,21 @@ atom :: Parser Token ASTExpr
 atom = integer <|> call <|> variable <|> paren
 
 call :: Parser Token ASTExpr
-call = do TokenWord func <- pProp isWord
-          _ <- pElt TokenOpenParen
-          arg <- additive
-          _ <- pElt TokenCloseParen
-          return (ASTCall func [arg])
+call = callNoArgs <|> callArgs
+
+callNoArgs :: Parser Token ASTExpr
+callNoArgs = do TokenWord func <- pProp isWord
+                _ <- pElt TokenOpenParen
+                _ <- pElt TokenCloseParen
+                return (ASTCall func [])
+
+callArgs :: Parser Token ASTExpr
+callArgs = do TokenWord func <- pProp isWord
+              _ <- pElt TokenOpenParen
+              arg1 <- additive
+              args <- pStar (pElt TokenComma >> additive)
+              _ <- pElt TokenCloseParen
+              return (ASTCall func (arg1:args))
 
 paren :: Parser Token ASTExpr
 paren = do _ <- pElt TokenOpenParen
@@ -190,5 +200,10 @@ test_ASTParser = [
   isLeft (parseAll additive [TokenInteger 1,TokenOpenParen,TokenInteger 2,
                              TokenCloseParen]) ~?= True,
   isLeft (parseAll additive [TokenInteger 1,TokenOpenParen,TokenWord "b",
-                             TokenCloseParen]) ~?= True
+                             TokenCloseParen]) ~?= True,
+  parseAll additive [TokenWord "f",TokenOpenParen,TokenCloseParen] ~?=
+    Right (ASTCall "f" []),
+  parseAll additive [TokenWord "a",TokenOpenParen,TokenWord "b",TokenComma,
+                     TokenWord "c",TokenCloseParen] ~?=
+    Right (ASTCall "a" [ASTVariable "b",ASTVariable "c"])
   ]

@@ -18,6 +18,7 @@ data Token = TokenInteger Integer |
              TokenPower |
              TokenOpenParen |
              TokenCloseParen |
+             TokenComma |
              TokenAssign |
              TokenEnd
              deriving (Eq, Show)
@@ -44,7 +45,7 @@ spaces = do _ <- pStar $ pProp isSpace
 token :: Parser Char (Int,Token)
 token = do n <- numParsed
            t <- integer <|> word <|> plus <|> minus <|> times <|> divide <|>
-                power <|> openParen <|> closeParen <|> assign
+                power <|> openParen <|> closeParen <|> comma <|> assign
            return (n,t)
 
 integer :: Parser Char Token
@@ -63,6 +64,7 @@ divide :: Parser Char Token
 power  :: Parser Char Token
 openParen  :: Parser Char Token
 closeParen :: Parser Char Token
+comma :: Parser Char Token
 assign :: Parser Char Token
 
 plus   = pElt '+' >> return TokenPlus
@@ -72,6 +74,7 @@ divide = pElt '/' >> return TokenDivide
 power  = pElt '^' >> return TokenPower
 openParen  = pElt '(' >> return TokenOpenParen
 closeParen = pElt ')' >> return TokenCloseParen
+comma = pElt ',' >> return TokenComma
 assign = pElt ':' >> pElt '=' >> return TokenAssign
 
 test_Tokenizer :: Test
@@ -110,6 +113,7 @@ test_Tokenizer = test [
   parseAll tokenizer "+"       ~?= Right [(0,TokenPlus),(1,TokenEnd)],
   parseAll tokenizer "("       ~?= Right [(0,TokenOpenParen),(1,TokenEnd)],
   parseAll tokenizer ")"       ~?= Right [(0,TokenCloseParen),(1,TokenEnd)],
+  parseAll tokenizer ","       ~?= Right [(0,TokenComma),(1,TokenEnd)],
   parseAll tokenizer "*"       ~?= Right [(0,TokenTimes),(1,TokenEnd)],
   parseAll tokenizer "/"       ~?= Right [(0,TokenDivide),(1,TokenEnd)],
   parseAll tokenizer "^"       ~?= Right [(0,TokenPower),(1,TokenEnd)]
