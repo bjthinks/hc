@@ -4,7 +4,7 @@ module Parser (Parser, parseSome, parseAll,
                eof, matchAny, matching, match, matches,
                pMaybe, pIf, pNot,
                numParsed, ParseError, errorLocation, errorNames,
-               pNamed, ($=)) where
+               ($=)) where
 
 import Control.Applicative
 import Control.Monad.Except
@@ -47,10 +47,8 @@ pNot :: Parser t a -> Parser t ()
 -- Error handling
 
 -- Assign a name to a parser, which is returned if the parser fails
-pNamed :: String -> Parser t a -> Parser t a
 infixr 4 $=
 ($=) :: String -> Parser t a -> Parser t a
-($=) = pNamed
 
 -- Names are returned in the errorNames field of a ParserError,
 -- if the parse failed within that parser.
@@ -147,9 +145,9 @@ pIf p = MakeParser $ \names -> do st <- get
                                   put st
                                   return x
 
-pNamed a p = MakeParser $ \names ->
-             do ParseState n _ _ <- get
-                getParser p ((n,a):names)
+a $= p = MakeParser $ \names ->
+  do ParseState n _ _ <- get
+     getParser p ((n,a):names)
 
 -------------------- Additional functionality --------------------
 
