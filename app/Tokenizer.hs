@@ -31,14 +31,14 @@ isWord (TokenWord _) = True
 isWord _ = False
 
 tokenizer :: Parser Char [(Int,Token)]
-tokenizer = do ts <- pStar (spaces >> token)
+tokenizer = do ts <- many (spaces >> token)
                spaces
                pEnd
                n <- numParsed
                return $ ts ++ [(n,TokenEnd)]
 
 spaces :: Parser Char ()
-spaces = do _ <- pStar $ pProp isSpace
+spaces = do _ <- many $ pProp isSpace
             return ()
 
 token :: Parser Char (Int,Token)
@@ -48,12 +48,12 @@ token = do n <- numParsed
            return (n,t)
 
 integer :: Parser Char Token
-integer = do ds <- pPlus $ pProp isDigit
+integer = do ds <- some $ pProp isDigit
              return $ TokenInteger (read ds :: Integer)
 
 word :: Parser Char Token
 word = do c <- pProp isAlpha
-          cs <- pStar $ pProp isAlphaNum
+          cs <- many $ pProp isAlphaNum
           return $ TokenWord (c:cs)
 
 plus   :: Parser Char Token

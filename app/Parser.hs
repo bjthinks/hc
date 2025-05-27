@@ -2,7 +2,7 @@
 
 module Parser (Parser, parseSome, parseAll,
                pEnd, pGet, pProp, pElt, pWord,
-               pStar, pPlus, pMaybe, pIf, pNot,
+               pMaybe, pIf, pNot,
                numParsed, ParseError, errorLocation, errorNames,
                pNamed, ($=)) where
 
@@ -33,12 +33,6 @@ pWord :: (Eq t) => [t] -> Parser t [t] -- A sequence of specific t's
 -- Sequencing is monadic
 -- Either-or alternatives are via <|> or mplus
 -- empty or mzero is a parser that always fails
-
--- Zero-or-more
-pStar :: Parser t a -> Parser t [a]
-
--- One-or-more
-pPlus :: Parser t a -> Parser t [a]
 
 -- Zero-or-one (aka Optional)
 pMaybe :: Parser t a -> Parser t (Maybe a)
@@ -182,12 +176,6 @@ pElt c = pProp (== c)
 pWord w = sequence (map pElt w)
 
 -- PEG functionality
-
-pStar p = pPlus p <|> return []
-
-pPlus p = do x <- p
-             xs <- pStar p
-             return (x:xs)
 
 pMaybe p = (p >>= (return . Just)) <|> return Nothing
 

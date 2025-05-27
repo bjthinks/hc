@@ -11,9 +11,9 @@ astExprParser = additive
 
 additive :: Parser Token ASTExpr
 additive = do a <- multiplicative
-              as <- pStar (do op <- pElt TokenPlus <|> pElt TokenMinus
-                              rhs <- multiplicative
-                              return (op,rhs))
+              as <- many (do op <- pElt TokenPlus <|> pElt TokenMinus
+                             rhs <- multiplicative
+                             return (op,rhs))
               return $ makeAdditive a as
   where
     makeAdditive :: ASTExpr -> [(Token,ASTExpr)] -> ASTExpr
@@ -24,9 +24,9 @@ additive = do a <- multiplicative
 
 multiplicative :: Parser Token ASTExpr
 multiplicative = do a <- unary
-                    as <- pStar (do op <- pElt TokenTimes <|> pElt TokenDivide
-                                    rhs <- unary
-                                    return (op,rhs))
+                    as <- many (do op <- pElt TokenTimes <|> pElt TokenDivide
+                                   rhs <- unary
+                                   return (op,rhs))
                     return $ makeMultiplicative a as
   where
     makeMultiplicative :: ASTExpr -> [(Token,ASTExpr)] -> ASTExpr
