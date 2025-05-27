@@ -1,7 +1,7 @@
 {-# OPTIONS -XFlexibleInstances -XMultiParamTypeClasses#-}
 
 module Parser (Parser, parseSome, parseAll,
-               pEnd, pGet, pProp, pElt, pWord,
+               eof, pGet, pProp, pElt, pWord,
                pMaybe, pIf, pNot,
                numParsed, ParseError, errorLocation, errorNames,
                pNamed, ($=)) where
@@ -17,12 +17,12 @@ import Control.Monad.State
 -- Run a parser on a [t], returning an a.  Success returns (result,
 -- number of list items parsed, remainder of list).
 parseSome :: Parser t a -> [t] -> Either ParseError (a, Int, [t])
--- Run (parser >> pEnd) and return only the result.
+-- Run (parser >> eof) and return only the result.
 parseAll  :: Parser t a -> [t] -> Either ParseError a
 
 -- Basic parsers
 
-pEnd  :: Parser t ()                   -- End of input
+eof   :: Parser t ()                   -- End of input
 pGet  :: Parser t t                    -- Any single t
 pProp :: (t -> Bool)   -> Parser t t   -- A t matching a property
 pElt  :: (Eq t) => t   -> Parser t t   -- A specific t
@@ -160,14 +160,14 @@ pNamed a p = MakeParser $ \names ->
 
 parseAll parser input =
   case parseSome (do x <- parser
-                     pEnd
+                     eof
                      return x) input of
     Left err -> Left err
     Right (out,_,_) -> Right out
 
 -- Basic parsers
 
-pEnd = pNot pGet
+eof = pNot pGet
 
 pGet = pProp (const True)
 

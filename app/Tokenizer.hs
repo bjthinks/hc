@@ -33,7 +33,7 @@ isWord _ = False
 tokenizer :: Parser Char [(Int,Token)]
 tokenizer = do ts <- many (spaces >> token)
                spaces
-               pEnd
+               eof
                n <- numParsed
                return $ ts ++ [(n,TokenEnd)]
 
