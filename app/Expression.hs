@@ -7,7 +7,7 @@ module Expression (eRat, eVar, eSum, eProd, eIntPow, eCall,
 
 import Data.Char (isAlpha, isAlphaNum)
 import Data.List
-import Data.Ratio ((%),numerator,denominator)
+import Data.Ratio ((%), numerator, denominator)
 import Control.Exception as C
 import Test.HUnit
 import HCException
@@ -38,7 +38,7 @@ data Expression = ExpressionVariable String |
                   ExpressionCall String [Expression]
                   deriving (Show, Eq)
 
--- This ought to be a TOTAL ORDER
+-- This ought to be a TOTAL ORDER on the set of legal expressions
 instance Ord Expression where
   -- Rationals are sorted by value
   compare (ExpressionRational x) (ExpressionRational y) = compare x y
