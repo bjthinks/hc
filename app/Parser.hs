@@ -1,7 +1,7 @@
 {-# OPTIONS -XFlexibleInstances -XMultiParamTypeClasses#-}
 
 module Parser (Parser, parseSome, parseAll,
-               eof, pGet, matching, match, matches,
+               eof, matchAny, matching, match, matches,
                pMaybe, pIf, pNot,
                numParsed, ParseError, errorLocation, errorNames,
                pNamed, ($=)) where
@@ -23,7 +23,7 @@ parseAll  :: Parser t a -> [t] -> Either ParseError a
 -- Basic parsers
 
 eof      :: Parser t ()                   -- End of input
-pGet     :: Parser t t                    -- Any single t
+matchAny :: Parser t t                    -- Any single t
 matching :: (t -> Bool)   -> Parser t t   -- A t matching a property
 match    :: (Eq t) => t   -> Parser t t   -- A specific t
 matches  :: (Eq t) => [t] -> Parser t [t] -- A sequence of specific t's
@@ -168,9 +168,9 @@ parseAll parser input =
 
 -- Basic parsers
 
-eof = pNot pGet
+eof = pNot matchAny
 
-pGet = matching (const True)
+matchAny = matching (const True)
 
 match c = matching (== c)
 
