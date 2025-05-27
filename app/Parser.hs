@@ -1,7 +1,7 @@
 {-# OPTIONS -XFlexibleInstances -XMultiParamTypeClasses#-}
 
 module Parser (Parser, parseSome, parseAll,
-               eof, pGet, pProp, pElt, pWord,
+               eof, pGet, matching, pElt, pWord,
                pMaybe, pIf, pNot,
                numParsed, ParseError, errorLocation, errorNames,
                pNamed, ($=)) where
@@ -22,11 +22,11 @@ parseAll  :: Parser t a -> [t] -> Either ParseError a
 
 -- Basic parsers
 
-eof   :: Parser t ()                   -- End of input
-pGet  :: Parser t t                    -- Any single t
-pProp :: (t -> Bool)   -> Parser t t   -- A t matching a property
-pElt  :: (Eq t) => t   -> Parser t t   -- A specific t
-pWord :: (Eq t) => [t] -> Parser t [t] -- A sequence of specific t's
+eof      :: Parser t ()                   -- End of input
+pGet     :: Parser t t                    -- Any single t
+matching :: (t -> Bool)   -> Parser t t   -- A t matching a property
+pElt     :: (Eq t) => t   -> Parser t t   -- A specific t
+pWord    :: (Eq t) => [t] -> Parser t [t] -- A sequence of specific t's
 
 -- How to build parsers (PEG functionality)
 
@@ -94,7 +94,7 @@ parseSome parser input =
 
 -- Basic parsers
 
-pProp p = MakeParser $ \names ->
+matching p = MakeParser $ \names ->
   do st <- get
      let ParseState num rest err = st
      case rest of
@@ -169,9 +169,9 @@ parseAll parser input =
 
 eof = pNot pGet
 
-pGet = pProp (const True)
+pGet = matching (const True)
 
-pElt c = pProp (== c)
+pElt c = matching (== c)
 
 pWord w = sequence (map pElt w)
 

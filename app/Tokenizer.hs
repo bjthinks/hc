@@ -38,7 +38,7 @@ tokenizer = do ts <- many (spaces >> token)
                return $ ts ++ [(n,TokenEnd)]
 
 spaces :: Parser Char ()
-spaces = do _ <- many $ pProp isSpace
+spaces = do _ <- many $ matching isSpace
             return ()
 
 token :: Parser Char (Int,Token)
@@ -48,12 +48,12 @@ token = do n <- numParsed
            return (n,t)
 
 integer :: Parser Char Token
-integer = do ds <- some $ pProp isDigit
+integer = do ds <- some $ matching isDigit
              return $ TokenInteger (read ds :: Integer)
 
 word :: Parser Char Token
-word = do c <- pProp isAlpha
-          cs <- many $ pProp isAlphaNum
+word = do c <- matching isAlpha
+          cs <- many $ matching isAlphaNum
           return $ TokenWord (c:cs)
 
 plus   :: Parser Char Token

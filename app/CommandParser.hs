@@ -11,7 +11,7 @@ commandParser :: Parser Token Command
 commandParser = assign <|> eval
 
 assign :: Parser Token Command
-assign = do TokenWord v <- pProp isWord
+assign = do TokenWord v <- matching isWord
             _ <- pElt TokenAssign
             ast <- astExprParser
             _ <- pElt TokenEnd

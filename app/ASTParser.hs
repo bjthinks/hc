@@ -56,7 +56,7 @@ atom :: Parser Token ASTExpr
 atom = integer <|> call <|> variable <|> paren
 
 call :: Parser Token ASTExpr
-call = do TokenWord func <- pProp isWord
+call = do TokenWord func <- matching isWord
           _ <- pElt TokenOpenParen
           arg <- additive
           _ <- pElt TokenCloseParen
@@ -69,11 +69,11 @@ paren = do _ <- pElt TokenOpenParen
            return e
 
 integer :: Parser Token ASTExpr
-integer = do TokenInteger n <- pProp isInteger
+integer = do TokenInteger n <- matching isInteger
              return $ ASTInteger n
 
 variable :: Parser Token ASTExpr
-variable = do TokenWord w <- pProp isWord
+variable = do TokenWord w <- matching isWord
               return $ ASTVariable w
 
 
