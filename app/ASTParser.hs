@@ -10,11 +10,12 @@ astExprParser :: Parser Token ASTExpr
 astExprParser = additive
 
 additive :: Parser Token ASTExpr
-additive = do a <- multiplicative
-              as <- many (do op <- match TokenPlus <|> match TokenMinus
-                             rhs <- multiplicative
-                             return (op,rhs))
-              return $ makeAdditive a as
+additive = "additive expression" $=
+  do a <- multiplicative
+     as <- many (do op <- match TokenPlus <|> match TokenMinus
+                    rhs <- multiplicative
+                    return (op,rhs))
+     return $ makeAdditive a as
   where
     makeAdditive :: ASTExpr -> [(Token,ASTExpr)] -> ASTExpr
     makeAdditive a [] = a
@@ -23,11 +24,12 @@ additive = do a <- multiplicative
     makeAdditive _ _ = undefined
 
 multiplicative :: Parser Token ASTExpr
-multiplicative = do a <- unary
-                    as <- many (do op <- match TokenTimes <|> match TokenDivide
-                                   rhs <- unary
-                                   return (op,rhs))
-                    return $ makeMultiplicative a as
+multiplicative = "multiplicative expression" $=
+  do a <- unary
+     as <- many (do op <- match TokenTimes <|> match TokenDivide
+                    rhs <- unary
+                    return (op,rhs))
+     return $ makeMultiplicative a as
   where
     makeMultiplicative :: ASTExpr -> [(Token,ASTExpr)] -> ASTExpr
     makeMultiplicative a [] = a
@@ -38,44 +40,49 @@ multiplicative = do a <- unary
     makeMultiplicative _ _ = undefined
 
 unary :: Parser Token ASTExpr
-unary = do sign <- option $ match TokenMinus
-           a <- power
-           return $ case sign of
-             Nothing -> a
-             Just _ -> ASTNegation a
+unary = "unary minus" $=
+  do sign <- option $ match TokenMinus
+     a <- power
+     return $ case sign of
+       Nothing -> a
+       Just _ -> ASTNegation a
 
 power :: Parser Token ASTExpr
-power = do b <- atom
-           e <- option (do _ <- match TokenPower
-                           unary)
-           return $ case e of
-             Nothing -> b
-             Just ee -> ASTPower b ee
+power = "power expression" $=
+  do b <- atom
+     e <- option (do _ <- match TokenPower
+                     unary)
+     return $ case e of
+       Nothing -> b
+       Just ee -> ASTPower b ee
 
 atom :: Parser Token ASTExpr
-atom = integer <|> call <|> variable <|> paren
+atom = "atomic expression" $= (integer <|> call <|> variable <|> paren)
 
 call :: Parser Token ASTExpr
-call = do TokenWord func <- matching isWord
-          _ <- match TokenOpenParen
-          arg <- additive
-          _ <- match TokenCloseParen
-          return (ASTCall func [arg])
+call = "function call" $=
+  do TokenWord func <- matching isWord
+     _ <- match TokenOpenParen
+     arg <- additive
+     _ <- match TokenCloseParen
+     return (ASTCall func [arg])
 
 paren :: Parser Token ASTExpr
-paren = do _ <- match TokenOpenParen
-           e <- additive
-           _ <- match TokenCloseParen
-           return e
+paren = "parenthesized expression" $=
+  do _ <- match TokenOpenParen
+     e <- additive
+     _ <- match TokenCloseParen
+     return e
 
 integer :: Parser Token ASTExpr
-integer = do TokenInteger n <- matching isInteger
-             return $ ASTInteger n
+integer = "integer" $=
+  do TokenInteger n <- matching isInteger
+     return $ ASTInteger n
 
 variable :: Parser Token ASTExpr
-variable = do TokenWord w <- matching isWord
-              return $ ASTVariable w
-
+variable = "variable" $=
+  do TokenWord w <- matching isWord
+     return $ ASTVariable w
 
 isLeft :: Either a b -> Bool
 isLeft (Left _) = True
