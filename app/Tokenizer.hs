@@ -65,14 +65,14 @@ openParen  :: Parser Char Token
 closeParen :: Parser Char Token
 assign :: Parser Char Token
 
-plus   = pElt '+' >> return TokenPlus
-minus  = pElt '-' >> return TokenMinus
-times  = pElt '*' >> return TokenTimes
-divide = pElt '/' >> return TokenDivide
-power  = pElt '^' >> return TokenPower
-openParen  = pElt '(' >> return TokenOpenParen
-closeParen = pElt ')' >> return TokenCloseParen
-assign = pElt ':' >> pElt '=' >> return TokenAssign
+plus   = match '+' >> return TokenPlus
+minus  = match '-' >> return TokenMinus
+times  = match '*' >> return TokenTimes
+divide = match '/' >> return TokenDivide
+power  = match '^' >> return TokenPower
+openParen  = match '(' >> return TokenOpenParen
+closeParen = match ')' >> return TokenCloseParen
+assign = match ':' >> match '=' >> return TokenAssign
 
 test_Tokenizer :: Test
 test_Tokenizer = test [

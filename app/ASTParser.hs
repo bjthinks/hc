@@ -11,7 +11,7 @@ astExprParser = additive
 
 additive :: Parser Token ASTExpr
 additive = do a <- multiplicative
-              as <- many (do op <- pElt TokenPlus <|> pElt TokenMinus
+              as <- many (do op <- match TokenPlus <|> match TokenMinus
                              rhs <- multiplicative
                              return (op,rhs))
               return $ makeAdditive a as
@@ -24,7 +24,7 @@ additive = do a <- multiplicative
 
 multiplicative :: Parser Token ASTExpr
 multiplicative = do a <- unary
-                    as <- many (do op <- pElt TokenTimes <|> pElt TokenDivide
+                    as <- many (do op <- match TokenTimes <|> match TokenDivide
                                    rhs <- unary
                                    return (op,rhs))
                     return $ makeMultiplicative a as
@@ -38,7 +38,7 @@ multiplicative = do a <- unary
     makeMultiplicative _ _ = undefined
 
 unary :: Parser Token ASTExpr
-unary = do sign <- pMaybe $ pElt TokenMinus
+unary = do sign <- pMaybe $ match TokenMinus
            a <- power
            return $ case sign of
              Nothing -> a
@@ -46,7 +46,7 @@ unary = do sign <- pMaybe $ pElt TokenMinus
 
 power :: Parser Token ASTExpr
 power = do b <- atom
-           e <- pMaybe (do _ <- pElt TokenPower
+           e <- pMaybe (do _ <- match TokenPower
                            unary)
            return $ case e of
              Nothing -> b
@@ -57,15 +57,15 @@ atom = integer <|> call <|> variable <|> paren
 
 call :: Parser Token ASTExpr
 call = do TokenWord func <- matching isWord
-          _ <- pElt TokenOpenParen
+          _ <- match TokenOpenParen
           arg <- additive
-          _ <- pElt TokenCloseParen
+          _ <- match TokenCloseParen
           return (ASTCall func [arg])
 
 paren :: Parser Token ASTExpr
-paren = do _ <- pElt TokenOpenParen
+paren = do _ <- match TokenOpenParen
            e <- additive
-           _ <- pElt TokenCloseParen
+           _ <- match TokenCloseParen
            return e
 
 integer :: Parser Token ASTExpr
