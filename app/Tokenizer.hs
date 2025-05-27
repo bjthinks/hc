@@ -72,7 +72,7 @@ divide = match '/' >> return TokenDivide
 power  = match '^' >> return TokenPower
 openParen  = match '(' >> return TokenOpenParen
 closeParen = match ')' >> return TokenCloseParen
-assign = match ':' >> match '=' >> return TokenAssign
+assign = matches ":=" >> return TokenAssign
 
 test_Tokenizer :: Test
 test_Tokenizer = test [

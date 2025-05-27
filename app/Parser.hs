@@ -1,7 +1,7 @@
 {-# OPTIONS -XFlexibleInstances -XMultiParamTypeClasses#-}
 
 module Parser (Parser, parseSome, parseAll,
-               eof, pGet, matching, match, pWord,
+               eof, pGet, matching, match, matches,
                pMaybe, pIf, pNot,
                numParsed, ParseError, errorLocation, errorNames,
                pNamed, ($=)) where
@@ -26,7 +26,8 @@ eof      :: Parser t ()                   -- End of input
 pGet     :: Parser t t                    -- Any single t
 matching :: (t -> Bool)   -> Parser t t   -- A t matching a property
 match    :: (Eq t) => t   -> Parser t t   -- A specific t
-pWord    :: (Eq t) => [t] -> Parser t [t] -- A sequence of specific t's
+matches  :: (Eq t) => [t] -> Parser t [t] -- A sequence of specific t's
+-- The plural of match is matches
 
 -- How to build parsers (PEG functionality)
 
@@ -173,7 +174,7 @@ pGet = matching (const True)
 
 match c = matching (== c)
 
-pWord w = sequence (map match w)
+matches w = sequence (map match w)
 
 -- PEG functionality
 
