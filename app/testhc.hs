@@ -23,7 +23,7 @@ unRight (Right b) = b
 unRight _ = error "parse failed"
 
 expressionParser :: Parser Token Expression
-expressionParser = (astExprParser >>= \ast -> pElt TokenEnd >> return (fromAST ast))
+expressionParser = (astExprParser >>= \ast -> match TokenEnd >> return (fromAST ast))
 
 testEval :: String -> Expression -> Test
 testEval str expr = parseAll expressionParser (map snd (unRight (parseAll tokenizer str))) ~?= Right expr

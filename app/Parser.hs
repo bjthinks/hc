@@ -1,10 +1,10 @@
 {-# OPTIONS -XFlexibleInstances -XMultiParamTypeClasses#-}
 
 module Parser (Parser, parseSome, parseAll,
-               pEnd, pGet, pProp, pElt, pWord,
-               pMaybe, pIf, pNot,
+               eof, matchAny, matching, match, matches,
+               option, lookahead, failif,
                numParsed, ParseError, errorLocation, errorNames,
-               pNamed, ($=)) where
+               ($=)) where
 
 import Control.Applicative
 import Control.Monad.Except
@@ -17,16 +17,17 @@ import Control.Monad.State
 -- Run a parser on a [t], returning an a.  Success returns (result,
 -- number of list items parsed, remainder of list).
 parseSome :: Parser t a -> [t] -> Either ParseError (a, Int, [t])
--- Run (parser >> pEnd) and return only the result.
+-- Run (parser >> eof) and return only the result.
 parseAll  :: Parser t a -> [t] -> Either ParseError a
 
 -- Basic parsers
 
-pEnd  :: Parser t ()                   -- End of input
-pGet  :: Parser t t                    -- Any single t
-pProp :: (t -> Bool)   -> Parser t t   -- A t matching a property
-pElt  :: (Eq t) => t   -> Parser t t   -- A specific t
-pWord :: (Eq t) => [t] -> Parser t [t] -- A sequence of specific t's
+eof      :: Parser t ()                   -- End of input
+matchAny :: Parser t t                    -- Any single t
+matching :: (t -> Bool)   -> Parser t t   -- A t matching a property
+match    :: (Eq t) => t   -> Parser t t   -- A specific t
+matches  :: (Eq t) => [t] -> Parser t [t] -- A sequence of specific t's
+-- The plural of match is matches
 
 -- How to build parsers (PEG functionality)
 
@@ -35,21 +36,19 @@ pWord :: (Eq t) => [t] -> Parser t [t] -- A sequence of specific t's
 -- empty or mzero is a parser that always fails
 
 -- Zero-or-one (aka Optional)
-pMaybe :: Parser t a -> Parser t (Maybe a)
+option :: Parser t a -> Parser t (Maybe a)
 
 -- Look ahead, match p, do not consume input
-pIf :: Parser t a -> Parser t a
+lookahead :: Parser t a -> Parser t a
 
 -- Look ahead, match if p does not match, do not consume input
-pNot :: Parser t a -> Parser t ()
+failif :: Parser t a -> Parser t ()
 
 -- Error handling
 
 -- Assign a name to a parser, which is returned if the parser fails
-pNamed :: String -> Parser t a -> Parser t a
 infixr 4 $=
 ($=) :: String -> Parser t a -> Parser t a
-($=) = pNamed
 
 -- Names are returned in the errorNames field of a ParserError,
 -- if the parse failed within that parser.
@@ -94,7 +93,7 @@ parseSome parser input =
 
 -- Basic parsers
 
-pProp p = MakeParser $ \names ->
+matching p = MakeParser $ \names ->
   do st <- get
      let ParseState num rest err = st
      case rest of
@@ -141,14 +140,15 @@ instance MonadPlus (Parser t) where
     do st <- get
        throwError $ makeError names st
 
-pIf p = MakeParser $ \names -> do st <- get
-                                  x <- getParser p names
-                                  put st
-                                  return x
+lookahead p = MakeParser $ \names ->
+  do st <- get
+     x <- getParser p names
+     put st
+     return x
 
-pNamed a p = MakeParser $ \names ->
-             do ParseState n _ _ <- get
-                getParser p ((n,a):names)
+a $= p = MakeParser $ \names ->
+  do ParseState n _ _ <- get
+     getParser p ((n,a):names)
 
 -------------------- Additional functionality --------------------
 
@@ -160,23 +160,23 @@ pNamed a p = MakeParser $ \names ->
 
 parseAll parser input =
   case parseSome (do x <- parser
-                     pEnd
+                     eof
                      return x) input of
     Left err -> Left err
     Right (out,_,_) -> Right out
 
 -- Basic parsers
 
-pEnd = pNot pGet
+eof = failif matchAny
 
-pGet = pProp (const True)
+matchAny = matching (const True)
 
-pElt c = pProp (== c)
+match c = matching (== c)
 
-pWord w = sequence (map pElt w)
+matches w = sequence (map match w)
 
 -- PEG functionality
 
-pMaybe p = (p >>= (return . Just)) <|> return Nothing
+option p = (p >>= (return . Just)) <|> return Nothing
 
-pNot p = join $ pIf ((p >> return mzero) <|> return (return ()))
+failif p = join $ lookahead ((p >> return mzero) <|> return (return ()))
