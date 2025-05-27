@@ -31,11 +31,12 @@ isWord (TokenWord _) = True
 isWord _ = False
 
 tokenizer :: Parser Char [(Int,Token)]
-tokenizer = do ts <- many (spaces >> token)
-               spaces
-               pEnd
-               n <- numParsed
-               return $ ts ++ [(n,TokenEnd)]
+tokenizer = "Unexpected character" $=
+  do ts <- many (spaces >> token)
+     spaces
+     pEnd
+     n <- numParsed
+     return $ ts ++ [(n,TokenEnd)]
 
 spaces :: Parser Char ()
 spaces = do _ <- many $ pProp isSpace
