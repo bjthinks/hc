@@ -2,7 +2,7 @@
 
 module Parser (Parser, parseSome, parseAll,
                eof, matchAny, matching, match, matches,
-               pMaybe, lookahead, failif,
+               option, lookahead, failif,
                numParsed, ParseError, errorLocation, errorNames,
                ($=)) where
 
@@ -36,7 +36,7 @@ matches  :: (Eq t) => [t] -> Parser t [t] -- A sequence of specific t's
 -- empty or mzero is a parser that always fails
 
 -- Zero-or-one (aka Optional)
-pMaybe :: Parser t a -> Parser t (Maybe a)
+option :: Parser t a -> Parser t (Maybe a)
 
 -- Look ahead, match p, do not consume input
 lookahead :: Parser t a -> Parser t a
@@ -177,6 +177,6 @@ matches w = sequence (map match w)
 
 -- PEG functionality
 
-pMaybe p = (p >>= (return . Just)) <|> return Nothing
+option p = (p >>= (return . Just)) <|> return Nothing
 
 failif p = join $ lookahead ((p >> return mzero) <|> return (return ()))

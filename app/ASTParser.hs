@@ -38,7 +38,7 @@ multiplicative = do a <- unary
     makeMultiplicative _ _ = undefined
 
 unary :: Parser Token ASTExpr
-unary = do sign <- pMaybe $ match TokenMinus
+unary = do sign <- option $ match TokenMinus
            a <- power
            return $ case sign of
              Nothing -> a
@@ -46,7 +46,7 @@ unary = do sign <- pMaybe $ match TokenMinus
 
 power :: Parser Token ASTExpr
 power = do b <- atom
-           e <- pMaybe (do _ <- match TokenPower
+           e <- option (do _ <- match TokenPower
                            unary)
            return $ case e of
              Nothing -> b
