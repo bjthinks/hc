@@ -42,7 +42,6 @@ processCommand storeRef cmd =
 printError :: Int -> IO ()
 printError d = do
   putStrLn $ spaces ++ dashes ++ "^"
-  putStrLn $ "Error: incomprehensible input"
     where
       spaces = replicate (length prompt) ' '
       dashes = replicate d '-'
@@ -51,15 +50,17 @@ processTokens :: IORef Store -> [(Int,Token)] -> IO ()
 processTokens storeRef tokens =
   case parseAll commandParser (map snd tokens) of
     Right cmd -> processCommand storeRef cmd
-    Left err -> let errorIndex = fst $ tokens !! errorLocation err
-                in printError errorIndex
+    Left err -> do let errorIndex = fst $ tokens !! errorLocation err
+                   printError errorIndex
+                   print $ errorNames err
 
 processLine :: IORef Store -> String -> IO ()
 processLine storeRef str =
   case parseAll tokenizer str of
     Right [(_,TokenEnd)] -> return ()
     Right tokens -> processTokens storeRef tokens
-    Left err -> printError $ errorLocation err
+    Left err -> do printError $ errorLocation err
+                   print $ errorNames err
 
 interruptMessage :: String
 interruptMessage = "\nInterrupted"
