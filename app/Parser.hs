@@ -2,7 +2,7 @@
 
 module Parser (Parser, parseSome, parseAll,
                eof, matchAny, matching, match, matches,
-               pMaybe, pIf, pNot,
+               pMaybe, lookahead, pNot,
                numParsed, ParseError, errorLocation, errorNames,
                ($=)) where
 
@@ -39,7 +39,7 @@ matches  :: (Eq t) => [t] -> Parser t [t] -- A sequence of specific t's
 pMaybe :: Parser t a -> Parser t (Maybe a)
 
 -- Look ahead, match p, do not consume input
-pIf :: Parser t a -> Parser t a
+lookahead :: Parser t a -> Parser t a
 
 -- Look ahead, match if p does not match, do not consume input
 pNot :: Parser t a -> Parser t ()
@@ -140,10 +140,11 @@ instance MonadPlus (Parser t) where
     do st <- get
        throwError $ makeError names st
 
-pIf p = MakeParser $ \names -> do st <- get
-                                  x <- getParser p names
-                                  put st
-                                  return x
+lookahead p = MakeParser $ \names ->
+  do st <- get
+     x <- getParser p names
+     put st
+     return x
 
 a $= p = MakeParser $ \names ->
   do ParseState n _ _ <- get
@@ -178,4 +179,4 @@ matches w = sequence (map match w)
 
 pMaybe p = (p >>= (return . Just)) <|> return Nothing
 
-pNot p = join $ pIf ((p >> return mzero) <|> return (return ()))
+pNot p = join $ lookahead ((p >> return mzero) <|> return (return ()))
