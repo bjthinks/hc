@@ -2,7 +2,7 @@
 
 module Parser (Parser, parseSome, parseAll,
                eof, matchAny, matching, match, matches,
-               pMaybe, lookahead, pNot,
+               pMaybe, lookahead, failif,
                numParsed, ParseError, errorLocation, errorNames,
                ($=)) where
 
@@ -42,7 +42,7 @@ pMaybe :: Parser t a -> Parser t (Maybe a)
 lookahead :: Parser t a -> Parser t a
 
 -- Look ahead, match if p does not match, do not consume input
-pNot :: Parser t a -> Parser t ()
+failif :: Parser t a -> Parser t ()
 
 -- Error handling
 
@@ -167,7 +167,7 @@ parseAll parser input =
 
 -- Basic parsers
 
-eof = pNot matchAny
+eof = failif matchAny
 
 matchAny = matching (const True)
 
@@ -179,4 +179,4 @@ matches w = sequence (map match w)
 
 pMaybe p = (p >>= (return . Just)) <|> return Nothing
 
-pNot p = join $ lookahead ((p >> return mzero) <|> return (return ()))
+failif p = join $ lookahead ((p >> return mzero) <|> return (return ()))
