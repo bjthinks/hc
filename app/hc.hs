@@ -42,7 +42,7 @@ processCommand storeRef cmd =
 printError :: Int -> IO ()
 printError d = do
   putStrLn $ spaces ++ dashes ++ "^"
-  putStrLn $ "Error: incomprehensible input"
+  putStrLn $ "Please check your input and try again."
     where
       spaces = replicate (length prompt) ' '
       dashes = replicate d '-'
