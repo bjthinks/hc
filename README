@@ -1,5 +1,5 @@
 hc: An Algebraic Calculator
-Copyright 2010, Brian Johnson
+Copyright 2010-2025, Brian Johnson
 
 This is my attempt to write something that bridges the gap between a
 simple calculator and a full-fledged computer algebra system.  "bc"
@@ -9,8 +9,7 @@ to demonstrate that Haskell is practical as a language for medium-size
 projects.
 
 BUILD INSTRUCTIONS
-1. Install the Haskell Platform with the readline extension
-   (see README-readline for assistance)
+1. Install ghcup
 2. make
 
 FEATURES
@@ -20,4 +19,4 @@ FEATURES
 * Various simplifications are performed
 * expand() multiplies out products/powers of sums
 * Assignment to variables with :=
-* Input via the GNU readline library with history and tab completion
+* Input with command line editing, history, and tab completion
