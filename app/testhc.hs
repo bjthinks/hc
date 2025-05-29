@@ -338,7 +338,8 @@ expressionDisplayTests = test [
   testDisplay "(y+z)*(a+b+1)^2" "(a + b + 1)^2 (y + z)",
   testDisplay "(y+z+1)*(a+b)^2" "(a + b)^2 (y + z + 1)",
   testDisplay "(a+b)^100+z^2" "z^2 + (a + b)^100",
-  testDisplay "z^2+(a+b)^100" "z^2 + (a + b)^100"
+  testDisplay "z^2+(a+b)^100" "z^2 + (a + b)^100",
+  testDisplay "(2*x)^2/4" "x^2"
   ]
 
 storeTests :: Test
