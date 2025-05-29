@@ -1,7 +1,7 @@
 module Store(Store, newStore, setValue, getValue, getVariables) where
 
 import Expression
-import qualified Data.Map as Map
+import qualified Data.Map.Strict as Map
 
 newtype Store = StoreGuts (Map.Map String Expression)
 
