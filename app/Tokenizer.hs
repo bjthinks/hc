@@ -18,6 +18,7 @@ data Token = TokenInteger Integer |
              TokenPower |
              TokenOpenParen |
              TokenCloseParen |
+             TokenComma |
              TokenAssign |
              TokenEnd
              deriving (Eq, Show)
@@ -44,7 +45,7 @@ spaces = do _ <- many $ matching isSpace
 token :: Parser Char (Int,Token)
 token = do n <- numParsed
            t <- integer <|> word <|> plus <|> minus <|> times <|> divide <|>
-                power <|> openParen <|> closeParen <|> assign
+                power <|> openParen <|> closeParen <|> comma <|> assign
            return (n,t)
 
 integer :: Parser Char Token
@@ -63,6 +64,7 @@ divide :: Parser Char Token
 power  :: Parser Char Token
 openParen  :: Parser Char Token
 closeParen :: Parser Char Token
+comma  :: Parser Char Token
 assign :: Parser Char Token
 
 plus   = match '+' >> return TokenPlus
@@ -72,6 +74,7 @@ divide = match '/' >> return TokenDivide
 power  = match '^' >> return TokenPower
 openParen  = match '(' >> return TokenOpenParen
 closeParen = match ')' >> return TokenCloseParen
+comma  = match ',' >> return TokenComma
 assign = matches ":=" >> return TokenAssign
 
 test_Tokenizer :: Test

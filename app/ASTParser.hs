@@ -58,9 +58,11 @@ atom = integer <|> call <|> variable <|> paren
 call :: Parser Token ASTExpr
 call = do TokenWord func <- matching isWord
           _ <- match TokenOpenParen
-          arg <- additive
+          a <- additive
+          as <- many $ do _ <- match TokenComma
+                          additive
           _ <- match TokenCloseParen
-          return (ASTCall func [arg])
+          return (ASTCall func (a:as))
 
 paren :: Parser Token ASTExpr
 paren = do _ <- match TokenOpenParen
