@@ -3,16 +3,16 @@ module Store(Store, newStore, setValue, getValue, getVariables) where
 import Expression
 import qualified Data.Map.Strict as Map
 
-newtype Store = StoreGuts (Map.Map String Expression)
+newtype Store = Store (Map.Map String Expression)
 
 newStore :: Store
-newStore = StoreGuts $ Map.empty
+newStore = Store $ Map.empty
 
 setValue :: String -> Expression -> Store -> Store
-setValue v e (StoreGuts s) = StoreGuts $ Map.insert v e s
+setValue v e (Store s) = Store $ Map.insert v e s
 
 getValue :: String -> Store -> Maybe Expression
-getValue v (StoreGuts s) = Map.lookup v s
+getValue v (Store s) = Map.lookup v s
 
 getVariables :: Store -> [String]
-getVariables (StoreGuts s) = Map.keys s
+getVariables (Store s) = Map.keys s
