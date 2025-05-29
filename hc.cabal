@@ -84,7 +84,7 @@ executable testhc
     main-is:          testhc.hs
     other-modules: AST, ASTDisplay, ASTFromExpr, ASTParser, Command,
                    CommandParser, Expand, ExprFromAST, Expression,
-                   HCException, Parser, Store, Tokenizer, PrimeList
+                   HCException, Parser, Store, Tokenizer
     build-depends:    base ^>=4.17.2.1, HUnit, mtl, containers, transformers,
                       haskeline, unix
     hs-source-dirs:   app

@@ -6,10 +6,13 @@ import ASTDisplay
 import Store
 
 data Command = CommandAssign String Expression |
+               CommandClear String |
                CommandEval Expression
 
 execute :: Store -> Command -> (Store, String)
 execute s (CommandAssign v e) = (setValue v e s, displayAssignment v e)
+execute s (CommandClear v) =
+  (clearValue v s, "Removed definition of " ++ v ++ ".")
 execute s (CommandEval e) = (s, (astDisplay . fromExpr) (substitute s e))
 
 substitute :: Store -> Expression -> Expression
