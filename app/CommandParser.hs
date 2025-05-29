@@ -8,7 +8,7 @@ import ExprFromAST
 import Command
 
 commandParser :: Parser Token Command
-commandParser = assign <|> eval
+commandParser = assign <|> clear <|> eval
 
 assign :: Parser Token Command
 assign = do TokenWord v <- matching isWord
@@ -16,6 +16,12 @@ assign = do TokenWord v <- matching isWord
             ast <- astExprParser
             _ <- match TokenEnd
             return $ CommandAssign v (fromAST ast)
+
+clear :: Parser Token Command
+clear = do _ <- match $ TokenWord "clear"
+           TokenWord v <- matching isWord
+           _ <- match TokenEnd
+           return $ CommandClear v
 
 eval :: Parser Token Command
 eval = do ast <- astExprParser
