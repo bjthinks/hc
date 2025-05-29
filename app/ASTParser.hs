@@ -205,5 +205,9 @@ test_ASTParser = [
     Right (ASTCall "f" []),
   parseAll additive [TokenWord "a",TokenOpenParen,TokenWord "b",TokenComma,
                      TokenWord "c",TokenCloseParen] ~?=
-    Right (ASTCall "a" [ASTVariable "b",ASTVariable "c"])
+    Right (ASTCall "a" [ASTVariable "b",ASTVariable "c"]),
+  parseAll additive [TokenWord "a",TokenPower,TokenOpenParen,TokenWord "b",
+                     TokenPlus,TokenWord "c",TokenCloseParen] ~?=
+    Right (ASTPower (ASTVariable "a") (ASTSum (ASTVariable "b")
+                                      (ASTVariable "c")))
   ]

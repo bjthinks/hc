@@ -30,6 +30,8 @@ expandIntPow :: Expression -> Integer -> Expression
 expandIntPow e n
   | n < 0 = eIntPow (expandIntPow e (-n)) (-1)
   | otherwise = expandProduct $ genericReplicate n e
+  -- Successive squaring runs slower on (x+y+z)^100, probably because the
+  -- number of terms after squaring is extremely large
 
 test_Expand :: Test
 test_Expand = test [
