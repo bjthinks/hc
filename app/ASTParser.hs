@@ -190,5 +190,9 @@ test_ASTParser = [
   isLeft (parseAll additive [TokenInteger 1,TokenOpenParen,TokenInteger 2,
                              TokenCloseParen]) ~?= True,
   isLeft (parseAll additive [TokenInteger 1,TokenOpenParen,TokenWord "b",
-                             TokenCloseParen]) ~?= True
+                             TokenCloseParen]) ~?= True,
+  parseAll additive [TokenWord "a",TokenPower,TokenOpenParen,TokenWord "b",
+                     TokenPlus,TokenWord "c",TokenCloseParen] ~?=
+    Right (ASTPower (ASTVariable "a") (ASTSum (ASTVariable "b")
+                                      (ASTVariable "c")))
   ]
