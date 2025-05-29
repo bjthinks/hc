@@ -9,7 +9,6 @@ import ASTFromExpr
 import ASTDisplay
 import Store
 import Expand
-import PrimeList
 
 tRat :: Rational -> Expression
 tVar :: String -> Expression
@@ -360,8 +359,7 @@ tests = test ["Tokenizer" ~: test_Tokenizer,
               "expression display" ~: expressionDisplayTests,
               "expression" ~: test_Expression,
               "store" ~: storeTests,
-              "expand" ~: test_Expand,
-              "prime list" ~: test_PrimeList
+              "expand" ~: test_Expand
              ]
 
 main :: IO ()
