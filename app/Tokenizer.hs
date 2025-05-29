@@ -32,14 +32,14 @@ isWord (TokenWord _) = True
 isWord _ = False
 
 tokenizer :: Parser Char [(Int,Token)]
-tokenizer = do ts <- pStar (spaces >> token)
+tokenizer = do ts <- many (spaces >> token)
                spaces
-               pEnd
+               eof
                n <- numParsed
                return $ ts ++ [(n,TokenEnd)]
 
 spaces :: Parser Char ()
-spaces = do _ <- pStar $ pProp isSpace
+spaces = do _ <- many $ matching isSpace
             return ()
 
 token :: Parser Char (Int,Token)
@@ -49,12 +49,12 @@ token = do n <- numParsed
            return (n,t)
 
 integer :: Parser Char Token
-integer = do ds <- pPlus $ pProp isDigit
+integer = do ds <- some $ matching isDigit
              return $ TokenInteger (read ds :: Integer)
 
 word :: Parser Char Token
-word = do c <- pProp isAlpha
-          cs <- pStar $ pProp isAlphaNum
+word = do c <- matching isAlpha
+          cs <- many $ matching isAlphaNum
           return $ TokenWord (c:cs)
 
 plus   :: Parser Char Token
@@ -67,15 +67,15 @@ closeParen :: Parser Char Token
 comma :: Parser Char Token
 assign :: Parser Char Token
 
-plus   = pElt '+' >> return TokenPlus
-minus  = pElt '-' >> return TokenMinus
-times  = pElt '*' >> return TokenTimes
-divide = pElt '/' >> return TokenDivide
-power  = pElt '^' >> return TokenPower
-openParen  = pElt '(' >> return TokenOpenParen
-closeParen = pElt ')' >> return TokenCloseParen
-comma = pElt ',' >> return TokenComma
-assign = pElt ':' >> pElt '=' >> return TokenAssign
+plus   = match '+' >> return TokenPlus
+minus  = match '-' >> return TokenMinus
+times  = match '*' >> return TokenTimes
+divide = match '/' >> return TokenDivide
+power  = match '^' >> return TokenPower
+openParen  = match '(' >> return TokenOpenParen
+closeParen = match ')' >> return TokenCloseParen
+comma = match ',' >> return TokenComma
+assign = matches ":=" >> return TokenAssign
 
 test_Tokenizer :: Test
 test_Tokenizer = test [
