@@ -203,7 +203,7 @@ isNegPow = eMatch fFalse fFalse fFalse fFalse (\_ n -> n<0) (const fFalse)
 eAsSum :: Expression -> [Expression]
 eAsSum =
   eMatch (list . eRat) (list . eVar) id (list . eProd) (\e n -> [eIntPow e n])
-    (\s xs -> [eCall s xs])
+    (\f es -> [eCall f es])
   where
     list :: a -> [a]
     list x = [x]
