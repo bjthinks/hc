@@ -230,7 +230,13 @@ combineSummands :: [Expression] -> [Expression]
 combineSummands es = map pushCoeff $ combineTerms $ map popCoeff es
 popCoeff :: Expression -> (Rational,Expression)
 popCoeff (ExpressionRational n) = (n,eRat 1)
-popCoeff (ExpressionProduct (ExpressionRational n:es)) = (n,eProd es)
+popCoeff (ExpressionProduct ps) = getCoefficient 1 ps []
+  where
+    getCoefficient :: Rational -> [Expression] -> [Expression] ->
+      (Rational,Expression)
+    getCoefficient d [] result = (d,eProd (reverse result))
+    getCoefficient _ [ExpressionRational n] result = (n,eProd (reverse result))
+    getCoefficient d (e:es) result = getCoefficient d es (e:result)
 popCoeff x = (1,x)
 pushCoeff :: (Rational,Expression) -> Expression
 pushCoeff (c,e) = eProd [eRat c,e]
