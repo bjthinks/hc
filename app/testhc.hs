@@ -376,6 +376,8 @@ integrationTests = test
   , integrationTest "y:=3;substitute(x,y,x^2)" "y := 3;9"
   , integrationTest "substitute(y,x+z,(x+y)^100/(x*y*z))"
     "(2 x + z)^100 / x z (x + z)"
+  , integrationTest "a:=1;b:=2;c:=3;clear b;a+b+c"
+    "a := 1;b := 2;c := 3;Removed definition of b.;b + 4"
   ]
 
 tests :: Test
