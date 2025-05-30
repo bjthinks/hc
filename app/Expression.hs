@@ -106,9 +106,11 @@ compareAsSum xs ys = compareAsList (addConstant 0 xs) (addConstant 0 ys)
 compareAsProd :: [Expression] -> [Expression] -> Ordering
 compareAsProd xs ys = compareAsList (addConstant 1 xs) (addConstant 1 ys)
 
+-- TODO not clear if this is needed anymore
 addConstant :: Rational -> [Expression] -> [Expression]
-addConstant _ xs@(ExpressionRational _:_) = xs
-addConstant n xs = eRat n:xs
+addConstant _ es@(ExpressionRational _:_) = es
+addConstant n (e:es) = e : addConstant n es
+addConstant n [] = [eRat n]
 
 -- A sum or product is compared against another sum or product, resp.,
 -- by first trying to compare the nonconstant terms, then the constant.
