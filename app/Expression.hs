@@ -286,8 +286,9 @@ combineConstantFactors (e:es) = e : combineConstantFactors es
 combineConstantFactors [] = []
 
 detectZeroFactors :: [Expression] -> [Expression]
-detectZeroFactors (ExpressionRational 0:_) = [eRat 0]
-detectZeroFactors es = es
+detectZeroFactors es
+  | any (== ExpressionRational 0) es = [eRat 0]
+  | otherwise = es
 
 makeProduct :: [Expression] -> Expression
 makeProduct [] = eRat 1
