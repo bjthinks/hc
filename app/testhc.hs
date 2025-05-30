@@ -369,8 +369,13 @@ integrationTest input desiredOutput =
       in (store'', output1 ++ ";" ++ output2)
 
 integrationTests :: Test
-integrationTests = test [
-  integrationTest "a:=1;a" "a := 1;1"
+integrationTests = test
+  [ integrationTest "a:=1;a" "a := 1;1"
+  , integrationTest "substitute(x,x+1,x^3)" "(x + 1)^3"
+  , integrationTest "x:=1;substitute(x,y,x^2)" "x := 1;y^2"
+  , integrationTest "y:=3;substitute(x,y,x^2)" "y := 3;9"
+  , integrationTest "substitute(y,x+z,(x+y)^100/(x*y*z))"
+    "(2 x + z)^100 / x z (x + z)"
   ]
 
 tests :: Test
