@@ -282,7 +282,8 @@ combineConstantFactors :: [Expression] -> [Expression]
 combineConstantFactors (ExpressionRational m:ExpressionRational n:es) =
   combineConstantFactors (eRat (m*n):es)
 combineConstantFactors (ExpressionRational 1:es) = es
-combineConstantFactors es = es
+combineConstantFactors (e:es) = e : combineConstantFactors es
+combineConstantFactors [] = []
 
 detectZeroFactors :: [Expression] -> [Expression]
 detectZeroFactors (ExpressionRational 0:_) = [eRat 0]
