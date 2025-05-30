@@ -18,7 +18,7 @@ Expressions only exist in certain forms.
   alphanumeric characters.
 * Constants can be any rational number.
 * Sums do not (directly) contain sums, nor do products contain products.
-* Sums and products are sorted, with constant first (if any).
+* Sums and products are sorted, with constant last (if any).
 * Like terms of a sum are combined together (via coefficients).
 * Like terms of a product are combined together (via integer powers).
 * Sums do not contain a zero.
@@ -41,9 +41,9 @@ data Expression = ExpressionVariable String |
 instance Ord Expression where
   -- Rationals are sorted by value
   compare (ExpressionRational x) (ExpressionRational y) = compare x y
-  -- Rationals come before anything else
-  compare (ExpressionRational _) _ = LT
-  compare _ (ExpressionRational _) = GT
+  -- Rationals come after anything else
+  compare (ExpressionRational _) _ = GT
+  compare _ (ExpressionRational _) = LT
   -- Variables are sorted alphabetically
   compare (ExpressionVariable x) (ExpressionVariable y) = compare x y
   -- Variables before sums
