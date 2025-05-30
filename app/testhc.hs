@@ -379,6 +379,7 @@ integrationTests = test
   , integrationTest "a:=1;b:=2;c:=3;clear b;a+b+c"
     "a := 1;b := 2;c := 3;Removed definition of b.;b + 4"
   , integrationTest "(a+b-1)*(a+b)*(a+b+1)" "(a + b - 1) (a + b) (a + b + 1)"
+  , integrationTest "(a+b)*(a+b+c)" "(a + b + c) (a + b)"
   ]
 
 tests :: Test
