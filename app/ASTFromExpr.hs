@@ -22,28 +22,13 @@ fromExprVar v = ASTVariable v
 
 fromExprSum :: [Expression] -> ASTExpr
 fromExprSum [] = undefined
-fromExprSum (e:es) =
-  case isRational e of
-    False -> simpleSumToAST (e:es)
-    True -> (case fromExpr e of
-                ASTNegation c -> flip ASTDifference c
-                c -> flip ASTSum c)
-            (simpleSumToAST es)
+fromExprSum (e:es) = foldl combineTwoSummands (fromExpr e) es
 
--- This simpler function doesn't worry about constants
-simpleSumToAST :: [Expression] -> ASTExpr
-simpleSumToAST es = foldl astSumOrDifference a as
-  where
-    xs = map fromExpr es
-    a = head xs
-    as = tail xs
-
--- Adds together its two args, using ASTSum or ASTDifference depending
--- on whether the second arg is negated or not
-astSumOrDifference :: ASTExpr -> ASTExpr -> ASTExpr
-astSumOrDifference x y = case y of
-  ASTNegation z -> ASTDifference x z
-  _ -> ASTSum x y
+combineTwoSummands :: ASTExpr -> Expression -> ASTExpr
+combineTwoSummands e f = let f' = fromExpr f in
+  case f' of
+    ASTNegation g -> ASTDifference e g
+    _ -> ASTSum e f'
 
 fromExprProd :: [Expression] -> ASTExpr
 fromExprProd es =
