@@ -31,13 +31,24 @@ inputSettings s = setComplete (completeVars s) defaultSettings
 
 -- handle input
 
-processCommand :: IORef Store -> Command -> IO ()
+processCommand :: IORef Store -> Command -> IO Bool
 processCommand storeRef cmd =
   do store <- readIORef storeRef
      let (store', output) = execute store cmd
      putStrLn output
      writeIORef storeRef store'
-  `E.catch` (putStrLn . hcErrorMessage)
+     return True
+  `E.catch` (\e -> do
+     putStrLn $ hcErrorMessage e
+     return False)
+
+processCommands :: IORef Store -> [Command] -> IO ()
+processCommands _ [] = return ()
+processCommands storeRef (c:cs) = do
+  continue <- processCommand storeRef c
+  if continue
+    then processCommands storeRef cs
+    else return ()
 
 printError :: Int -> IO ()
 printError d = do
@@ -50,7 +61,7 @@ printError d = do
 processTokens :: IORef Store -> [(Int,Token)] -> IO ()
 processTokens storeRef tokens =
   case parseAll commandParser (map snd tokens) of
-    Right cmd -> processCommand storeRef cmd
+    Right cmds -> processCommands storeRef cmds
     Left err -> let errorIndex = fst $ tokens !! errorLocation err
                 in printError errorIndex
 
