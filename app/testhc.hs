@@ -3,6 +3,8 @@ import Test.HUnit
 import Parser
 import Tokenizer
 import ASTParser
+import Command
+import CommandParser
 import Expression
 import ExprFromAST
 import ASTFromExpr
@@ -353,6 +355,24 @@ storeTests = test [
   getValue "a" (setValue "a" (tVar "x") (setValue "b" (tRat 11) newStore)) ~?= Just (tVar "x")
   ]
 
+integrationTest :: String -> String -> Test
+integrationTest input desiredOutput =
+  let commands = unRight $ parseAll commandParser $ map snd $ unRight $
+                 parseAll tokenizer input
+  in snd (executeCommands newStore commands) ~?= desiredOutput
+  where
+    executeCommands store [] = (store,"")
+    executeCommands store [c] = execute store c
+    executeCommands store (c:cs) =
+      let (store', output1) = execute store c
+          (store'', output2) = executeCommands store' cs
+      in (store'', output1 ++ ";" ++ output2)
+
+integrationTests :: Test
+integrationTests = test [
+  integrationTest "a:=1;a" "a := 1;1"
+  ]
+
 tests :: Test
 tests = test ["Tokenizer" ~: test_Tokenizer,
               "ASTParser" ~: test_ASTParser,
@@ -361,7 +381,8 @@ tests = test ["Tokenizer" ~: test_Tokenizer,
               "expression display" ~: expressionDisplayTests,
               "expression" ~: test_Expression,
               "store" ~: storeTests,
-              "expand" ~: test_Expand
+              "expand" ~: test_Expand,
+              "integration" ~: integrationTests
              ]
 
 main :: IO ()
