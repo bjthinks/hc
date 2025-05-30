@@ -106,7 +106,6 @@ compareAsSum xs ys = compareAsList (addConstant 0 xs) (addConstant 0 ys)
 compareAsProd :: [Expression] -> [Expression] -> Ordering
 compareAsProd xs ys = compareAsList (addConstant 1 xs) (addConstant 1 ys)
 
--- TODO not clear if this is needed anymore
 addConstant :: Rational -> [Expression] -> [Expression]
 addConstant _ es@(ExpressionRational _:_) = es
 addConstant n (e:es) = e : addConstant n es
