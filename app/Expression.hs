@@ -112,14 +112,8 @@ addConstant _ es@(ExpressionRational _:_) = es
 addConstant n (e:es) = e : addConstant n es
 addConstant n [] = [eRat n]
 
--- A sum or product is compared against another sum or product, resp.,
--- by first trying to compare the nonconstant terms, then the constant.
+-- TODO not clear if this is needed anymore
 compareAsList :: [Expression] -> [Expression] -> Ordering
-compareAsList (ExpressionRational m:xs) (ExpressionRational n:ys) =
-  case compareAsList xs ys of
-    LT -> LT
-    GT -> GT
-    EQ -> compare m n
 compareAsList (x:xs) (y:ys) =
   case compare x y of
     LT -> LT
