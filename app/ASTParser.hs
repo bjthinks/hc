@@ -67,10 +67,10 @@ callNoArgs = do TokenWord func <- matching isWord
 callArgs :: Parser Token ASTExpr
 callArgs = do TokenWord func <- matching isWord
               _ <- match TokenOpenParen
-              arg1 <- additive
-              args <- many (match TokenComma >> additive)
+              a <- additive
+              as <- many $ match TokenComma >> additive
               _ <- match TokenCloseParen
-              return (ASTCall func (arg1:args))
+              return $ ASTCall func (a:as)
 
 paren :: Parser Token ASTExpr
 paren = do _ <- match TokenOpenParen

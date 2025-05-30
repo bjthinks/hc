@@ -3,6 +3,8 @@ import Test.HUnit
 import Parser
 import Tokenizer
 import ASTParser
+import Command
+import CommandParser
 import Expression
 import ExprFromAST
 import ASTFromExpr
@@ -352,7 +354,8 @@ expressionDisplayTests = test [
   testDisplay "(y+z+1)*(a+b)^2" "(a + b)^2 (y + z + 1)",
   testDisplay "(a+b)^100+z^2" "z^2 + (a + b)^100",
   testDisplay "z^2+(a+b)^100" "z^2 + (a + b)^100",
-  testDisplay "(2*x)^2/4" "x^2"
+  testDisplay "(2*x)^2/4" "x^2",
+  testDisplay "substitute(x,a,x^2)" "a^2"
   ]
 
 storeTests :: Test
@@ -365,6 +368,31 @@ storeTests = test [
   getValue "a" (setValue "a" (tVar "x") (setValue "b" (tRat 11) newStore)) ~?= Just (tVar "x")
   ]
 
+integrationTest :: String -> String -> Test
+integrationTest input desiredOutput =
+  let commands = unRight $ parseAll commandParser $ map snd $ unRight $
+                 parseAll tokenizer input
+  in snd (executeCommands newStore commands) ~?= desiredOutput
+  where
+    executeCommands store [] = (store,"")
+    executeCommands store [c] = execute store c
+    executeCommands store (c:cs) =
+      let (store', output1) = execute store c
+          (store'', output2) = executeCommands store' cs
+      in (store'', output1 ++ ";" ++ output2)
+
+integrationTests :: Test
+integrationTests = test
+  [ integrationTest "a:=1;a" "a := 1;1"
+  , integrationTest "substitute(x,x+1,x^3)" "(x + 1)^3"
+  , integrationTest "x:=1;substitute(x,y,x^2)" "x := 1;y^2"
+  , integrationTest "y:=3;substitute(x,y,x^2)" "y := 3;9"
+  , integrationTest "substitute(y,x+z,(x+y)^100/(x*y*z))"
+    "(2 x + z)^100 / x z (x + z)"
+  , integrationTest "a:=1;b:=2;c:=3;clear b;a+b+c"
+    "a := 1;b := 2;c := 3;Removed definition of b.;b + 4"
+  ]
+
 tests :: Test
 tests = test ["Tokenizer" ~: test_Tokenizer,
               "ASTParser" ~: test_ASTParser,
@@ -373,7 +401,8 @@ tests = test ["Tokenizer" ~: test_Tokenizer,
               "expression display" ~: expressionDisplayTests,
               "expression" ~: test_Expression,
               "store" ~: storeTests,
-              "expand" ~: test_Expand
+              "expand" ~: test_Expand,
+              "integration" ~: integrationTests
              ]
 
 main :: IO ()
