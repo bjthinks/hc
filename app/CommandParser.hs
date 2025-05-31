@@ -15,7 +15,11 @@ commandParser = do
   return (c:cs)
 
 command :: Parser Token Command
-command = assign <|> clear <|> help <|> eval
+command = exit <|> assign <|> clear <|> help <|> eval
+
+exit :: Parser Token Command
+exit = do _ <- match $ TokenWord "exit"
+          return CommandExit
 
 assign :: Parser Token Command
 assign = do TokenWord v <- matching isWord
@@ -28,12 +32,12 @@ clear = do _ <- match $ TokenWord "clear"
            TokenWord v <- matching isWord
            return $ CommandClear v
 
-eval :: Parser Token Command
-eval = do ast <- astParser
-          return $ CommandEval ast
-
 help :: Parser Token Command
 help = do _ <- match $ TokenWord "help"
           topic <- option $ matching oktopic
           return $ CommandHelp topic
   where oktopic t = t /= TokenEnd && t /= TokenSemicolon
+
+eval :: Parser Token Command
+eval = do ast <- astParser
+          return $ CommandEval ast

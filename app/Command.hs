@@ -17,13 +17,14 @@ import Control.Exception
 data Command = CommandAssign String ASTExpr |
                CommandClear String |
                CommandEval ASTExpr |
+               CommandExit |
                CommandHelp (Maybe Token)
 
 builtinFunctions :: [String]
 builtinFunctions = ["expand", "substitute"]
 
 builtinCommands :: [String]
-builtinCommands = ["clear", "help"]
+builtinCommands = ["clear", "help", "exit"]
 
 execute :: Store -> Command -> (Store, String)
 execute store (CommandAssign v a) =
@@ -35,6 +36,7 @@ execute store (CommandClear v) = clearValue v store
 execute store (CommandEval a) =
   (store, astDisplay $ fromExpr $ runBuiltins $ substituteFromStore store $
           runSubstitute $ fromAST a)
+execute _ CommandExit = throw HCExit
 execute store (CommandHelp topic) = (store, {-TODO word wrap-} showHelp topic)
 
 runBuiltins :: Expression -> Expression

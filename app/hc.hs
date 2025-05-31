@@ -105,7 +105,8 @@ main = do
   sequence_ $ map putStrLn banner
   -- Enter haskeline world
   s <- newIORef newStore
-  _ <- runInputT (inputSettings s) (runMaybeT (mainloop s))
+  _ <- runInputT (inputSettings s) (runMaybeT (mainloop s)) `E.catch`
+         (\e -> case e of HCExit -> return Nothing)
   return ()
 
 banner :: [String]
@@ -127,6 +128,6 @@ banner =
   , "algebraic expression using numbers, variables, and + - * /. You can also"
   , "raise anything to a whole number power using ^. Assign to variables and"
   , "functions using the := operator. Type help for more information."
-  , "Use control-c to interrupt lengthy computations and control-d to exit."
+  , "Use control-c to interrupt lengthy computations."
   , "Note: assignments that form a loop will cause the interpreter to hang."
   ]

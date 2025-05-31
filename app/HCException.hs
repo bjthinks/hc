@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 
-module HCException (HCException(..),hcErrorMessage) where
+module HCException (HCException(..), HCExit(..), hcErrorMessage) where
 
 import Data.Typeable
 import Control.Exception
@@ -12,7 +12,12 @@ data HCException = HCDivideByZero |
                    HCWrongNumberOfParameters String Int
   deriving (Show, Typeable)
 
+data HCExit = HCExit
+  deriving (Show, Typeable)
+
 instance Exception HCException
+
+instance Exception HCExit
 
 hcErrorMessage :: HCException -> String
 hcErrorMessage HCDivideByZero = "Error: division by zero."
