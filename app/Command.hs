@@ -1,4 +1,4 @@
-module Command (Command(..), builtinFunctions, execute,
+module Command (Command(..), builtinFunctions, builtinCommands, execute,
                 runBuiltins, runSubstitute) where
 
 import AST
@@ -9,15 +9,21 @@ import Expression
 import Store
 import Expand
 import Substitute
+import Help
 import HCException
+import Tokenizer
 import Control.Exception
 
 data Command = CommandAssign String ASTExpr |
                CommandClear String |
-               CommandEval ASTExpr
+               CommandEval ASTExpr |
+               CommandHelp (Maybe Token)
 
 builtinFunctions :: [String]
 builtinFunctions = ["expand", "substitute"]
+
+builtinCommands :: [String]
+builtinCommands = ["clear", "help"]
 
 execute :: Store -> Command -> (Store, String)
 execute store (CommandAssign v a) =
@@ -25,11 +31,11 @@ execute store (CommandAssign v a) =
   then throw HCRedefineBuiltin
   else (setValue v e store, displayAssignment v e)
   where e = fromAST a
-execute store (CommandClear v) =
-  (clearValue v store, "Removed definition of " ++ v ++ ".")
+execute store (CommandClear v) = clearValue v store
 execute store (CommandEval a) =
   (store, astDisplay $ fromExpr $ runBuiltins $ substituteFromStore store $
           runSubstitute $ fromAST a)
+execute store (CommandHelp topic) = (store, {-TODO word wrap-} showHelp topic)
 
 runBuiltins :: Expression -> Expression
 runBuiltins = eTransform eRat eVar eSum eProd eIntPow runBuiltin
