@@ -8,7 +8,7 @@ import ASTDisplay
 import Expression
 import Store
 import Expand
-import qualified Substitute as S
+import Substitute
 import HCException
 import Control.Exception
 
@@ -28,7 +28,7 @@ execute store (CommandAssign v a) =
 execute store (CommandClear v) =
   (clearValue v store, "Removed definition of " ++ v ++ ".")
 execute store (CommandEval a) =
-  (store, astDisplay $ fromExpr $ runBuiltins $ substitute store $
+  (store, astDisplay $ fromExpr $ runBuiltins $ substituteFromStore store $
           runSubstitute $ fromAST a)
 
 runBuiltins :: Expression -> Expression
@@ -47,18 +47,18 @@ runSubstitute' "substitute" [e1,e2,e3] =
   eMatch no go no no (const no) (const no) e1
   where
     no _ = throw HCSubstituteNotVariable
-    go v = S.substitute v e2 e3
+    go v = substitute v e2 e3
 runSubstitute' "substitute" _ = throw $ HCWrongNumberOfParameters "substitute" 3
 runSubstitute' f es = eCall f es
 
-substitute :: Store -> Expression -> Expression
-substitute store = eTransform eRat (get store) eSum eProd eIntPow eCall
-
-get :: Store -> String -> Expression
-get store str =
-  case getValue str store of
-    Just expr -> substitute store expr
-    Nothing -> eVar str
+substituteFromStore :: Store -> Expression -> Expression
+substituteFromStore store = eTransform eRat get eSum eProd eIntPow eCall
+  where
+    get :: String -> Expression
+    get str =
+      case getValue str store of
+        Just expr -> substituteFromStore store expr
+        Nothing -> eVar str
 
 displayAssignment :: String -> Expression -> String
 displayAssignment v e = v ++ " := " ++ astDisplay (fromExpr e)
