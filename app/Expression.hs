@@ -56,10 +56,9 @@ eTransform p q r s t =
       myself = eTransform p q r s t
 
 transformSummandForSorting :: Expression -> Expression
-transformSummandForSorting = eMatch wrapRational wrapVariable
+transformSummandForSorting = eMatch ExpressionRational wrapVariable
   undefined wrapProduct wrapIntPow
   where
-    wrapRational r = ExpressionProduct [ExpressionRational r]
     wrapVariable v = ExpressionProduct
       [ExpressionIntPow (ExpressionVariable v) (-1), ExpressionRational 1]
     wrapProduct es = ExpressionProduct $ map transformFactorForSorting $
