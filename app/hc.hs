@@ -101,6 +101,7 @@ mainloop storeRef = do
 
 main :: IO ()
 main = do
+  sequence_ $ map putStrLn banner
   putStrLn
     "Type control-c to interrupt lengthy computations and control-d to exit."
   putStrLn
@@ -109,3 +110,18 @@ main = do
   s <- newIORef newStore
   _ <- runInputT (inputSettings s) (runMaybeT (mainloop s))
   return ()
+
+banner :: [String]
+banner =
+  [ "      ___           ___     "
+  , "     /\__\         /\  \    "
+  , "    /:/  /        /::\  \   "
+  , "   /:/__/        /:/\:\  \  "
+  , "  /::\  \ ___   /:/  \:\  \ "
+  , " /:/\:\  /\__\ /:/__/ \:\__\"
+  , " \/__\:\/:/  / \:\  \  \/__/"
+  , "      \::/  /   \:\  \      "
+  , "      /:/  /     \:\  \     "
+  , "     /:/  /       \:\__\    "
+  , "     \/__/         \/__/    "
+  ]
