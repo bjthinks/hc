@@ -100,7 +100,6 @@ instance Ord Expression where
     (ExpressionIntPow y@(ExpressionSum _) n) =
     compare (x,(-m)) (y,(-n))
   compare _ _ = undefined -- prevent warnings about patterns not matched
--}
 
 compareAsSum :: [Expression] -> [Expression] -> Ordering
 compareAsSum xs ys = compareAsList (addConstant 0 xs) (addConstant 0 ys)
@@ -124,6 +123,7 @@ compareAsList [] [] = EQ
 -- HERE'S THE BEEF
 compareAsList (_:_) [] = LT
 compareAsList [] (_:_) = GT
+-}
 
 eMatch :: (Rational -> a) -> (String -> a) -> ([Expression] -> a) ->
           ([Expression] -> a) -> (Expression -> Integer -> a) ->
