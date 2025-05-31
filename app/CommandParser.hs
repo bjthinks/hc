@@ -21,7 +21,7 @@ command = assign <|> clear <|> eval
 assign :: Parser Token Command
 assign = do TokenWord v <- matching isWord
             _ <- match TokenAssign
-            ast <- astExprParser
+            ast <- astParser
             return $ CommandAssign v (fromAST ast)
 
 clear :: Parser Token Command
@@ -30,5 +30,5 @@ clear = do _ <- match $ TokenWord "clear"
            return $ CommandClear v
 
 eval :: Parser Token Command
-eval = do ast <- astExprParser
+eval = do ast <- astParser
           return $ CommandEval (fromAST ast)

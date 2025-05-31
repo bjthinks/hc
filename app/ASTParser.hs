@@ -1,4 +1,4 @@
-module ASTParser (astExprParser,test_ASTParser) where
+module ASTParser (astParser,test_ASTParser) where
 
 import Parser
 import Tokenizer
@@ -6,8 +6,8 @@ import AST
 import Control.Applicative
 import Test.HUnit
 
-astExprParser :: Parser Token ASTExpr
-astExprParser = additive
+astParser :: Parser Token ASTExpr
+astParser = additive
 
 additive :: Parser Token ASTExpr
 additive = do a <- multiplicative
