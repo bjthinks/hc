@@ -35,7 +35,7 @@ data Expression = ExpressionVariable String |
                   ExpressionSum [Expression] |
                   ExpressionProduct [Expression] |
                   ExpressionIntPow Expression Integer
-                  deriving (Show, Eq)
+  deriving (Show, Eq)
 
 -- This ought to be a TOTAL ORDER
 instance Ord Expression where
