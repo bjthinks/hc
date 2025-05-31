@@ -102,10 +102,6 @@ mainloop storeRef = do
 main :: IO ()
 main = do
   sequence_ $ map putStrLn banner
-  putStrLn
-    "Type control-c to interrupt lengthy computations and control-d to exit."
-  putStrLn
-    "Note: assignments that form a loop may result in \"lengthy computations\"."
   -- Enter haskeline world
   s <- newIORef newStore
   _ <- runInputT (inputSettings s) (runMaybeT (mainloop s))
@@ -114,14 +110,22 @@ main = do
 banner :: [String]
 banner =
   [ "      ___           ___     "
-  , "     /\__\         /\  \    "
-  , "    /:/  /        /::\  \   "
-  , "   /:/__/        /:/\:\  \  "
-  , "  /::\  \ ___   /:/  \:\  \ "
-  , " /:/\:\  /\__\ /:/__/ \:\__\"
-  , " \/__\:\/:/  / \:\  \  \/__/"
-  , "      \::/  /   \:\  \      "
-  , "      /:/  /     \:\  \     "
-  , "     /:/  /       \:\__\    "
-  , "     \/__/         \/__/    "
+  , "     /\\__\\         /\\  \\    "
+  , "    /:/  /        /::\\  \\   "
+  , "   /:/__/        /:/\\:\\  \\  "
+  , "  /::\\  \\ ___   /:/  \\:\\  \\ "
+  , " /:/\\:\\  /\\__\\ /:/__/ \\:\\__\\" ++
+    "  hc: A calculator for rational functions."
+  , " \\/__\\:\\/:/  / \\:\\  \\  \\/__/"
+  , "      \\::/  /   \\:\\  \\      "
+  , "      /:/  /     \\:\\  \\     "
+  , "     /:/  /       \\:\\__\\    "
+  , "     \\/__/         \\/__/    "
+  , "hc can do arbitrary precision integer and rational number arithmetic, and"
+  , "calculations with polynomials and rational functions. Please enter an"
+  , "algebraic expression using numbers, variables, and + - * /. You can also"
+  , "raise anything to a whole number power using ^. Assign to variables and"
+  , "functions using the := operator. Type help for more information."
+  , "Use control-c to interrupt lengthy computations and control-d to exit."
+  , "Note: assignments that form a loop will cause the interpreter to hang."
   ]
