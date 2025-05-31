@@ -46,13 +46,18 @@ fromExprProd es =
     (sign, numTerms, denTerms) = prodAsQuot es
 
 -- Turn a list of expressions to be multiplied into an AST, assuming
--- no negative powers, denominators, reciprocals, or minus signs.
+-- no negative powers, denominators, reciprocals, or negative integers.
+-- Assumes any whole numbers come last.
 simpleProductToAST :: [Expression] -> ASTExpr
-simpleProductToAST es = foldl ASTProduct a as
+simpleProductToAST es = foldl makeProduct a as
   where
     xs = map fromExpr es
     a = head xs
     as = tail xs
+
+makeProduct :: ASTExpr -> ASTExpr -> ASTExpr
+makeProduct x y@(ASTInteger _) = ASTProduct y x
+makeProduct x y = ASTProduct x y
 
 fromExprIntPow :: Expression -> Integer -> ASTExpr
 fromExprIntPow e n =
