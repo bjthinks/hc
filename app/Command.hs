@@ -45,7 +45,7 @@ runSubstitute' "substitute" _ = throw $ HCWrongNumberOfParameters "substitute" 3
 runSubstitute' f es = eCall f es
 
 substitute :: Store -> Expression -> Expression
-substitute s = eTransform eRat (get s) eSum eProd eIntPow eCall
+substitute store = eTransform eRat (get store) eSum eProd eIntPow eCall
 
 get :: Store -> String -> Expression
 get store str =
