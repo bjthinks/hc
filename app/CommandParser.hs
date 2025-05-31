@@ -4,7 +4,6 @@ import Control.Applicative
 import Parser
 import Tokenizer
 import ASTParser
-import ExprFromAST
 import Command
 
 commandParser :: Parser Token [Command]
@@ -22,7 +21,7 @@ assign :: Parser Token Command
 assign = do TokenWord v <- matching isWord
             _ <- match TokenAssign
             ast <- astParser
-            return $ CommandAssign v (fromAST ast)
+            return $ CommandAssign v ast
 
 clear :: Parser Token Command
 clear = do _ <- match $ TokenWord "clear"
@@ -31,4 +30,4 @@ clear = do _ <- match $ TokenWord "clear"
 
 eval :: Parser Token Command
 eval = do ast <- astParser
-          return $ CommandEval (fromAST ast)
+          return $ CommandEval ast

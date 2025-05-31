@@ -1,19 +1,23 @@
 module Command (Command(..), execute) where
 
-import Expression
+import AST
+import ExprFromAST
 import ASTFromExpr
 import ASTDisplay
+import Expression
 import Store
 
-data Command = CommandAssign String Expression |
+data Command = CommandAssign String ASTExpr |
                CommandClear String |
-               CommandEval Expression
+               CommandEval ASTExpr
 
 execute :: Store -> Command -> (Store, String)
-execute s (CommandAssign v e) = (setValue v e s, displayAssignment v e)
+execute s (CommandAssign v a) = (setValue v e s, displayAssignment v e)
+  where e = fromAST a
 execute s (CommandClear v) =
   (clearValue v s, "Removed definition of " ++ v ++ ".")
-execute s (CommandEval e) = (s, (astDisplay . fromExpr) (substitute s e))
+execute s (CommandEval a) =
+  (s, astDisplay $ fromExpr $ substitute s $ fromAST a)
 
 substitute :: Store -> Expression -> Expression
 substitute s = eTransform eRat (get s) eSum eProd eIntPow eCall
