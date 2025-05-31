@@ -18,7 +18,7 @@ Expressions only exist in certain forms.
   alphanumeric characters.
 * Constants can be any rational number.
 * Sums do not (directly) contain sums, nor do products contain products.
-* Sums and products are sorted, with constant first (if any).
+* Sums and products are sorted, with constant last (if any).
 * Like terms of a sum are combined together (via coefficients).
 * Like terms of a product are combined together (via integer powers).
 * Sums do not contain a zero.
@@ -31,117 +31,12 @@ Expressions only exist in certain forms.
 -}
 
 data Expression = ExpressionVariable String |
-                  ExpressionRational Rational |
-                  ExpressionSum [Expression] |
                   ExpressionProduct [Expression] |
                   ExpressionIntPow Expression Integer |
-                  ExpressionCall String [Expression]
-                  deriving (Show, Eq)
-
--- This ought to be a TOTAL ORDER on the set of legal expressions
-instance Ord Expression where
-  -- Rationals are sorted by value
-  compare (ExpressionRational x) (ExpressionRational y) = compare x y
-  -- Rationals come before anything else
-  compare (ExpressionRational _) _ = LT
-  compare _ (ExpressionRational _) = GT
-  -- Variables are sorted alphabetically
-  compare (ExpressionVariable x) (ExpressionVariable y) = compare x y
-  -- Variables before sums
-  compare (ExpressionVariable _) (ExpressionSum _) = LT
-  compare (ExpressionSum _) (ExpressionVariable _) = GT
-  -- Variables vs. products: pretend variable is a singleton product
-  -- TODO: should this use compareAsProd instead of compareAsSum?
-  compare x@(ExpressionVariable _) (ExpressionProduct ys) = compareAsSum [x] ys
-  compare (ExpressionProduct xs) y@(ExpressionVariable _) = compareAsSum xs [y]
-  -- Variables vs. variable^n: pretend variable is raised to first power
-  compare x@(ExpressionVariable _)
-    (ExpressionIntPow y@(ExpressionVariable _) n) =
-    compare (x,(-1)) (y,(-n))
-  compare (ExpressionIntPow x@(ExpressionVariable _) n)
-    y@(ExpressionVariable _) =
-    compare (x,(-n)) (y,(-1))
-  -- Variable before sum^n
-  compare (ExpressionVariable _) (ExpressionIntPow (ExpressionSum _) _) = LT
-  compare (ExpressionIntPow (ExpressionSum _) _) (ExpressionVariable _) = GT
-  -- Variable before call and call^n
-  compare (ExpressionVariable _) (ExpressionCall _ _) = LT
-  compare (ExpressionCall _ _) (ExpressionVariable _) = GT
-  compare (ExpressionVariable _) (ExpressionIntPow (ExpressionCall _ _) _) = LT
-  compare (ExpressionIntPow (ExpressionCall _ _) _) (ExpressionVariable _) = GT
-  -- Sum vs. sum: recurse, coeffs are tiebreaker
-  compare (ExpressionSum xs) (ExpressionSum ys) = compareAsSum xs ys
-  -- Products before sums (only occurs in user-generated sorts)
-  compare (ExpressionProduct _) (ExpressionSum _) = LT
-  compare (ExpressionSum _) (ExpressionProduct _) = GT
-  -- Variable^n before sums
-  compare (ExpressionIntPow (ExpressionVariable _) _) (ExpressionSum _) = LT
-  compare (ExpressionSum _) (ExpressionIntPow (ExpressionVariable _) _) = GT
-  -- Sum^n vs sum: Pretend sum is raised to first power
-  compare (ExpressionIntPow x@(ExpressionSum _) n) y@(ExpressionSum _) =
-    compare (x,(-n)) (y,(-1))
-  compare x@(ExpressionSum _) (ExpressionIntPow y@(ExpressionSum _) n) =
-    compare (x,(-1)) (y,(-n))
-  -- Call and call^n before sums
-  compare (ExpressionSum _) (ExpressionCall _ _) = GT
-  compare (ExpressionCall _ _) (ExpressionSum _) = LT
-  compare (ExpressionSum _) (ExpressionIntPow (ExpressionCall _ _) _) = GT
-  compare (ExpressionIntPow (ExpressionCall _ _) _) (ExpressionSum _) = LT
-  -- Product vs product
-  compare (ExpressionProduct xs) (ExpressionProduct ys) = compareAsProd xs ys
-  -- Product vs variable^n: Pretend variable^n is a singleton product
-  compare (ExpressionProduct xs)
-    y@(ExpressionIntPow (ExpressionVariable _) _) = compareAsProd xs [y]
-  compare x@(ExpressionIntPow (ExpressionVariable _) _)
-    (ExpressionProduct ys) = compareAsProd [x] ys
-  -- Product before sum^n
-  compare (ExpressionProduct _) (ExpressionIntPow (ExpressionSum _) _) = LT
-  compare (ExpressionIntPow (ExpressionSum _) _) (ExpressionProduct _) = GT
-  -- Product vs calls ???
-  --compare (ExpressionProduct _) (ExpressionCall _ _) = LT
-  --compare (ExpressionCall _ _) (ExpressionProduct _) = GT
-  -- Variable^n: sort first by variable, then power
-  compare
-    (ExpressionIntPow x@(ExpressionVariable _) m)
-    (ExpressionIntPow y@(ExpressionVariable _) n) = compare (x,(-m)) (y,(-n))
-  -- Variable^n before sum^n
-  compare (ExpressionIntPow (ExpressionVariable _) _)
-    (ExpressionIntPow (ExpressionSum _) _) = LT
-  compare (ExpressionIntPow (ExpressionSum _) _)
-    (ExpressionIntPow (ExpressionVariable _) _) = GT
-  -- Sum^n: First base, then power
-  compare (ExpressionIntPow x@(ExpressionSum _) m)
-    (ExpressionIntPow y@(ExpressionSum _) n) =
-    compare (x,(-m)) (y,(-n))
-  compare _ _ = undefined -- prevent warnings about patterns not matched
-
-compareAsSum :: [Expression] -> [Expression] -> Ordering
-compareAsSum xs ys = compareAsList (addConstant 0 xs) (addConstant 0 ys)
-
-compareAsProd :: [Expression] -> [Expression] -> Ordering
-compareAsProd xs ys = compareAsList (addConstant 1 xs) (addConstant 1 ys)
-
-addConstant :: Rational -> [Expression] -> [Expression]
-addConstant _ xs@(ExpressionRational _:_) = xs
-addConstant n xs = eRat n:xs
-
--- A sum or product is compared against another sum or product, resp.,
--- by first trying to compare the nonconstant terms, then the constant.
-compareAsList :: [Expression] -> [Expression] -> Ordering
-compareAsList (ExpressionRational m:xs) (ExpressionRational n:ys) =
-  case compareAsList xs ys of
-    LT -> LT
-    GT -> GT
-    EQ -> compare m n
-compareAsList (x:xs) (y:ys) =
-  case compare x y of
-    LT -> LT
-    GT -> GT
-    EQ -> compareAsList xs ys
-compareAsList [] [] = EQ
--- HERE'S THE BEEF
-compareAsList (_:_) [] = LT
-compareAsList [] (_:_) = GT
+                  ExpressionCall String [Expression] |
+                  ExpressionSum [Expression] |
+                  ExpressionRational Rational
+  deriving (Eq, Ord, Show)
 
 eMatch :: (Rational -> a) -> (String -> a) -> ([Expression] -> a) ->
           ([Expression] -> a) -> (Expression -> Integer -> a) ->
@@ -165,20 +60,75 @@ eTransform p q r s t u =
     myself :: Expression -> Expression
     myself = eTransform p q r s t u
 
+transformSummandForSorting :: Expression -> Expression
+transformSummandForSorting = eMatch ExpressionRational wrapVariable
+  undefined wrapProduct wrapIntPow wrapCall
+  where
+    wrapVariable v = ExpressionProduct
+      [ExpressionIntPow (ExpressionVariable v) (-1), ExpressionRational 1]
+    wrapProduct es = ExpressionProduct $ map transformFactorForSorting $
+      es ++ [ExpressionRational 1]
+    wrapIntPow e n = ExpressionProduct
+      [ExpressionIntPow (transformBaseForSorting e) (-n),
+       ExpressionRational 1]
+    wrapCall f es = ExpressionProduct
+      [ExpressionIntPow (ExpressionCall f
+                         (map transformParameterForSorting es)) (-1),
+       ExpressionRational 1]
+
+transformFactorForSorting :: Expression -> Expression
+transformFactorForSorting = eMatch ExpressionRational wrapVariable
+  wrapSum undefined wrapIntPow wrapCall
+  where
+    wrapVariable v = ExpressionIntPow (ExpressionVariable v) (-1)
+    wrapSum es = flip ExpressionIntPow (-1) $ ExpressionSum $
+      map transformSummandForSorting $ es ++ [ExpressionRational 0]
+    wrapIntPow e n = ExpressionIntPow (transformBaseForSorting e) (-n)
+    wrapCall f es = ExpressionIntPow (ExpressionCall f
+                                      (map transformParameterForSorting es))
+                    (-1)
+
+transformBaseForSorting :: Expression -> Expression
+transformBaseForSorting = eMatch undefined ExpressionVariable
+  wrapSum undefined undefined wrapCall
+  where
+    wrapSum es = ExpressionSum $ map transformSummandForSorting es
+    wrapCall f es = ExpressionCall f (map transformParameterForSorting es)
+
+transformParameterForSorting :: Expression -> Expression
+transformParameterForSorting = eMatch ExpressionRational wrapVariable wrapSum
+  wrapProduct wrapIntPow wrapCall
+  where
+    wrapVariable v = ExpressionSum [
+      ExpressionProduct [ExpressionIntPow (ExpressionVariable v) (-1),
+                          ExpressionRational 1], ExpressionRational 0]
+    wrapSum es = ExpressionSum $ map transformSummandForSorting $
+      es ++ [ExpressionRational 0]
+    wrapProduct es = ExpressionSum [
+      ExpressionProduct (map transformFactorForSorting
+                         (es ++ [ExpressionRational 1])), ExpressionRational 0]
+    wrapIntPow e n = ExpressionSum [
+      ExpressionProduct [ExpressionIntPow (transformBaseForSorting e) (-n),
+                         ExpressionRational 1], ExpressionRational 0]
+    wrapCall f es = ExpressionSum [
+      ExpressionProduct [
+          ExpressionIntPow
+            (ExpressionCall f (map transformParameterForSorting es)) (-1),
+          ExpressionRational 1], ExpressionRational 0]
+
 prodAsQuot :: [Expression] -> (Integer,[Expression],[Expression])
 prodAsQuot [] = (1,[],[])
-prodAsQuot (ExpressionRational q:es) =
+prodAsQuot [ExpressionRational q] =
   case (absnum,den) of
-    (1,1) -> (sign*s,                ns,             ds)
-    (_,1) -> (sign*s,eRat (absnum%1):ns,             ds)
-    (1,_) -> (sign*s,                ns,eRat (den%1):ds)
-    (_,_) -> (sign*s,eRat (absnum%1):ns,eRat (den%1):ds)
+    (1,1) -> (sign,[               ],[            ])
+    (_,1) -> (sign,[eRat (absnum%1)],[            ])
+    (1,_) -> (sign,[               ],[eRat (den%1)])
+    (_,_) -> (sign,[eRat (absnum%1)],[eRat (den%1)])
     where
       sign = signum num
       absnum = abs num
       num = numerator q
       den = denominator q
-      (s,ns,ds) = prodAsQuot es
 prodAsQuot (e@(ExpressionIntPow b n):es)
   | n < 0 = (s,ns,eIntPow b (-n):ds)
   | otherwise = (s,e:ns,ds)
@@ -243,7 +193,7 @@ eVar (v:vs)
 eSum :: [Expression] -> Expression
 eSum exprs = makeSum $
              combineSummands $
-             sort $
+             sortOn transformSummandForSorting $
              flattenSummands $
              exprs
 
@@ -256,7 +206,13 @@ combineSummands :: [Expression] -> [Expression]
 combineSummands es = map pushCoeff $ combineTerms $ map popCoeff es
 popCoeff :: Expression -> (Rational,Expression)
 popCoeff (ExpressionRational n) = (n,eRat 1)
-popCoeff (ExpressionProduct (ExpressionRational n:es)) = (n,eProd es)
+popCoeff (ExpressionProduct ps) = getCoefficient 1 ps []
+  where
+    getCoefficient :: Rational -> [Expression] -> [Expression] ->
+      (Rational,Expression)
+    getCoefficient d [] result = (d,eProd (reverse result))
+    getCoefficient _ [ExpressionRational n] result = (n,eProd (reverse result))
+    getCoefficient d (e:es) result = getCoefficient d es (e:result)
 popCoeff x = (1,x)
 pushCoeff :: (Rational,Expression) -> Expression
 pushCoeff (c,e) = eProd [eRat c,e]
@@ -281,7 +237,7 @@ eProd exprs = makeProduct $
               detectZeroFactors $
               combineConstantFactors $
               combineFactors $
-              sort $
+              sortOn transformFactorForSorting $
               flattenFactors $
               exprs
 
@@ -302,11 +258,13 @@ combineConstantFactors :: [Expression] -> [Expression]
 combineConstantFactors (ExpressionRational m:ExpressionRational n:es) =
   combineConstantFactors (eRat (m*n):es)
 combineConstantFactors (ExpressionRational 1:es) = es
-combineConstantFactors es = es
+combineConstantFactors (e:es) = e : combineConstantFactors es
+combineConstantFactors [] = []
 
 detectZeroFactors :: [Expression] -> [Expression]
-detectZeroFactors (ExpressionRational 0:_) = [eRat 0]
-detectZeroFactors es = es
+detectZeroFactors es
+  | any (== ExpressionRational 0) es = [eRat 0]
+  | otherwise = es
 
 makeProduct :: [Expression] -> Expression
 makeProduct [] = eRat 1
