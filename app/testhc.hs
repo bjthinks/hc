@@ -27,7 +27,7 @@ unRight _ = error "parse failed"
 expressionParser :: Parser Token Expression
 expressionParser = do
   ast <- astParser
-  match TokenEnd
+  _ <- match TokenEnd
   return (fromAST ast)
 
 testEval :: String -> Expression -> Test
