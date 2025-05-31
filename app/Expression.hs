@@ -31,12 +31,13 @@ Expressions only exist in certain forms.
 -}
 
 data Expression = ExpressionVariable String |
-                  ExpressionRational Rational |
                   ExpressionSum [Expression] |
                   ExpressionProduct [Expression] |
-                  ExpressionIntPow Expression Integer
-  deriving (Show, Eq)
+                  ExpressionIntPow Expression Integer |
+                  ExpressionRational Rational
+  deriving (Eq, Ord, Show)
 
+{-
 -- This ought to be a TOTAL ORDER
 instance Ord Expression where
   -- Rationals are sorted by value
@@ -99,6 +100,7 @@ instance Ord Expression where
     (ExpressionIntPow y@(ExpressionSum _) n) =
     compare (x,(-m)) (y,(-n))
   compare _ _ = undefined -- prevent warnings about patterns not matched
+-}
 
 compareAsSum :: [Expression] -> [Expression] -> Ordering
 compareAsSum xs ys = compareAsList (addConstant 0 xs) (addConstant 0 ys)
