@@ -1,4 +1,4 @@
-module Command (Command(..), execute) where
+module Command (Command(..), execute, runBuiltins, runSubstitute) where
 
 import AST
 import ExprFromAST
@@ -6,6 +6,10 @@ import ASTFromExpr
 import ASTDisplay
 import Expression
 import Store
+import Expand
+import qualified Substitute as S
+import HCException
+import Control.Exception
 
 data Command = CommandAssign String ASTExpr |
                CommandClear String |
@@ -17,7 +21,28 @@ execute s (CommandAssign v a) = (setValue v e s, displayAssignment v e)
 execute s (CommandClear v) =
   (clearValue v s, "Removed definition of " ++ v ++ ".")
 execute s (CommandEval a) =
-  (s, astDisplay $ fromExpr $ substitute s $ fromAST a)
+  (s, astDisplay $ fromExpr $ runBuiltins $ substitute s $
+      runSubstitute $ fromAST a)
+
+runBuiltins :: Expression -> Expression
+runBuiltins = eTransform eRat eVar eSum eProd eIntPow runBuiltin
+
+runBuiltin :: String -> [Expression] -> Expression
+runBuiltin "expand" [x] = expand x
+runBuiltin "expand" _ = throw $ HCWrongNumberOfParameters "expand" 1
+runBuiltin f es = eCall f es
+
+runSubstitute :: Expression -> Expression
+runSubstitute = eTransform eRat eVar eSum eProd eIntPow runSubstitute'
+
+runSubstitute' :: String -> [Expression] -> Expression
+runSubstitute' "substitute" [e1,e2,e3] =
+  eMatch no go no no (const no) (const no) e1
+  where
+    no _ = throw HCSubstituteNotVariable
+    go v = S.substitute v e2 e3
+runSubstitute' "substitute" _ = throw $ HCWrongNumberOfParameters "substitute" 3
+runSubstitute' f es = eCall f es
 
 substitute :: Store -> Expression -> Expression
 substitute s = eTransform eRat (get s) eSum eProd eIntPow eCall

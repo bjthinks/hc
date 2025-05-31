@@ -150,7 +150,10 @@ expressionParserTests = test [
   ]
 
 testDisplay :: String -> String -> Test
-testDisplay input output = astDisplay (fromExpr (unRight (parseAll expressionParser (map snd (unRight (parseAll tokenizer input)))))) ~?= output
+testDisplay input output = astDisplay
+  (fromExpr $ runBuiltins $ runSubstitute $ unRight $
+   parseAll expressionParser $ map snd $ unRight $
+   parseAll tokenizer input) ~?= output
 
 expressionDisplayTests :: Test
 expressionDisplayTests = test [
