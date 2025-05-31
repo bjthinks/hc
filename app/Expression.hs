@@ -46,7 +46,6 @@ eMatch _ f _ _ _ _ (ExpressionVariable s) = f s
 eMatch _ _ f _ _ _ (ExpressionSum es) = f es
 eMatch _ _ _ f _ _ (ExpressionProduct es) = f es
 eMatch _ _ _ _ f _ (ExpressionIntPow e n) = f e n
--- TODO: improve eMatch
 eMatch _ _ _ _ _ f (ExpressionCall g xs) = f g xs
 
 eTransform :: (Rational -> Expression) -> (String -> Expression) ->
@@ -138,16 +137,16 @@ prodAsQuot (e:es) = (s,e:ns,ds)
   where
     (s,ns,ds) = prodAsQuot es
 
-fTrue :: a -> Bool
-fTrue = const True
-fFalse :: a -> Bool
-fFalse = const False
+true :: a -> Bool
+true = const True
+false :: a -> Bool
+false = const False
 
 isRational :: Expression -> Bool
-isRational = eMatch fTrue fFalse fFalse fFalse (const fFalse) (const fFalse)
+isRational = eMatch true false false false (const false) (const false)
 
 isNegPow :: Expression -> Bool
-isNegPow = eMatch fFalse fFalse fFalse fFalse (\_ n -> n<0) (const fFalse)
+isNegPow = eMatch false false false false (\_ n -> n<0) (const false)
 
 -- Note: might want 0 -> [] instead of 0 -> [0]
 eAsSum :: Expression -> [Expression]
