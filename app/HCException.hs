@@ -7,6 +7,7 @@ import Control.Exception
 
 data HCException = HCDivideByZero |
                    HCNonIntegerPower |
+                   HCRedefineBuiltin |
                    HCSubstituteNotVariable |
                    HCWrongNumberOfParameters String Int
   deriving (Show, Typeable)
@@ -16,6 +17,8 @@ instance Exception HCException
 hcErrorMessage :: HCException -> String
 hcErrorMessage HCDivideByZero = "Error: division by zero."
 hcErrorMessage HCNonIntegerPower = "Error: exponents must be integers."
+hcErrorMessage HCRedefineBuiltin =
+  "Error: you may not redefine a built-in function."
 hcErrorMessage HCSubstituteNotVariable = "Error: the first parameter to " ++
   "substitute must be a variable."
 hcErrorMessage (HCWrongNumberOfParameters f n) = "Error: function " ++ f ++

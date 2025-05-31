@@ -17,10 +17,13 @@ data Command = CommandAssign String ASTExpr |
                CommandEval ASTExpr
 
 builtinFunctions :: [String]
-builtinFunctions = ["expand(", "substitute("]
+builtinFunctions = ["expand", "substitute"]
 
 execute :: Store -> Command -> (Store, String)
-execute store (CommandAssign v a) = (setValue v e store, displayAssignment v e)
+execute store (CommandAssign v a) =
+  if v `elem` builtinFunctions
+  then throw HCRedefineBuiltin
+  else (setValue v e store, displayAssignment v e)
   where e = fromAST a
 execute store (CommandClear v) =
   (clearValue v store, "Removed definition of " ++ v ++ ".")
