@@ -143,6 +143,34 @@ eTransform p q r s t =
       myself :: Expression -> Expression
       myself = eTransform p q r s t
 
+transformSummandForSorting :: Expression -> Expression
+transformSummandForSorting = eMatch wrapRational wrapVariable
+  undefined wrapProduct wrapIntPow
+  where
+    wrapRational r = ExpressionProduct [ExpressionRational r]
+    wrapVariable v = ExpressionProduct
+      [ExpressionIntPow (ExpressionVariable v) (-1), ExpressionRational 1]
+    wrapProduct es = ExpressionProduct $ map transformFactorForSorting $
+      es ++ [ExpressionRational 1]
+    wrapIntPow e n = ExpressionProduct
+      [ExpressionIntPow (transformBaseForSorting e) (-n),
+       ExpressionRational 1]
+
+transformFactorForSorting :: Expression -> Expression
+transformFactorForSorting = eMatch ExpressionRational wrapVariable
+  wrapSum undefined wrapIntPow
+  where
+    wrapVariable v = ExpressionIntPow (ExpressionVariable v) (-1)
+    wrapSum es = flip ExpressionIntPow (-1) $ ExpressionSum $
+      map transformSummandForSorting $ es ++ [ExpressionRational 0]
+    wrapIntPow e n = ExpressionIntPow (transformBaseForSorting e) (-n)
+
+transformBaseForSorting :: Expression -> Expression
+transformBaseForSorting = eMatch undefined ExpressionVariable
+  wrapSum undefined undefined
+  where
+    wrapSum es = ExpressionSum $ map transformSummandForSorting es
+
 prodAsQuot :: [Expression] -> (Integer,[Expression],[Expression])
 prodAsQuot [] = (1,[],[])
 prodAsQuot [ExpressionRational q] =
@@ -218,7 +246,7 @@ eVar (v:vs)
 eSum :: [Expression] -> Expression
 eSum exprs = makeSum $
              combineSummands $
-             sort $
+             sortOn transformSummandForSorting $
              flattenSummands $
              exprs
 
@@ -262,7 +290,7 @@ eProd exprs = makeProduct $
               detectZeroFactors $
               combineConstantFactors $
               combineFactors $
-              sort $
+              sortOn transformFactorForSorting $
               flattenFactors $
               exprs
 
