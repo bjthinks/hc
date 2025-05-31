@@ -16,13 +16,13 @@ data Command = CommandAssign String ASTExpr |
                CommandEval ASTExpr
 
 execute :: Store -> Command -> (Store, String)
-execute s (CommandAssign v a) = (setValue v e s, displayAssignment v e)
+execute store (CommandAssign v a) = (setValue v e store, displayAssignment v e)
   where e = fromAST a
-execute s (CommandClear v) =
-  (clearValue v s, "Removed definition of " ++ v ++ ".")
-execute s (CommandEval a) =
-  (s, astDisplay $ fromExpr $ runBuiltins $ substitute s $
-      runSubstitute $ fromAST a)
+execute store (CommandClear v) =
+  (clearValue v store, "Removed definition of " ++ v ++ ".")
+execute store (CommandEval a) =
+  (store, astDisplay $ fromExpr $ runBuiltins $ substitute store $
+          runSubstitute $ fromAST a)
 
 runBuiltins :: Expression -> Expression
 runBuiltins = eTransform eRat eVar eSum eProd eIntPow runBuiltin
