@@ -19,7 +19,7 @@ import qualified Control.Exception as E
 varsBeginningWith :: IORef Store -> String -> IO [Completion]
 varsBeginningWith s str = do
   store <- readIORef s
-  let currentVars = getVariables store
+  let currentVars = getVariables store ++ builtinFunctions
   return $ map simpleCompletion $ filter (isPrefixOf str) currentVars
 
 completeVars :: IORef Store -> CompletionFunc IO

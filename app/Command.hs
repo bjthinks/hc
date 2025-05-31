@@ -1,4 +1,5 @@
-module Command (Command(..), execute, runBuiltins, runSubstitute) where
+module Command (Command(..), builtinFunctions, execute,
+                runBuiltins, runSubstitute) where
 
 import AST
 import ExprFromAST
@@ -14,6 +15,9 @@ import Control.Exception
 data Command = CommandAssign String ASTExpr |
                CommandClear String |
                CommandEval ASTExpr
+
+builtinFunctions :: [String]
+builtinFunctions = ["expand(", "substitute("]
 
 execute :: Store -> Command -> (Store, String)
 execute store (CommandAssign v a) = (setValue v e store, displayAssignment v e)
