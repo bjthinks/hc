@@ -34,8 +34,8 @@ clear = do _ <- match $ TokenWord "clear"
 
 help :: Parser Token Command
 help = do _ <- match $ TokenWord "help"
-          topic <- option $ matching oktopic
-          return $ CommandHelp topic
+          topic <- many $ matching oktopic
+          return $ CommandHelp $ unwords $ map unToken topic
   where oktopic t = t /= TokenEnd && t /= TokenSemicolon
 
 eval :: Parser Token Command

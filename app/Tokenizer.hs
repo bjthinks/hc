@@ -1,4 +1,4 @@
-module Tokenizer (Token(..),
+module Tokenizer (Token(..), unToken,
                   isInteger,
                   isWord,
                   tokenizer,
@@ -23,6 +23,21 @@ data Token = TokenInteger Integer |
              TokenSemicolon |
              TokenEnd
              deriving (Eq, Show)
+
+unToken :: Token -> String
+unToken (TokenInteger i) = show i
+unToken (TokenWord s) = s
+unToken (TokenPlus) = "+"
+unToken (TokenMinus) = "-"
+unToken (TokenTimes) = "*"
+unToken (TokenDivide) = "/"
+unToken (TokenPower) = "^"
+unToken (TokenOpenParen) = "("
+unToken (TokenCloseParen) = ")"
+unToken (TokenComma) = ","
+unToken (TokenAssign) = ":="
+unToken (TokenSemicolon) = ";"
+unToken (TokenEnd) = ""
 
 isInteger :: Token -> Bool
 isInteger (TokenInteger _) = True

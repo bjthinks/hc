@@ -11,14 +11,13 @@ import Expand
 import Substitute
 import Help
 import HCException
-import Tokenizer
 import Control.Exception
 
 data Command = CommandAssign String ASTExpr |
                CommandClear String |
                CommandEval ASTExpr |
                CommandExit |
-               CommandHelp (Maybe Token)
+               CommandHelp String
 
 builtinFunctions :: [String]
 builtinFunctions = ["expand", "substitute"]
