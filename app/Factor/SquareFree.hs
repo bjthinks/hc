@@ -1,4 +1,5 @@
-module Factor.SquareFree(squareFree,mIsSquareFree,isGoodModulus,goodModulus) where
+module Factor.SquareFree (squareFree,
+                          mIsSquareFree, isGoodModulus, goodModulus) where
 
 import Factor.Defs
 import Factor.Polynomial
