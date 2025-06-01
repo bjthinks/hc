@@ -65,14 +65,16 @@ executable hc
     other-modules: AST, ASTDisplay, ASTFromExpr, ASTParser, Command,
                    CommandParser, Expand, ExprFromAST, Expression,
                    HCException, Parser, Store, Tokenizer, Substitute,
-                   Help, Factor
+                   Help, Factor, Factor.Defs, Factor.ModularPolynomial,
+                   Factor.ParsePolynomial, Factor.Polynomial,
+                   Factor.SquareFree, Factor.Tests
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
 
     -- Other library packages from which modules are imported.
     build-depends:    base ^>=4.17.2.1, HUnit, mtl, containers, transformers,
-                      haskeline
+                      haskeline, parsec
 
     -- Directories containing source files.
     hs-source-dirs:   app
