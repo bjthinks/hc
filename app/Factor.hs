@@ -2,6 +2,7 @@ module Factor (factor, test_Factor) where
 
 import Expression
 import Expand
+import Together
 import Factor.Defs
 import qualified Factor.Tests as F
 import Test.HUnit
@@ -13,7 +14,7 @@ factor = eMatch eRat eVar factorSum factorProduct factorIntPow factorCall
 
 factorSum :: [Expression] -> Expression
 -- This doesn't expand call parameters, e.g. factor(f((x+1)^10)-1)
-factorSum es = realFactor $ expandNotCalls $ eSum es
+factorSum es = realFactor $ togetherNotCalls $ expandNotCalls $ eSum es
 
 factorProduct :: [Expression] -> Expression
 factorProduct es = eProd $ map factor es
@@ -62,7 +63,7 @@ asTermSum es = Just (Just (eSum es), Term 1 1)
 test_Factor :: Test
 test_Factor = test
   [ F.tests
-  , factor (eSum [x,o]) ~?= eSum [x,o]
+  , factor (eSum [eIntPow x 2,eProd [eRat 2,x],o]) ~?= eIntPow (eSum [x,o]) 2
   ]
   where
     o = eRat 1

@@ -1,5 +1,4 @@
-module Expand (expand, expandNotCalls,
-               test_Expand) where
+module Expand (expand, expandNotCalls, test_Expand) where
 
 import Expression
 import Test.HUnit
