@@ -32,7 +32,7 @@ execute store (CommandAssign v a) =
   if v `elem` builtinFunctions
   then throw HCRedefineBuiltin
   else (setValue v e store, displayAssignment v e)
-  where e = fromAST a
+  where e = runBuiltins $ runSubstitute $ fromAST a
 execute store CommandBlank = (store, "")
 execute store (CommandClear v) = clearValue v store
 execute store (CommandEval a) =
