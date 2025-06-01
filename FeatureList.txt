@@ -1,3 +1,5 @@
+This file is out of date.
+
 input is read in a loop
 input loop uses readline
 nonempty inputs are stored in the readline history
