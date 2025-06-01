@@ -11,6 +11,7 @@ import ASTFromExpr
 import ASTDisplay
 import Store
 import Expand
+import Factor
 
 tRat :: Rational -> Expression
 tVar :: String -> Expression
@@ -416,6 +417,7 @@ tests = test ["Tokenizer" ~: test_Tokenizer,
               "expression" ~: test_Expression,
               "store" ~: storeTests,
               "expand" ~: test_Expand,
+              "factor" ~: test_Factor,
               "integration" ~: integrationTests
              ]
 

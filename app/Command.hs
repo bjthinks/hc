@@ -8,6 +8,7 @@ import ASTDisplay
 import Expression
 import Store
 import Expand
+import Factor
 import Substitute
 import Help
 import HCException
@@ -21,7 +22,7 @@ data Command = CommandAssign String ASTExpr |
                CommandHelp String
 
 builtinFunctions :: [String]
-builtinFunctions = ["expand", "substitute"]
+builtinFunctions = ["expand", "factor", "substitute"]
 
 builtinCommands :: [String]
 builtinCommands = ["clear", "help", "exit"]
@@ -46,6 +47,8 @@ runBuiltins = eTransform eRat eVar eSum eProd eIntPow runBuiltin
 runBuiltin :: String -> [Expression] -> Expression
 runBuiltin "expand" [x] = expand x
 runBuiltin "expand" _ = throw $ HCWrongNumberOfParameters "expand" 1
+runBuiltin "factor" [x] = factor x
+runBuiltin "factor" _ = throw $ HCWrongNumberOfParameters "factor" 1
 runBuiltin f es = eCall f es
 
 runSubstitute :: Expression -> Expression
