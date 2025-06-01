@@ -89,7 +89,9 @@ reconcile (Just x) (Just y)
   | otherwise = Nothing
 
 asTermIntPow :: Expression -> Integer -> Maybe (Maybe Expression, Term)
-asTermIntPow e n = Just (Just e,Term 1 n)
+asTermIntPow e n
+  | n >= 0 = Just (Just e,Term 1 n)
+  | otherwise = Nothing
 
 asTermCall :: String -> [Expression] -> Maybe (Maybe Expression, Term)
 asTermCall f es = Just (Just (eCall f es),Term 1 1)
