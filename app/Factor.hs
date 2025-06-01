@@ -4,6 +4,8 @@ import Expression
 import Expand
 import Together
 import Factor.Defs
+import Factor.Polynomial
+import Factor.SquareFree
 import qualified Factor.Tests as F
 import Test.HUnit
 import System.IO.Unsafe
@@ -31,34 +33,66 @@ realFactor = eMatch eRat eVar realFactorSum factorProduct factorIntPow
   factorCall
 
 realFactorSum :: [Expression] -> Expression
-realFactorSum es = unsafePerformIO (print $ map asTerm es) `seq` eSum es
+realFactorSum es =
+  let asterms = asTermSum es
+  in case asterms of
+    Nothing -> eSum es
+    Just (e, ts) ->
+      let Factorization c ps = squareFree $ makePolynomial ts
+      in unsafePerformIO (print e >> print c >> mapM print ps) `seq` eSum es
+
+asTermSum :: [Expression] -> Maybe (Maybe Expression, [Term])
+asTermSum es = combine Nothing [] (map asTerm es)
+  where
+    combine :: Maybe Expression -> [Term] -> [Maybe (Maybe Expression, Term)] ->
+      Maybe (Maybe Expression, [Term])
+    combine me ts [] = Just (me, reverse ts)
+    combine _ _ (Nothing:_) = Nothing
+    combine me1 ts (Just (me2, t2):inputs) = do
+      me <- reconcile me1 me2
+      combine me (t2:ts) inputs
 
 asTerm :: Expression -> Maybe (Maybe Expression, Term)
 asTerm = eMatch asTermRational asTermVariable undefined asTermProduct
   asTermIntPow asTermCall
-
-asTermVariable :: String -> Maybe (Maybe Expression, Term)
-asTermVariable v = Just (Just (eVar v),Term 1 1)
-
-asTermIntPow :: Expression -> Integer -> Maybe (Maybe Expression, Term)
-asTermIntPow e n = Just (Just e,Term 1 n)
-
-asTermCall :: String -> [Expression] -> Maybe (Maybe Expression, Term)
-asTermCall f es = Just (Just (eCall f es),Term 1 1)
 
 asTermRational :: Rational -> Maybe (Maybe Expression, Term)
 asTermRational i
   | denominator i == 1 = Just (Nothing,Term (numerator i) 0)
   | otherwise = Nothing
 
-asTermProduct :: [Expression] -> Maybe (Maybe Expression, Term)
-asTermProduct es = unsafePerformIO (print $ map asTermFactor es) `seq` Nothing
-  where
-    asTermFactor = eMatch asTermRational asTermVariable asTermSum undefined
-      asTermIntPow asTermCall
+asTermVariable :: String -> Maybe (Maybe Expression, Term)
+asTermVariable v = Just (Just (eVar v),Term 1 1)
 
-asTermSum :: [Expression] -> Maybe (Maybe Expression, Term)
-asTermSum es = Just (Just (eSum es), Term 1 1)
+asTermProduct :: [Expression] -> Maybe (Maybe Expression, Term)
+asTermProduct es = combineProductTerms $ map asTerm es
+
+combineProductTerms :: [Maybe (Maybe Expression, Term)] ->
+  Maybe (Maybe Expression, Term)
+combineProductTerms [] = undefined
+combineProductTerms (Nothing:_) = Nothing
+combineProductTerms [x@(Just _)] = x
+combineProductTerms (Just (me1, t1):pts) = do
+  (me2,t2) <- combineProductTerms pts
+  me3 <- reconcile me1 me2
+  let Term c1 exp1 = t1
+      Term c2 exp2 = t2
+      t3 = Term (c1*c2) (exp1+exp2)
+  return (me3, t3)
+
+reconcile :: Maybe Expression -> Maybe Expression -> Maybe (Maybe Expression)
+reconcile Nothing Nothing = Just Nothing
+reconcile x Nothing = Just x
+reconcile Nothing x = Just x
+reconcile (Just x) (Just y)
+  | x == y = Just (Just x)
+  | otherwise = Nothing
+
+asTermIntPow :: Expression -> Integer -> Maybe (Maybe Expression, Term)
+asTermIntPow e n = Just (Just e,Term 1 n)
+
+asTermCall :: String -> [Expression] -> Maybe (Maybe Expression, Term)
+asTermCall f es = Just (Just (eCall f es),Term 1 1)
 
 test_Factor :: Test
 test_Factor = test

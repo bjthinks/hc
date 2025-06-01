@@ -369,7 +369,8 @@ expressionDisplayTests = test [
   testDisplay "f(x+y)+f(x)" "f(x + y) + f(x)",
   testDisplay "f(x^2)+f(x)" "f(x^2) + f(x)",
   testDisplay "f(x)+f(x^2)+f(x*y)+f(x+y)+f(1)+f(f(x))+f(f(x)^2)" "f(x^2) + f(x y) + f(x + y) + f(x) + f(f(x)^2) + f(f(x)) + f(1)",
-  testDisplay "f(x)*f(x^2)*f(x*y)*f(x+y)*f(1)*f(f(x))*f(f(x)^2)" "f(x^2) f(x y) f(x + y) f(x) f(f(x)^2) f(f(x)) f(1)"
+  testDisplay "f(x)*f(x^2)*f(x*y)*f(x+y)*f(1)*f(f(x))*f(f(x)^2)" "f(x^2) f(x y) f(x + y) f(x) f(f(x)^2) f(f(x)) f(1)",
+  testDisplay "factor(f(x^2-1)^2+1)" "f((x - 1) (x + 1))^2 + 1"
   ]
 
 storeTests :: Test
