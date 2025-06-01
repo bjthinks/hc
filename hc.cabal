@@ -86,8 +86,10 @@ executable testhc
     other-modules: AST, ASTDisplay, ASTFromExpr, ASTParser, Command,
                    CommandParser, Expand, ExprFromAST, Expression,
                    HCException, Parser, Store, Tokenizer, Substitute,
-                   Help, Factor
+                   Help, Factor, Factor.Defs, Factor.ModularPolynomial,
+                   Factor.ParsePolynomial, Factor.Polynomial,
+                   Factor.SquareFree, Factor.Tests
     build-depends:    base ^>=4.17.2.1, HUnit, mtl, containers, transformers,
-                      haskeline, unix
+                      haskeline, unix, parsec
     hs-source-dirs:   app
     default-language: Haskell2010
