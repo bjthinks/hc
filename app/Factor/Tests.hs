@@ -1,4 +1,4 @@
-module Factor.Tests where
+module Factor.Tests (tests) where
 
 import Test.HUnit
 import Factor.Defs
@@ -418,6 +418,3 @@ invertModTests = TestList
 tests :: Test
 tests = TestList [polynomialTests, modularPolynomialTests, polynomialOpTests,
                   modularPolynomialOpTests, squareFreeTests, invertModTests]
-
-runTests :: IO Counts
-runTests = runTestTT tests
