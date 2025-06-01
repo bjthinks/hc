@@ -1,4 +1,4 @@
-module Expand (expand,
+module Expand (expand, expandNotCalls,
                test_Expand) where
 
 import Expression
@@ -8,6 +8,13 @@ import Data.List (genericReplicate)
 
 expand :: Expression -> Expression
 expand = eTransform eRat eVar eSum expandProduct expandIntPow eCall
+
+-- This is used in factor
+expandNotCalls :: Expression -> Expression
+expandNotCalls = eMatch eRat eVar (eSum . map expandNotCalls)
+  (expandProduct . map expandNotCalls) expandNotCallsIntPow eCall
+  where
+    expandNotCallsIntPow e n = expandIntPow (expandNotCalls e) n
 
 expandProduct :: [Expression] -> Expression
 expandProduct xs =

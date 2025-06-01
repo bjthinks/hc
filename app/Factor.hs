@@ -12,8 +12,8 @@ factor :: Expression -> Expression
 factor = eMatch eRat eVar factorSum factorProduct factorIntPow factorCall
 
 factorSum :: [Expression] -> Expression
--- TODO: this shouldn't expand calls
-factorSum es = realFactor $ expand $ eSum es
+-- This doesn't expand call parameters, e.g. factor(f((x+1)^10)-1)
+factorSum es = realFactor $ expandNotCalls $ eSum es
 
 factorProduct :: [Expression] -> Expression
 factorProduct es = eProd $ map factor es
