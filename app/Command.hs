@@ -14,6 +14,7 @@ import HCException
 import Control.Exception
 
 data Command = CommandAssign String ASTExpr |
+               CommandBlank |
                CommandClear String |
                CommandEval ASTExpr |
                CommandExit |
@@ -31,6 +32,7 @@ execute store (CommandAssign v a) =
   then throw HCRedefineBuiltin
   else (setValue v e store, displayAssignment v e)
   where e = fromAST a
+execute store CommandBlank = (store, "")
 execute store (CommandClear v) = clearValue v store
 execute store (CommandEval a) =
   (store, astDisplay $ fromExpr $ runBuiltins $ substituteFromStore store $
