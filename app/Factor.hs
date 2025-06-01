@@ -1,6 +1,7 @@
 module Factor (factor, test_Factor) where
 
 import Expression
+import Expand
 import Factor.Defs
 import qualified Factor.Tests as F
 import Test.HUnit
@@ -8,10 +9,28 @@ import System.IO.Unsafe
 import Data.Ratio
 
 factor :: Expression -> Expression
-factor = eTransform eRat eVar factorSum eProd eIntPow eCall
+factor = eMatch eRat eVar factorSum factorProduct factorIntPow factorCall
 
 factorSum :: [Expression] -> Expression
-factorSum es = unsafePerformIO (print $ map asTerm es) `seq` eSum es
+-- TODO: this shouldn't expand calls
+factorSum es = realFactor $ expand $ eSum es
+
+factorProduct :: [Expression] -> Expression
+factorProduct es = eProd $ map factor es
+
+factorIntPow :: Expression -> Integer -> Expression
+factorIntPow e n = eIntPow (factor e) n
+
+factorCall :: String -> [Expression] -> Expression
+factorCall f es = eCall f $ map factor es
+
+-- This is probably a sum, and it has definitely been expanded
+realFactor :: Expression -> Expression
+realFactor = eMatch eRat eVar realFactorSum factorProduct factorIntPow
+  factorCall
+
+realFactorSum :: [Expression] -> Expression
+realFactorSum es = unsafePerformIO (print $ map asTerm es) `seq` eSum es
 
 asTerm :: Expression -> Maybe (Maybe Expression, Term)
 asTerm = eMatch asTermRational asTermVariable undefined asTermProduct
