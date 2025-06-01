@@ -109,6 +109,8 @@ main = do
          (\e -> case e of HCExit -> return Nothing)
   return ()
 
+-- The ASCII art is shamelessly copied from:
+-- https://patorjk.com/software/taag/#p=display&f=Isometric1&t=hc
 banner :: [String]
 banner =
   [ "      ___           ___     "
