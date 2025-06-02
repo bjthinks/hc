@@ -18,5 +18,6 @@ FEATURES
 * Raising to integer powers
 * Various simplifications are performed
 * expand() multiplies out products/powers of sums
+* factor() can compute the square free factorization of a polynomial
 * Assignment to variables with :=
 * Input with command line editing, history, and tab completion
