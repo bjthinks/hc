@@ -379,7 +379,8 @@ expressionDisplayTests = test [
   testDisplay "factor(expand((x+1)^3*x^2*(x-1)))" "x^2 (x - 1) (x + 1)^3",
   testDisplay "factor(x*y-1)" "x y - 1",
   testDisplay "factor(f(x)^2+6*f(x)+9)" "(f(x) + 3)^2",
-  testDisplay "factor(expand((3*x+2)^100))" "(3 x + 2)^100"
+  testDisplay "factor(expand((3*x+2)^100))" "(3 x + 2)^100",
+  testDisplay "factor(expand((4*x+6)^5))" "32 (2 x + 3)^5"
   ]
 
 storeTests :: Test
