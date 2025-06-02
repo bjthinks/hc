@@ -36,12 +36,13 @@ realFactorSum :: [Expression] -> Expression
 realFactorSum es =
   let asterms = asTermSum es
   in case asterms of
-    Nothing -> eSum es
+    Nothing -> eSum $ map factor es
     Just (e, ts) -> case e of
-      Nothing -> eSum es
+      Nothing -> eSum $ map factor es
       Just ee ->
         let Factorization c ps = squareFree $ makePolynomial ts
-        in eProd $ eRat (c % 1) : map (uncurry $ processPolynomialToPower ee) ps
+        in eProd $ eRat (c % 1) :
+           map (uncurry $ processPolynomialToPower (factor ee)) ps
 
 asTermSum :: [Expression] -> Maybe (Maybe Expression, [Term])
 asTermSum es = combine Nothing [] (map asTerm es)
