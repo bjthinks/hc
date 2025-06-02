@@ -38,7 +38,7 @@ realFactorSum es =
   in case asterms of
     Nothing -> eSum $ map factor es
     Just (e, ts) -> case e of
-      Nothing -> eSum $ map factor es
+      Nothing -> eSum $ map factor es -- This is probably an impossible case
       Just ee ->
         let Factorization c ps = squareFree $ makePolynomial ts
         in eProd $ eRat (c % 1) :
