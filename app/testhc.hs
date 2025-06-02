@@ -370,7 +370,16 @@ expressionDisplayTests = test [
   testDisplay "f(x^2)+f(x)" "f(x^2) + f(x)",
   testDisplay "f(x)+f(x^2)+f(x*y)+f(x+y)+f(1)+f(f(x))+f(f(x)^2)" "f(x^2) + f(x y) + f(x + y) + f(x) + f(f(x)^2) + f(f(x)) + f(1)",
   testDisplay "f(x)*f(x^2)*f(x*y)*f(x+y)*f(1)*f(f(x))*f(f(x)^2)" "f(x^2) f(x y) f(x + y) f(x) f(f(x)^2) f(f(x)) f(1)",
-  testDisplay "factor(f(x^2-1)^2+1)" "f((x - 1) (x + 1))^2 + 1"
+  testDisplay "factor(f(x^2-1)^2+1)" "f((x - 1) (x + 1))^2 + 1",
+  testDisplay "factor(expand((x-1)^5))" "(x - 1)^5",
+  testDisplay "factor(expand((x^2-2*x+1)^5))" "(x - 1)^10",
+  testDisplay "factor(expand((x^2-4*x+4)^5))" "(x - 2)^10",
+  testDisplay "factor(f(x^2-2*x+1))" "f((x - 1)^2)",
+  testDisplay "factor(f(x^2-2*x+1)+1)" "f((x - 1)^2) + 1",
+  testDisplay "factor(expand((x+1)^3*x^2*(x-1)))" "x^2 (x - 1) (x + 1)^3",
+  testDisplay "factor(x*y-1)" "x y - 1",
+  testDisplay "factor(f(x)^2+6*f(x)+9)" "(f(x) + 3)^2",
+  testDisplay "factor(expand((3*x+2)^100))" "(3 x + 2)^100"
   ]
 
 storeTests :: Test

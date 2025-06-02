@@ -3,12 +3,12 @@ module Factor (factor, test_Factor) where
 import Expression
 import Expand
 import Together
+import Substitute
 import Factor.Defs
 import Factor.Polynomial
 import Factor.SquareFree
 import qualified Factor.Tests as F
 import Test.HUnit
-import System.IO.Unsafe
 import Data.Ratio
 
 factor :: Expression -> Expression
@@ -37,9 +37,11 @@ realFactorSum es =
   let asterms = asTermSum es
   in case asterms of
     Nothing -> eSum es
-    Just (e, ts) ->
-      let Factorization c ps = squareFree $ makePolynomial ts
-      in unsafePerformIO (print e >> print c >> mapM print ps) `seq` eSum es
+    Just (e, ts) -> case e of
+      Nothing -> eSum es
+      Just ee ->
+        let Factorization c ps = squareFree $ makePolynomial ts
+        in eProd $ eRat (c % 1) : map (uncurry $ processPolynomialToPower ee) ps
 
 asTermSum :: [Expression] -> Maybe (Maybe Expression, [Term])
 asTermSum es = combine Nothing [] (map asTerm es)
@@ -95,6 +97,14 @@ asTermIntPow e n
 
 asTermCall :: String -> [Expression] -> Maybe (Maybe Expression, Term)
 asTermCall f es = Just (Just (eCall f es),Term 1 1)
+
+processPolynomialToPower :: Expression -> Polynomial -> Integer -> Expression
+processPolynomialToPower x (Polynomial ts) e =
+  eIntPow (eSum $ map (processTerm x) ts) e
+
+processTerm :: Expression -> Term -> Expression
+processTerm x (Term c e) = substitute "x" x
+  (eProd [eRat (c % 1),eIntPow (eVar "x") e])
 
 test_Factor :: Test
 test_Factor = test
