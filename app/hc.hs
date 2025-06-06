@@ -130,6 +130,4 @@ banner =
   , "algebraic expression using numbers, variables, and + - * /. You can also"
   , "raise anything to a whole number power using ^. Assign to variables and"
   , "functions using the := operator. Type help for more information."
-  , "Use control-c to interrupt lengthy computations."
-  , "Note: assignments that form a loop will cause the interpreter to hang."
   ]
