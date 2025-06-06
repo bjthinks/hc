@@ -5,7 +5,8 @@ module HCException (HCException(..), HCExit(..), hcErrorMessage) where
 import Data.Typeable
 import Control.Exception
 
-data HCException = HCDivideByZero |
+data HCException = HCAssignmentLoop |
+                   HCDivideByZero |
                    HCNonIntegerPower |
                    HCRedefineBuiltin |
                    HCSubstituteNotVariable |
@@ -20,6 +21,7 @@ instance Exception HCException
 instance Exception HCExit
 
 hcErrorMessage :: HCException -> String
+hcErrorMessage HCAssignmentLoop = "Error: assignments form a loop."
 hcErrorMessage HCDivideByZero = "Error: division by zero."
 hcErrorMessage HCNonIntegerPower = "Error: exponents must be integers."
 hcErrorMessage HCRedefineBuiltin =

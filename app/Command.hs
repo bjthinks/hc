@@ -37,7 +37,7 @@ execute store (CommandAssign v a) =
 execute store CommandBlank = (store, "")
 execute store (CommandClear v) = clearValue v store
 execute store (CommandEval a) =
-  (store, astDisplay $ fromExpr $ runBuiltins $ substituteFromStore store $
+  (store, astDisplay $ fromExpr $ runBuiltins $ substituteFromStore store [] $
           runSubstitute $ fromAST a)
 execute _ CommandExit = throw HCExit
 execute store (CommandHelp topic) = (store, {-TODO word wrap-} showHelp topic)
@@ -66,13 +66,16 @@ runSubstitute' "substitute" [e1,e2,e3] =
 runSubstitute' "substitute" _ = throw $ HCWrongNumberOfParameters "substitute" 3
 runSubstitute' f es = eCall f es
 
-substituteFromStore :: Store -> Expression -> Expression
-substituteFromStore store = eTransform eRat get eSum eProd eIntPow eCall
+substituteFromStore :: Store -> [String] -> Expression -> Expression
+substituteFromStore store vars = eTransform eRat get eSum eProd
+  eIntPow eCall
   where
     get :: String -> Expression
     get str =
       case getValue str store of
-        Just expr -> substituteFromStore store expr
+        Just expr -> case elem str vars of
+          True -> throw HCAssignmentLoop
+          False -> substituteFromStore store (str:vars) expr
         Nothing -> eVar str
 
 displayAssignment :: String -> Expression -> String
