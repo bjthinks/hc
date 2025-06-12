@@ -3,7 +3,6 @@ module Factor (factor, test_Factor) where
 import Expression
 import Expand
 import Together
-import Substitute
 import Factor.Defs
 import Factor.Polynomial
 import Factor.SquareFree
