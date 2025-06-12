@@ -104,8 +104,7 @@ processPolynomialToPower x (Polynomial ts) e =
   eIntPow (eSum $ map (processTerm x) ts) e
 
 processTerm :: Expression -> Term -> Expression
-processTerm x (Term c e) = substitute "x" x
-  (eProd [eRat (c % 1),eIntPow (eVar "x") e])
+processTerm x (Term c e) = eProd [eRat (c % 1),eIntPow x e]
 
 test_Factor :: Test
 test_Factor = test
