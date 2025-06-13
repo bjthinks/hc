@@ -20,7 +20,7 @@ tSum :: [Expression] -> Expression
 tProd :: [Expression] -> Expression
 tIntPow :: Expression -> Integer -> Expression
 tCall :: String -> [Expression] -> Expression
-(tRat,tVar,tSum,tProd,tIntPow,tCall) = useThisVariableOnlyForTestingTheExpressionConstructors
+(tRat,tVar,tSum,tProd,tIntPow,tCall) = unsafeExpressionConstructors
 
 unRight :: Either a b -> b
 unRight (Right b) = b
