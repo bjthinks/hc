@@ -7,7 +7,6 @@ import Command
 import Store
 import HCException
 
-import Data.Void
 import Data.List (isPrefixOf)
 import Data.IORef
 import Control.Monad.IO.Class
@@ -95,7 +94,7 @@ getInputLineCatchingInterrupt =
 
 -- master control program
 
-mainloop :: IORef Store -> MaybeT (InputT IO) Void
+mainloop :: IORef Store -> MaybeT (InputT IO) a
 mainloop storeRef = do
   str <- MaybeT $ getInputLineCatchingInterrupt
   liftIO $ processLineCatchingInterrupt storeRef str
@@ -106,7 +105,7 @@ main = do
   sequence_ $ map putStrLn banner
   -- Enter haskeline world
   s <- newIORef newStore
-  _ <- runInputT (inputSettings s) (runMaybeT (mainloop s >> return ()))
+  _ <- runInputT (inputSettings s) (runMaybeT $ mainloop s)
     `E.catch` (\e -> case e of HCExit -> return Nothing)
   return ()
 
