@@ -1,7 +1,7 @@
 module Expression (eRat, eVar, eSum, eProd, eIntPow, eCall,
                    eMatch, isRational, isNegPow, eAsSum, eTransform,
                    prodAsQuot,
-                   useThisVariableOnlyForTestingTheExpressionConstructors,
+                   unsafeExpressionConstructors,
                    Expression,
                    test_Expression) where
 
@@ -157,11 +157,11 @@ eAsSum =
     list :: a -> [a]
     list x = [x]
 
-useThisVariableOnlyForTestingTheExpressionConstructors ::
+unsafeExpressionConstructors ::
   (Rational -> Expression, String -> Expression,
    [Expression] -> Expression, [Expression] -> Expression,
    Expression -> Integer -> Expression, String -> [Expression] -> Expression)
-useThisVariableOnlyForTestingTheExpressionConstructors =
+unsafeExpressionConstructors =
   (ExpressionRational, ExpressionVariable,
    ExpressionSum, ExpressionProduct,
    ExpressionIntPow, ExpressionCall)
