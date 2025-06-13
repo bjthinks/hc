@@ -106,8 +106,8 @@ main = do
   sequence_ $ map putStrLn banner
   -- Enter haskeline world
   s <- newIORef newStore
-  _ <- runInputT (inputSettings s) (runMaybeT (mainloop s >> return ())) `E.catch`
-         (\e -> case e of HCExit -> return Nothing)
+  _ <- runInputT (inputSettings s) (runMaybeT (mainloop s >> return ()))
+    `E.catch` (\e -> case e of HCExit -> return Nothing)
   return ()
 
 -- The ASCII art is shamelessly copied from:
