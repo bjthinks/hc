@@ -39,12 +39,11 @@ multiplicative = do a <- unary
 
 unary :: Parser Token AST
 unary = do sign <- option $ match TokenMinus
-           a <- implcitMult
+           a <- implicitMult
            return $ case sign of
              Nothing -> a
              Just _ -> ASTNegation a
 
--- implicit multiplication goes here
 implicitMult :: Parser Token AST
 implicitMult = do a <- power
                   as <- many power
@@ -58,17 +57,17 @@ implicitMult = do a <- power
 power :: Parser Token AST
 power = do b <- atom
            e <- option (do _ <- match TokenPower
-                           exponent)
+                           exponent')
            return $ case e of
              Nothing -> b
              Just ee -> ASTPower b ee
 
-exponent :: Parser Token AST
-exponent = do sign <- option $ match TokenMinus
-              a <- power
-              return $ case sign of
-                Nothing -> a
-                Just _ -> ASTNegation a
+exponent' :: Parser Token AST
+exponent' = do sign <- option $ match TokenMinus
+               a <- power
+               return $ case sign of
+                 Nothing -> a
+                 Just _ -> ASTNegation a
 
 atom :: Parser Token AST
 atom = integer <|> call <|> variable <|> paren
@@ -215,10 +214,12 @@ test_ASTParser = [
   Right (ASTCall "a" [ASTVariable "b"]),
   parseAll additive [TokenWord "a",TokenOpenParen,TokenInteger 1,
                      TokenCloseParen] ~?= Right (ASTCall "a" [ASTInteger 1]),
-  isLeft (parseAll additive [TokenInteger 1,TokenOpenParen,TokenInteger 2,
-                             TokenCloseParen]) ~?= True,
-  isLeft (parseAll additive [TokenInteger 1,TokenOpenParen,TokenWord "b",
-                             TokenCloseParen]) ~?= True,
+  parseAll additive [TokenInteger 1,TokenOpenParen,TokenInteger 2,
+                     TokenCloseParen] ~?= Right (ASTProduct (ASTInteger 1)
+                                                 (ASTInteger 2)),
+  parseAll additive [TokenInteger 1,TokenOpenParen,TokenWord "b",
+                     TokenCloseParen] ~?= Right (ASTProduct (ASTInteger 1)
+                                                 (ASTVariable "b")),
   parseAll additive [TokenWord "f",TokenOpenParen,TokenCloseParen] ~?=
     Right (ASTCall "f" []),
   parseAll additive [TokenWord "a",TokenOpenParen,TokenWord "b",TokenComma,
