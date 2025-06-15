@@ -44,6 +44,8 @@ unary = do sign <- option $ match TokenMinus
              Nothing -> a
              Just _ -> ASTNegation a
 
+-- implicit multiplication goes here
+
 power :: Parser Token AST
 power = do b <- atom
            e <- option (do _ <- match TokenPower
