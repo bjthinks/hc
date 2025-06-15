@@ -39,20 +39,36 @@ multiplicative = do a <- unary
 
 unary :: Parser Token AST
 unary = do sign <- option $ match TokenMinus
-           a <- power
+           a <- implcitMult
            return $ case sign of
              Nothing -> a
              Just _ -> ASTNegation a
 
 -- implicit multiplication goes here
+implicitMult :: Parser Token AST
+implicitMult = do a <- power
+                  as <- many power
+                  return $ makeMultiplicative a as
+  where
+    makeMultiplicative :: AST -> [AST] -> AST
+    makeMultiplicative a [] = a
+    makeMultiplicative a (b:bs) =
+      makeMultiplicative (ASTProduct a b) bs
 
 power :: Parser Token AST
 power = do b <- atom
            e <- option (do _ <- match TokenPower
-                           unary)
+                           exponent)
            return $ case e of
              Nothing -> b
              Just ee -> ASTPower b ee
+
+exponent :: Parser Token AST
+exponent = do sign <- option $ match TokenMinus
+              a <- power
+              return $ case sign of
+                Nothing -> a
+                Just _ -> ASTNegation a
 
 atom :: Parser Token AST
 atom = integer <|> call <|> variable <|> paren
