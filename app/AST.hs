@@ -1,12 +1,12 @@
-module AST (ASTExpr(..)) where
+module AST (AST(..)) where
 
-data ASTExpr = ASTInteger Integer |
-               ASTVariable String |
-               ASTSum ASTExpr ASTExpr |
-               ASTDifference ASTExpr ASTExpr |
-               ASTProduct ASTExpr ASTExpr |
-               ASTQuotient ASTExpr ASTExpr |
-               ASTPower ASTExpr ASTExpr |
-               ASTNegation ASTExpr |
-               ASTCall String [ASTExpr]
-             deriving (Eq, Show)
+data AST = ASTInteger Integer |
+           ASTVariable String |
+           ASTSum AST AST |
+           ASTDifference AST AST |
+           ASTProduct AST AST |
+           ASTQuotient AST AST |
+           ASTPower AST AST |
+           ASTNegation AST |
+           ASTCall String [AST]
+  deriving (Eq, Show)

@@ -6,30 +6,30 @@ import AST
 import Control.Applicative
 import Test.HUnit
 
-astParser :: Parser Token ASTExpr
+astParser :: Parser Token AST
 astParser = additive
 
-additive :: Parser Token ASTExpr
+additive :: Parser Token AST
 additive = do a <- multiplicative
               as <- many (do op <- match TokenPlus <|> match TokenMinus
                              rhs <- multiplicative
                              return (op,rhs))
               return $ makeAdditive a as
   where
-    makeAdditive :: ASTExpr -> [(Token,ASTExpr)] -> ASTExpr
+    makeAdditive :: AST -> [(Token,AST)] -> AST
     makeAdditive a [] = a
     makeAdditive a ((TokenPlus,b):bs) = makeAdditive (ASTSum a b) bs
     makeAdditive a ((TokenMinus,b):bs) = makeAdditive (ASTDifference a b) bs
     makeAdditive _ _ = undefined
 
-multiplicative :: Parser Token ASTExpr
+multiplicative :: Parser Token AST
 multiplicative = do a <- unary
                     as <- many (do op <- match TokenTimes <|> match TokenDivide
                                    rhs <- unary
                                    return (op,rhs))
                     return $ makeMultiplicative a as
   where
-    makeMultiplicative :: ASTExpr -> [(Token,ASTExpr)] -> ASTExpr
+    makeMultiplicative :: AST -> [(Token,AST)] -> AST
     makeMultiplicative a [] = a
     makeMultiplicative a ((TokenTimes,b):bs) =
       makeMultiplicative (ASTProduct a b) bs
@@ -37,14 +37,14 @@ multiplicative = do a <- unary
       makeMultiplicative (ASTQuotient a b) bs
     makeMultiplicative _ _ = undefined
 
-unary :: Parser Token ASTExpr
+unary :: Parser Token AST
 unary = do sign <- option $ match TokenMinus
            a <- power
            return $ case sign of
              Nothing -> a
              Just _ -> ASTNegation a
 
-power :: Parser Token ASTExpr
+power :: Parser Token AST
 power = do b <- atom
            e <- option (do _ <- match TokenPower
                            unary)
@@ -52,19 +52,19 @@ power = do b <- atom
              Nothing -> b
              Just ee -> ASTPower b ee
 
-atom :: Parser Token ASTExpr
+atom :: Parser Token AST
 atom = integer <|> call <|> variable <|> paren
 
-call :: Parser Token ASTExpr
+call :: Parser Token AST
 call = callNoArgs <|> callArgs
 
-callNoArgs :: Parser Token ASTExpr
+callNoArgs :: Parser Token AST
 callNoArgs = do TokenWord func <- matching isWord
                 _ <- match TokenOpenParen
                 _ <- match TokenCloseParen
                 return (ASTCall func [])
 
-callArgs :: Parser Token ASTExpr
+callArgs :: Parser Token AST
 callArgs = do TokenWord func <- matching isWord
               _ <- match TokenOpenParen
               a <- additive
@@ -72,17 +72,17 @@ callArgs = do TokenWord func <- matching isWord
               _ <- match TokenCloseParen
               return $ ASTCall func (a:as)
 
-paren :: Parser Token ASTExpr
+paren :: Parser Token AST
 paren = do _ <- match TokenOpenParen
            e <- additive
            _ <- match TokenCloseParen
            return e
 
-integer :: Parser Token ASTExpr
+integer :: Parser Token AST
 integer = do TokenInteger n <- matching isInteger
              return $ ASTInteger n
 
-variable :: Parser Token ASTExpr
+variable :: Parser Token AST
 variable = do TokenWord w <- matching isWord
               return $ ASTVariable w
 

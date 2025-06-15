@@ -3,10 +3,10 @@ module ASTDisplay (astDisplay, test_ASTDisplay) where
 import AST
 import Test.HUnit
 
-astDisplay :: ASTExpr -> String
+astDisplay :: AST -> String
 astDisplay = fst . astDisplayPrec
 
-astDisplayPrec :: ASTExpr -> (String, Int)
+astDisplayPrec :: AST -> (String, Int)
 astDisplayPrec (ASTInteger n) = (show n, 10)
 astDisplayPrec (ASTVariable v) = (v, 10)
 astDisplayPrec (ASTSum        x y) = ((dp x 0) ++ " + " ++ (dp y 0), 0)
@@ -24,7 +24,7 @@ parenthesize (str, p) q
   | p < q = "(" ++ str ++ ")"
   | otherwise = str
 
-dp :: ASTExpr -> Int -> String
+dp :: AST -> Int -> String
 dp x n = parenthesize (astDisplayPrec x) n
 
 test_ASTDisplay :: [Test]

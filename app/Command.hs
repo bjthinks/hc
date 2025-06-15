@@ -15,10 +15,10 @@ import Help
 import HCException
 import Control.Exception
 
-data Command = CommandAssign String ASTExpr |
+data Command = CommandAssign String AST |
                CommandBlank |
                CommandClear String |
-               CommandEval ASTExpr |
+               CommandEval AST |
                CommandExit |
                CommandHelp String
 

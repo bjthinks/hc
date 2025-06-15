@@ -6,7 +6,7 @@ import Data.Ratio ((%))
 import HCException
 import Control.Exception (throw)
 
-fromAST :: ASTExpr -> Expression
+fromAST :: AST -> Expression
 fromAST (ASTInteger n) = eRat (n%1)
 fromAST (ASTVariable v) = eVar v
 fromAST (ASTSum x y) = eSum [fromAST x,fromAST y]
