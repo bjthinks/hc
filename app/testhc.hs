@@ -389,6 +389,8 @@ expressionDisplayTests = test [
   , testDisplay "a/b c" "a / b c"
   , testDisplay "a/b*c" "a c / b"
   , testDisplay "x^2y^3" "x^2 y^3"
+  , testDisplay "-x^-2" "-1 / x^2"
+  , testDisplay "factor((-x+1)/(x-1))" "-1"
   ]
 
 storeTests :: Test
