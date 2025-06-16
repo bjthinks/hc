@@ -384,6 +384,11 @@ expressionDisplayTests = test [
   testDisplay "factor(expand((4*x+6)^5))" "32 (2 x + 3)^5",
   testDisplay "factor(f(x^2+2*x+1)+f(y^2+2*y+1))"
     "f((x + 1)^2) + f((y + 1)^2)"
+  , testDisplay "a(2)(3)b" "3 b a(2)"
+  , testDisplay "2(a)(3)b" "6 a b"
+  , testDisplay "a/b c" "a / b c"
+  , testDisplay "a/b*c" "a c / b"
+  , testDisplay "x^2y^3" "x^2 y^3"
   ]
 
 storeTests :: Test
