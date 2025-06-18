@@ -630,6 +630,8 @@ expressionDisplayTests' = test [
   , testDisplay' "x^2y^3" "x^2 y^3"
   , testDisplay' "-x^-2" "-1 / x^2"
   , testDisplay' "factor((-x+1)/(x-1))" "-1"
+  , testDisplay' "f(x)" "f(x)"
+  , testDisplay' "f(x,y)" "f(x, y)"
   ]
 
 storeTests :: Test
