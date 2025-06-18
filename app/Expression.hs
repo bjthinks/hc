@@ -1,6 +1,6 @@
 module Expression (eRat, eVar, eSum, eProd, eIntPow, eCall,
                    eMatch, isRational, isNegPow, eAsSum, eTransform,
-                   prodAsQuot,
+                   prodAsQuot, extractConstantFromProduct,
                    unsafeExpressionConstructors,
                    Expression,
                    test_Expression) where
@@ -136,6 +136,15 @@ prodAsQuot (e@(ExpressionIntPow b n):es)
 prodAsQuot (e:es) = (s,e:ns,ds)
   where
     (s,ns,ds) = prodAsQuot es
+
+extractConstantFromProduct :: [Expression] -> ([Expression],Rational)
+extractConstantFromProduct xs = (es,r')
+  where
+    (r,es) = partition isRational xs
+    r' = case r of
+      [] -> 1
+      [ExpressionRational x] -> x
+      _ -> undefined
 
 true :: a -> Bool
 true = const True
@@ -303,9 +312,11 @@ eCall (g:gs) xs
 -------------------- TESTS --------------------
 
 test_Expression :: [Test]
-test_Expression = [
-  eSum [x,y,eProd [eRat (-1),y]] ~?= x,
-  eProd [x,y,eIntPow y (-1)] ~?= x
+test_Expression =
+  [ eSum [x,y,eProd [eRat (-1),y]] ~?= x
+  , eProd [x,y,eIntPow y (-1)] ~?= x
+  , ([x,y],3) ~?= extractConstantFromProduct [x,y,eRat 3]
+  , ([x,y],1) ~?= extractConstantFromProduct [x,y]
   ]
   where
     x = eVar "x"
