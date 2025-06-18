@@ -17,7 +17,11 @@ displayProduct :: [Expression] -> String
 displayProduct = undefined
 
 displayIntPow :: Expression -> Integer -> String
-displayIntPow = undefined
+displayIntPow b n = eMatch undefined displayVariableToPower
+  undefined
+  undefined undefined undefined b
+  where
+    displayVariableToPower v = v ++ "^" ++ show n  -- TODO not right if n<0
 
 displayCall :: String -> [Expression] -> String
 displayCall f [] = f ++ "()"
