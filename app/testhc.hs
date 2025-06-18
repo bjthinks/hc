@@ -632,6 +632,10 @@ expressionDisplayTests' = test [
   , testDisplay' "factor((-x+1)/(x-1))" "-1"
   , testDisplay' "f(x)" "f(x)"
   , testDisplay' "f(x,y)" "f(x, y)"
+  , testDisplay' "f(z)" "f(z)"
+  , testDisplay' "f(z)^3" "f(z)^3"
+  , testDisplay' "f(z)^-1" "1 / f(z)"
+  , testDisplay' "f(z)^-5" "1 / f(z)^5"
   ]
 
 storeTests :: Test

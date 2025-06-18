@@ -18,12 +18,17 @@ displayProduct = undefined
 
 displayIntPow :: Expression -> Integer -> String
 displayIntPow b n = eMatch undefined displayVariableToPower
-  undefined
-  undefined undefined undefined b
+  displaySumToPower undefined undefined displayCallToPower b
   where
-    displayVariableToPower v = v ++ "^" ++ show n  -- TODO not right if n<0
+    displayVariableToPower v = raiseToPower v
+    displaySumToPower es = raiseToPower $ "(" ++ displaySum es ++ ")"
+    displayCallToPower f es = raiseToPower $ f ++ "(" ++
+      intercalate "," (map displayExpression es) ++ ")"
+    raiseToPower str
+      | n == -1 = "1 / " ++ str
+      | n < 0   = "1 / " ++ str ++ "^" ++ show (-n)
+      | otherwise = str ++ "^" ++ show n
 
 displayCall :: String -> [Expression] -> String
-displayCall f [] = f ++ "()"
 displayCall f xs  = f ++ "(" ++ intercalate ", " (map displayExpression xs) ++
   ")"
