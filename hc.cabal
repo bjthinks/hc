@@ -67,7 +67,7 @@ executable hc
                    HCException, Parser, Store, Tokenizer, Substitute,
                    Help, Factor, Factor.Defs, Factor.ModularPolynomial,
                    Factor.ParsePolynomial, Factor.Polynomial,
-                   Factor.SquareFree, Factor.Tests, Together
+                   Factor.SquareFree, Factor.Tests, Together, DisplayExpression
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
@@ -90,7 +90,7 @@ executable testhc
                    HCException, Parser, Store, Tokenizer, Substitute,
                    Help, Factor, Factor.Defs, Factor.ModularPolynomial,
                    Factor.ParsePolynomial, Factor.Polynomial,
-                   Factor.SquareFree, Factor.Tests, Together
+                   Factor.SquareFree, Factor.Tests, Together, DisplayExpression
     build-depends:    base ^>=4.17.2.1, HUnit, mtl, containers, transformers,
                       haskeline, unix, parsec
     hs-source-dirs:   app
