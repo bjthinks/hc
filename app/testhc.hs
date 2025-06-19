@@ -636,6 +636,7 @@ expressionDisplayTests' = test [
   , testDisplay' "f(z)^3" "f(z)^3"
   , testDisplay' "f(z)^-1" "1 / f(z)"
   , testDisplay' "f(z)^-5" "1 / f(z)^5"
+  , testDisplay' "f(x,y)^2" "f(x, y)^2"
   ]
 
 storeTests :: Test
