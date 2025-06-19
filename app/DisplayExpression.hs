@@ -8,23 +8,6 @@ displayExpression :: Expression -> String
 displayExpression = eMatch displayRational displayVar displaySum displayProduct
   displayIntPow displayCall
 
-displayExpression' :: Expression -> (String, Int)
-displayExpression' = eMatch
-  (\r -> (displayRational r, 10))
-  (\v -> (displayVar v, 10))
-  (\es -> (displaySum es, 0))
-  (\es -> (displayProduct es, 1))
-  (\b e -> (displayIntPow b e, 3))
-  (\f xs -> (displayCall f xs, 4))
-
-displayFactor :: Expression -> String
-displayFactor e = parenthesize $ displayExpression' e
-
-parenthesize :: (String, Int) -> String
-parenthesize (s, p)
-  | p < 2 = "(" ++ s ++ ")"
-  | otherwise = s
-
 displayRational :: Rational -> String
 displayRational r
   | d == 1 = show n
@@ -62,6 +45,12 @@ displaySimpleProduct es = intercalate " " $ constant ++ map displayFactor fs
   where
     (fs, c) = extractConstantFromProduct es
     constant = if c == 1 then [] else [show $ numerator c]
+
+displayFactor :: Expression -> String
+displayFactor = eMatch displayRational displayVar parenthesizeSum undefined
+  displayIntPow displayCall
+  where
+    parenthesizeSum es = "(" ++ displaySum es ++ ")"
 
 displayIntPow :: Expression -> Integer -> String
 displayIntPow b n = eMatch undefined displayVariableToPower
