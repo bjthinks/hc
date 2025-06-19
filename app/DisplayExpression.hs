@@ -71,8 +71,7 @@ displayIntPow b n = eMatch undefined displayVariableToPower
   where
     displayVariableToPower v = raiseToPower v
     displaySumToPower es = raiseToPower $ "(" ++ displaySum es ++ ")"
-    displayCallToPower f es = raiseToPower $ f ++ "(" ++
-      intercalate "," (map displayExpression es) ++ ")"
+    displayCallToPower f es = raiseToPower $ displayCall f es
     raiseToPower str
       | n == -1 = "1 / " ++ str
       | n < 0   = "1 / " ++ str ++ "^" ++ show (-n)
