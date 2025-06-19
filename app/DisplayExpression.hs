@@ -5,7 +5,8 @@ import Data.List
 import Expression
 
 displayExpression :: Expression -> String
-displayExpression e = fst $ displayExpression' e
+displayExpression = eMatch displayRational displayVar displaySum displayProduct
+  displayIntPow displayCall
 
 displayExpression' :: Expression -> (String, Int)
 displayExpression' = eMatch
