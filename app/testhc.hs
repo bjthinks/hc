@@ -664,11 +664,11 @@ expressionDisplayTests' = test [
   , testDisplay' "a*b/(c*d)" "a b / c d"
   , testDisplay' "a*b/c*d" "a b d / c"
   , testDisplay' "(a/b)*(c/d)" "a c / b d"
+  , testDisplay' "a b*c d" "a b c d"
+  , testDisplay' "(a/b)/(c/d)" "a d / b c"
+  , testDisplay' "a b+c d" "a b + c d"
+  , testDisplay' "a*b+c*d" "a b + c d"
 {-
-  , testDisplay' (ASTProduct (ASTProduct a b) (ASTProduct c d)) "a b c d"
-  , testDisplay' (ASTQuotient (ASTQuotient a b) (ASTQuotient c d))
-  "(a / b) / (c / d)"
-  , testDisplay' (ASTSum (ASTProduct a b) (ASTProduct c d)) "a b + c d"
   , testDisplay' (ASTDifference (ASTProduct a b) (ASTProduct c d)) "a b - c d"
   , testDisplay' (ASTSum (ASTQuotient a b) (ASTQuotient c d)) "a / b + c / d"
   , testDisplay' (ASTDifference (ASTQuotient a b) (ASTQuotient c d))
