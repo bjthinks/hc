@@ -1,24 +1,33 @@
 module Store(Store, newStore, setValue, clearValue, getValue,
-             getVariables) where
+             getVariables, nextResult, incrementResult) where
 
 import Expression
 import qualified Data.Map.Strict as Map
 
-newtype Store = Store (Map.Map String Expression)
+data Store =
+  Store { values :: Map.Map String Expression
+        , resultNumber :: Int }
 
 newStore :: Store
-newStore = Store $ Map.empty
+newStore = Store { values = Map.empty, resultNumber = 1 }
 
 setValue :: String -> Expression -> Store -> Store
-setValue v e (Store s) = Store $ Map.insert v e s
+setValue v e s = s { values = Map.insert v e $ values s }
 
 clearValue :: String -> Store -> (Store, String)
-clearValue v (Store s) = case Map.lookup v s of
-  Nothing -> (Store s, "Variable " ++ v ++ " has no definition.")
-  Just _ -> (Store $ Map.delete v s, "Removed definition of " ++ v ++ ".")
+clearValue v s = case Map.lookup v (values s) of
+  Nothing -> (s, "Variable " ++ v ++ " has no definition.")
+  Just _ -> (s { values = Map.delete v $ values s },
+             "Removed definition of " ++ v ++ ".")
 
 getValue :: String -> Store -> Maybe Expression
-getValue v (Store s) = Map.lookup v s
+getValue v s = Map.lookup v $ values s
 
 getVariables :: Store -> [String]
-getVariables (Store s) = Map.keys s
+getVariables s = Map.keys $ values s
+
+nextResult :: Store -> String
+nextResult s = "r" ++ show (resultNumber s)
+
+incrementResult :: Store -> Store
+incrementResult s = s { resultNumber = resultNumber s + 1 }
