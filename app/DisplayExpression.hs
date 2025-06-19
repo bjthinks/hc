@@ -13,7 +13,8 @@ displayExpression' = eMatch
   (\v -> (displayVar v, 10))
   (\es -> (displaySum es, 0))
   (\es -> (displayProduct es, 1))
-  displayIntPow displayCall
+  (\b e -> (displayIntPow b e, 3))
+  displayCall
 
 displayExpressionWithPrecedence :: Expression -> Int -> String
 displayExpressionWithPrecedence e n =
@@ -64,7 +65,7 @@ displaySimpleProduct es =
     (fs, c) = extractConstantFromProduct es
     constant = if c == 1 then [] else [show $ numerator c]
 
-displayIntPow :: Expression -> Integer -> (String, Int)
+displayIntPow :: Expression -> Integer -> String
 displayIntPow b n = eMatch undefined displayVariableToPower
   displaySumToPower undefined undefined displayCallToPower b
   where
@@ -73,9 +74,9 @@ displayIntPow b n = eMatch undefined displayVariableToPower
     displayCallToPower f es = raiseToPower $ f ++ "(" ++
       intercalate "," (map displayExpression es) ++ ")"
     raiseToPower str
-      | n == -1 = ("1 / " ++ str, 1)
-      | n < 0   = ("1 / " ++ str ++ "^" ++ show (-n), 1)
-      | otherwise = (str ++ "^" ++ show n, 3)
+      | n == -1 = "1 / " ++ str
+      | n < 0   = "1 / " ++ str ++ "^" ++ show (-n)
+      | otherwise = str ++ "^" ++ show n
 
 displayCall :: String -> [Expression] -> (String, Int)
 displayCall f xs  =
