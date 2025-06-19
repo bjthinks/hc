@@ -32,7 +32,12 @@ displayVar :: String -> (String, Int)
 displayVar x = (x, 10)
 
 displaySum :: [Expression] -> (String, Int)
-displaySum es = (intercalate " + " $ map displayExpression es, 0)
+displaySum [] = undefined
+displaySum (e:es) = (displayExpression e ++
+  concat (map (adjustSign . displayExpression) es), 0)
+  where
+    adjustSign ('-':cs) = " - " ++ cs
+    adjustSign cs = " + " ++ cs
 
 displayProduct :: [Expression] -> (String, Int)
 displayProduct es =
