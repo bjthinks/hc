@@ -51,16 +51,15 @@ displayProduct es =
     (sign, numExprs, denExprs) = prodAsQuot es
     numOverDen
       | numExprs == [] && denExprs == [] = "1"
-      | numExprs == [] = "1 / " ++ fst (displaySimpleProduct denExprs)
-      | denExprs == [] = fst $ displaySimpleProduct numExprs
-      | otherwise = fst (displaySimpleProduct numExprs) ++ " / " ++
-                    fst (displaySimpleProduct denExprs)
+      | numExprs == [] = "1 / " ++ displaySimpleProduct denExprs
+      | denExprs == [] = displaySimpleProduct numExprs
+      | otherwise = displaySimpleProduct numExprs ++ " / " ++
+                    displaySimpleProduct denExprs
 
  -- no denominator terms or negative constants anymore
-displaySimpleProduct :: [Expression] -> (String, Int)
+displaySimpleProduct :: [Expression] -> String
 displaySimpleProduct es =
-  (intercalate " " $ constant ++
-   map (flip displayExpressionWithPrecedence 2) fs, 2)
+  intercalate " " $ constant ++ map (flip displayExpressionWithPrecedence 2) fs
   where
     (fs, c) = extractConstantFromProduct es
     constant = if c == 1 then [] else [show $ numerator c]
