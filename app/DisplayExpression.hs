@@ -8,7 +8,11 @@ displayExpression :: Expression -> String
 displayExpression e = fst $ displayExpression' e
 
 displayExpression' :: Expression -> (String, Int)
-displayExpression' = eMatch displayRational displayVar displaySum displayProduct
+displayExpression' = eMatch
+  (\r -> (displayRational r, 10))
+  (\v -> (displayVar v, 10))
+  (\es -> (displaySum es, 0))
+  (\es -> (displayProduct es, 1))
   displayIntPow displayCall
 
 displayExpressionWithPrecedence :: Expression -> Int -> String
@@ -20,36 +24,36 @@ parenthesize (s, p) q
   | p < q = "(" ++ s ++ ")"
   | otherwise = s
 
-displayRational :: Rational -> (String, Int)
+displayRational :: Rational -> String
 displayRational r
-  | d == 1 = (show n, 10)
-  | otherwise = (show n ++ " / " ++ show d, 1)
+  | d == 1 = show n
+  | otherwise = show n ++ " / " ++ show d
   where
     n = numerator r
     d = denominator r
 
-displayVar :: String -> (String, Int)
-displayVar x = (x, 10)
+displayVar :: String -> String
+displayVar = id
 
-displaySum :: [Expression] -> (String, Int)
+displaySum :: [Expression] -> String
 displaySum [] = undefined
-displaySum (e:es) = (displayExpression e ++
-  concat (map (adjustSign . displayExpression) es), 0)
+displaySum (e:es) = displayExpression e ++
+  concat (map (adjustSign . displayExpression) es)
   where
     adjustSign ('-':cs) = " - " ++ cs
     adjustSign cs = " + " ++ cs
 
-displayProduct :: [Expression] -> (String, Int)
+displayProduct :: [Expression] -> String
 displayProduct es =
-  (if sign < 0 then "-" ++ fst numOverDen else fst numOverDen, 1)
+  if sign < 0 then "-" ++ numOverDen else numOverDen
   where
     (sign, numExprs, denExprs) = prodAsQuot es
     numOverDen
-      | numExprs == [] && denExprs == [] = ("1", 10)
-      | numExprs == [] = ("1 / " ++ fst (displaySimpleProduct denExprs), 1)
-      | denExprs == [] = displaySimpleProduct numExprs
-      | otherwise = (fst (displaySimpleProduct numExprs) ++ " / " ++
-                     fst (displaySimpleProduct denExprs), 1)
+      | numExprs == [] && denExprs == [] = "1"
+      | numExprs == [] = "1 / " ++ fst (displaySimpleProduct denExprs)
+      | denExprs == [] = fst $ displaySimpleProduct numExprs
+      | otherwise = fst (displaySimpleProduct numExprs) ++ " / " ++
+                    fst (displaySimpleProduct denExprs)
 
  -- no denominator terms or negative constants anymore
 displaySimpleProduct :: [Expression] -> (String, Int)
@@ -65,7 +69,7 @@ displayIntPow b n = eMatch undefined displayVariableToPower
   displaySumToPower undefined undefined displayCallToPower b
   where
     displayVariableToPower v = raiseToPower v
-    displaySumToPower es = raiseToPower $ "(" ++ fst (displaySum es) ++ ")"
+    displaySumToPower es = raiseToPower $ "(" ++ displaySum es ++ ")"
     displayCallToPower f es = raiseToPower $ f ++ "(" ++
       intercalate "," (map displayExpression es) ++ ")"
     raiseToPower str
