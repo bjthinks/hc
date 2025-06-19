@@ -9,10 +9,15 @@ displayExpression = eMatch displayRational id displaySum displayProduct
   displayIntPow displayCall
 
 displayRational :: Rational -> String
-displayRational = undefined
+displayRational r
+  | d == 1 = show n
+  | otherwise = show n ++ " / " ++ show d
+  where
+    n = numerator r
+    d = denominator r
 
 displaySum :: [Expression] -> String
-displaySum = undefined
+displaySum es = intercalate " + " $ map displayExpression es
 
 displayProduct :: [Expression] -> String
 displayProduct es = if sign < 0 then "-" ++ numOverDen else numOverDen
