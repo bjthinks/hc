@@ -17,11 +17,11 @@ displayExpression' = eMatch
   (\f xs -> (displayCall f xs, 4))
 
 displayExpressionWithPrecedence :: Expression -> String
-displayExpressionWithPrecedence e = parenthesize (displayExpression' e) 2
+displayExpressionWithPrecedence e = parenthesize $ displayExpression' e
 
-parenthesize :: (String, Int) -> Int -> String
-parenthesize (s, p) q
-  | p < q = "(" ++ s ++ ")"
+parenthesize :: (String, Int) -> String
+parenthesize (s, p)
+  | p < 2 = "(" ++ s ++ ")"
   | otherwise = s
 
 displayRational :: Rational -> String
