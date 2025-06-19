@@ -688,18 +688,18 @@ expressionDisplayTests' = test [
   , testDisplay' "-a-b" "-a - b"
   , testDisplay' "a*(-b)" "-a b"
   , testDisplay' "a*-b" "-a b"
-{-
-  , testDisplay' (ASTProduct (ASTNegation a) b) "(-a) b"
-  , testDisplay' (ASTQuotient a (ASTNegation b)) "a / (-b)"
-  , testDisplay' (ASTQuotient (ASTNegation a) b) "(-a) / b"
-  , testDisplay' (ASTPower a (ASTNegation b)) "a^(-b)"
-  , testDisplay' (ASTPower (ASTNegation a) b) "(-a)^b"
-  , testDisplay' (ASTNegation (ASTSum a b)) "-(a + b)"
-  , testDisplay' (ASTNegation (ASTDifference a b)) "-(a - b)"
-  , testDisplay' (ASTNegation (ASTProduct a b)) "-a b"
-  , testDisplay' (ASTNegation (ASTQuotient a b)) "-a / b"
-  , testDisplay' (ASTNegation (ASTPower a b)) "-a^b"
--}
+  , testDisplay' "-a*b" "-a b"
+  , testDisplay' "(-a)b" "-a b"
+  , testDisplay' "a/-b" "-a / b"
+  , testDisplay' "(-a)/b" "-a / b"
+  --, testDisplay' (ASTPower a (ASTNegation b)) "a^(-b)"
+  --, testDisplay' (ASTPower (ASTNegation a) b) "(-a)^b"
+  , testDisplay' "-(a+b)" "-(a + b)" -- TODO stupid output?
+  , testDisplay' "-(a-b)" "-(a - b)" -- Same
+  , testDisplay' "-(a*b)" "-a b"
+  , testDisplay' "-(a/b)" "-a / b"
+  , testDisplay' "2*(a/b)" "2 a / b"
+  --, testDisplay' (ASTNegation (ASTPower a b)) "-a^b"
   ]
 
 storeTests :: Test
