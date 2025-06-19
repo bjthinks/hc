@@ -3,8 +3,7 @@ module Command (Command(..), builtinFunctions, builtinCommands, execute,
 
 import AST
 import ExprFromAST
-import ASTFromExpr
-import ASTDisplay
+import DisplayExpression
 import Expression
 import Store
 import Expand
@@ -37,7 +36,7 @@ execute store (CommandAssign v a) =
 execute store CommandBlank = (store, "")
 execute store (CommandClear v) = clearValue v store
 execute store (CommandEval a) =
-  (store, astDisplay $ fromExpr $ runBuiltins $ substituteFromStore store [] $
+  (store, displayExpression $ runBuiltins $ substituteFromStore store [] $
           runSubstitute $ fromAST a)
 execute _ CommandExit = throw HCExit
 execute store (CommandHelp topic) = (store, {-TODO word wrap-} showHelp topic)
@@ -79,4 +78,4 @@ substituteFromStore store vars = eTransform eRat get eSum eProd
         Nothing -> eVar str
 
 displayAssignment :: String -> Expression -> String
-displayAssignment v e = v ++ " := " ++ astDisplay (fromExpr e)
+displayAssignment v e = v ++ " := " ++ displayExpression e
