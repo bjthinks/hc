@@ -16,9 +16,8 @@ displayExpression' = eMatch
   (\b e -> (displayIntPow b e, 3))
   (\f xs -> (displayCall f xs, 4))
 
-displayExpressionWithPrecedence :: Expression -> Int -> String
-displayExpressionWithPrecedence e n =
-  parenthesize (displayExpression' e) n
+displayExpressionWithPrecedence :: Expression -> String
+displayExpressionWithPrecedence e = parenthesize (displayExpression' e) 2
 
 parenthesize :: (String, Int) -> Int -> String
 parenthesize (s, p) q
@@ -59,7 +58,7 @@ displayProduct es =
  -- no denominator terms or negative constants anymore
 displaySimpleProduct :: [Expression] -> String
 displaySimpleProduct es =
-  intercalate " " $ constant ++ map (flip displayExpressionWithPrecedence 2) fs
+  intercalate " " $ constant ++ map displayExpressionWithPrecedence fs
   where
     (fs, c) = extractConstantFromProduct es
     constant = if c == 1 then [] else [show $ numerator c]
