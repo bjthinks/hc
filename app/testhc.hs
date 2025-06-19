@@ -649,17 +649,22 @@ expressionDisplayTests' = test [
   , testDisplay' "a b" "a b"
   , testDisplay' "a*(b + c)" "a (b + c)"
   , testDisplay' "a*(b-c)" "a (b - c)"
-  , testDisplay' "(a+b)c" "c (a + b)" -- Note: can't paste this output in as input
+  , testDisplay' "(a+b)c" "c (a + b)" -- TODO: can't paste this output in as input
+  , testDisplay' "(a-b)c" "c (a - b)" -- TODO: here also
+  , testDisplay' "a+b c" "a + b c"
+  , testDisplay' "a+b*c" "a + b c"
+  , testDisplay' "a-b c" "a - b c"
+  , testDisplay' "a-b*c" "a - b c"
+  , testDisplay' "a b+c" "a b + c"
+  , testDisplay' "a*b+c" "a b + c"
+  , testDisplay' "a b-c" "a b - c"
+  , testDisplay' "a*b-c" "a b - c"
+  , testDisplay' "a/b" "a / b"
+  , testDisplay' "a b/c d" "a b / c d"
+  , testDisplay' "a*b/(c*d)" "a b / c d"
+  , testDisplay' "a*b/c*d" "a b d / c"
+  , testDisplay' "(a/b)*(c/d)" "a c / b d"
 {-
-  , testDisplay' (ASTProduct (ASTDifference a b) c) "(a - b) c"
-  , testDisplay' (ASTSum a (ASTProduct b c)) "a + b c"
-  , testDisplay' (ASTDifference a (ASTProduct b c)) "a - b c"
-  , testDisplay' (ASTSum (ASTProduct a b) c) "a b + c"
-  , testDisplay' (ASTDifference (ASTProduct a b) c) "a b - c"
-  , testDisplay' (ASTQuotient a b) "a / b"
-  , testDisplay' (ASTQuotient (ASTProduct a b) (ASTProduct c d)) "a b / c d"
-  , testDisplay' (ASTProduct (ASTQuotient a b) (ASTQuotient c d))
-  "(a / b) (c / d)"
   , testDisplay' (ASTProduct (ASTProduct a b) (ASTProduct c d)) "a b c d"
   , testDisplay' (ASTQuotient (ASTQuotient a b) (ASTQuotient c d))
   "(a / b) / (c / d)"
