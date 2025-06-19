@@ -649,7 +649,7 @@ expressionDisplayTests' = test [
   , testDisplay' "a b" "a b"
   , testDisplay' "a*(b + c)" "a (b + c)"
   , testDisplay' "a*(b-c)" "a (b - c)"
-  , testDisplay' "(a+b)c" "c (a + b)"
+  , testDisplay' "(a+b)c" "c (a + b)" -- Note: can't paste this output in as input
 {-
   , testDisplay' (ASTProduct (ASTDifference a b) c) "(a - b) c"
   , testDisplay' (ASTSum a (ASTProduct b c)) "a + b c"
