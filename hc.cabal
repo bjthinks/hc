@@ -85,7 +85,7 @@ executable hc
 executable testhc
     import:           warnings
     main-is:          testhc.hs
-    other-modules: AST, ASTDisplay, ASTFromExpr, ASTParser, Command,
+    other-modules: AST, ASTParser, Command,
                    CommandParser, Expand, ExprFromAST, Expression,
                    HCException, Parser, Store, Tokenizer, Substitute,
                    Help, Factor, Factor.Defs, Factor.ModularPolynomial,
