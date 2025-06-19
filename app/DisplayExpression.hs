@@ -14,7 +14,7 @@ displayExpression' = eMatch
   (\es -> (displaySum es, 0))
   (\es -> (displayProduct es, 1))
   (\b e -> (displayIntPow b e, 3))
-  displayCall
+  (\f xs -> (displayCall f xs, 4))
 
 displayExpressionWithPrecedence :: Expression -> Int -> String
 displayExpressionWithPrecedence e n =
@@ -78,6 +78,6 @@ displayIntPow b n = eMatch undefined displayVariableToPower
       | n < 0   = "1 / " ++ str ++ "^" ++ show (-n)
       | otherwise = str ++ "^" ++ show n
 
-displayCall :: String -> [Expression] -> (String, Int)
+displayCall :: String -> [Expression] -> String
 displayCall f xs  =
-  (f ++ "(" ++ intercalate ", " (map displayExpression xs) ++ ")", 4)
+  f ++ "(" ++ intercalate ", " (map displayExpression xs) ++ ")"
