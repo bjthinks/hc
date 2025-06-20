@@ -3,6 +3,7 @@ import Test.HUnit
 import Parser
 import Tokenizer
 import ASTParser
+import qualified ExpressionParser as E
 import Command
 import CommandParser
 import Expression
@@ -497,16 +498,17 @@ integrationTests = test
   ]
 
 tests :: Test
-tests = test ["Tokenizer" ~: test_Tokenizer,
-              "ASTParser" ~: test_ASTParser,
-              "expression parser" ~: expressionParserTests,
-              "expression display" ~: expressionDisplayTests,
-              "expression" ~: test_Expression,
-              "store" ~: storeTests,
-              "expand" ~: test_Expand,
-              "together" ~: test_Together,
-              "factor" ~: test_Factor,
-              "integration" ~: integrationTests
+tests = test ["Tokenizer" ~: test_Tokenizer
+             , "ASTParser" ~: test_ASTParser
+             , "ExpressionParser" ~: E.test_ExpressionParser
+             , "expression parser" ~: expressionParserTests
+             , "expression display" ~: expressionDisplayTests
+             , "expression" ~: test_Expression
+             , "store" ~: storeTests
+             , "expand" ~: test_Expand
+             , "together" ~: test_Together
+             , "factor" ~: test_Factor
+             , "integration" ~: integrationTests
              ]
 
 main :: IO ()
