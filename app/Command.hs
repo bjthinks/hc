@@ -36,8 +36,10 @@ execute store (CommandAssign v a) =
 execute store CommandBlank = (store, "")
 execute store (CommandClear v) = clearValue v store
 execute store (CommandEval a) =
-  (store, displayExpression $ runBuiltins $ substituteFromStore store [] $
-          runSubstitute $ fromAST a)
+  (incrementResult $ set value v e store, displayAssignment v e)
+  where
+    v = nextResult store
+    e = runBuiltins $ substituteFromStore store [] $ runSubstitute $ fromAST a
 execute _ CommandExit = throw HCExit
 execute store (CommandHelp topic) = (store, {-TODO word wrap-} showHelp topic)
 
