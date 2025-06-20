@@ -2,7 +2,7 @@ import Test.HUnit
 
 import Parser
 import Tokenizer
-import qualified ExpressionParser as E
+import ExpressionParser
 import Command
 import CommandParser
 import Expression
@@ -24,14 +24,16 @@ unRight :: Either a b -> b
 unRight (Right b) = b
 unRight _ = error "parse failed"
 
-expressionParser :: Parser Token Expression
-expressionParser = do
-  e <- E.expressionParser
+myExpressionParser :: Parser Token Expression
+myExpressionParser = do
+  e <- expressionParser
   _ <- match TokenEnd
   return e
 
 testEval :: String -> Expression -> Test
-testEval str expr = parseAll expressionParser (map snd (unRight (parseAll tokenizer str))) ~?= Right expr
+testEval str expr =
+  parseAll myExpressionParser (map snd (unRight (parseAll tokenizer str))) ~?=
+  Right expr
 
 expressionParserTests :: Test
 expressionParserTests = test [
@@ -152,7 +154,7 @@ expressionParserTests = test [
 testDisplay :: String -> String -> Test
 testDisplay input output = displayExpression
   (runBuiltins $ runSubstitute $ unRight $
-   parseAll expressionParser $ map snd $ unRight $
+   parseAll myExpressionParser $ map snd $ unRight $
    parseAll tokenizer input) ~?= output
 
 expressionDisplayTests :: Test
@@ -497,7 +499,7 @@ integrationTests = test
 
 tests :: Test
 tests = test ["Tokenizer" ~: test_Tokenizer
-             , "ExpressionParser" ~: E.test_ExpressionParser
+             , "ExpressionParser" ~: test_ExpressionParser
              , "expression parser" ~: expressionParserTests
              , "expression display" ~: expressionDisplayTests
              , "expression" ~: test_Expression
