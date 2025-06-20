@@ -2,12 +2,10 @@ import Test.HUnit
 
 import Parser
 import Tokenizer
-import ASTParser
 import qualified ExpressionParser as E
 import Command
 import CommandParser
 import Expression
-import ExprFromAST
 import DisplayExpression
 import Store
 import Expand
@@ -28,9 +26,9 @@ unRight _ = error "parse failed"
 
 expressionParser :: Parser Token Expression
 expressionParser = do
-  ast <- astParser
+  e <- E.expressionParser
   _ <- match TokenEnd
-  return (fromAST ast)
+  return e
 
 testEval :: String -> Expression -> Test
 testEval str expr = parseAll expressionParser (map snd (unRight (parseAll tokenizer str))) ~?= Right expr
@@ -499,7 +497,6 @@ integrationTests = test
 
 tests :: Test
 tests = test ["Tokenizer" ~: test_Tokenizer
-             , "ASTParser" ~: test_ASTParser
              , "ExpressionParser" ~: E.test_ExpressionParser
              , "expression parser" ~: expressionParserTests
              , "expression display" ~: expressionDisplayTests
