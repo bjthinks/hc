@@ -1,8 +1,6 @@
 module Command (Command(..), builtinFunctions, builtinCommands, execute,
                 runBuiltins, runSubstitute) where
 
-import AST
-import ExprFromAST
 import DisplayExpression
 import Expression
 import Store
@@ -14,10 +12,10 @@ import Help
 import HCException
 import Control.Exception
 
-data Command = CommandAssign String AST |
+data Command = CommandAssign String Expression |
                CommandBlank |
                CommandClear String |
-               CommandEval AST |
+               CommandEval Expression |
                CommandExit |
                CommandHelp String
 
@@ -28,18 +26,18 @@ builtinCommands :: [String]
 builtinCommands = ["clear", "help", "exit"]
 
 execute :: Store -> Command -> (Store, String)
-execute store (CommandAssign v a) =
+execute store (CommandAssign v e) =
   if v `elem` builtinFunctions
   then throw HCRedefineBuiltin
-  else (setValue v e store, displayAssignment v e)
-  where e = runBuiltins $ runSubstitute $ fromAST a
+  else (setValue v ee store, displayAssignment v ee)
+  where ee = runBuiltins $ runSubstitute e
 execute store CommandBlank = (store, "")
 execute store (CommandClear v) = clearValue v store
-execute store (CommandEval a) =
-  (incrementResult $ setValue v e store, displayAssignment v e)
+execute store (CommandEval e) =
+  (incrementResult $ setValue v ee store, displayAssignment v ee)
   where
     v = nextResult store
-    e = runBuiltins $ substituteFromStore store [] $ runSubstitute $ fromAST a
+    ee = runBuiltins $ substituteFromStore store [] $ runSubstitute e
 execute _ CommandExit = throw HCExit
 execute store (CommandHelp topic) = (store, {-TODO word wrap-} showHelp topic)
 

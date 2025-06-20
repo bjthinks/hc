@@ -3,7 +3,7 @@ module CommandParser (commandParser) where
 import Control.Applicative
 import Parser
 import Tokenizer
-import ASTParser
+import ExpressionParser
 import Command
 
 commandParser :: Parser Token [Command]
@@ -24,8 +24,8 @@ exit = do _ <- match $ TokenWord "exit"
 assign :: Parser Token Command
 assign = do TokenWord v <- matching isWord
             _ <- match TokenAssign
-            ast <- astParser
-            return $ CommandAssign v ast
+            e <- expressionParser
+            return $ CommandAssign v e
 
 clear :: Parser Token Command
 clear = do _ <- match $ TokenWord "clear"
@@ -39,8 +39,8 @@ help = do _ <- match $ TokenWord "help"
   where oktopic t = t /= TokenEnd && t /= TokenSemicolon
 
 eval :: Parser Token Command
-eval = do ast <- astParser
-          return $ CommandEval ast
+eval = do e <- expressionParser
+          return $ CommandEval e
 
 blank :: Parser Token Command
 blank = return CommandBlank

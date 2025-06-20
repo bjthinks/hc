@@ -62,8 +62,8 @@ executable hc
     main-is:          hc.hs
 
     -- Modules included in this executable, other than Main.
-    other-modules: AST, ASTParser, Command, ExpressionParser,
-                   CommandParser, Expand, ExprFromAST, Expression,
+    other-modules: Command, ExpressionParser,
+                   CommandParser, Expand, Expression,
                    HCException, Parser, Store, Tokenizer, Substitute,
                    Help, Factor, Factor.Defs, Factor.ModularPolynomial,
                    Factor.ParsePolynomial, Factor.Polynomial,
@@ -85,8 +85,8 @@ executable hc
 executable testhc
     import:           warnings
     main-is:          testhc.hs
-    other-modules: AST, ASTParser, Command, ExpressionParser,
-                   CommandParser, Expand, ExprFromAST, Expression,
+    other-modules: Command, ExpressionParser,
+                   CommandParser, Expand, Expression,
                    HCException, Parser, Store, Tokenizer, Substitute,
                    Help, Factor, Factor.Defs, Factor.ModularPolynomial,
                    Factor.ParsePolynomial, Factor.Polynomial,
