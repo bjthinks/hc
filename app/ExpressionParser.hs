@@ -101,11 +101,11 @@ variable = do TokenWord w <- matching isWord
 
 tRat :: Rational -> Expression
 tVar :: String -> Expression
-tSum :: [Expression] -> Expression
-tProd :: [Expression] -> Expression
-tIntPow :: Expression -> Integer -> Expression
+--tSum :: [Expression] -> Expression
+--tProd :: [Expression] -> Expression
+--tIntPow :: Expression -> Integer -> Expression
 tCall :: String -> [Expression] -> Expression
-(tRat,tVar,tSum,tProd,tIntPow,tCall) = unsafeExpressionConstructors
+(tRat,tVar,_,_,_,tCall) = unsafeExpressionConstructors
 
 test_ExpressionParser :: [Test]
 test_ExpressionParser =
@@ -182,30 +182,23 @@ test_ExpressionParser =
   , isLeft (parseAll unary [TokenInteger 1,TokenPower,TokenInteger 2,TokenPower,
                             TokenInteger 3,TokenPower,TokenInteger 4]) ~?= True
     -- TODO: Exponents involving only constants could be calculated
-{-
   , parseAll additive [TokenMinus,TokenOpenParen,TokenInteger 1,TokenPlus,
                        TokenInteger 2,TokenCloseParen,TokenPower,
-                       TokenInteger 3] ~?=
-    Right (ASTNegation (ASTPower (ASTSum (ASTInteger 1) (ASTInteger 2))
-                        (ASTInteger 3)))
+                       TokenInteger 3] ~?= Right (tRat (-27 % 1))
   , parseAll additive [TokenWord "a",TokenOpenParen,TokenWord "b",
-                       TokenCloseParen] ~?=
-    Right (ASTCall "a" [ASTVariable "b"])
+                       TokenCloseParen] ~?= Right (tCall "a" [tVar "b"])
   , parseAll additive [TokenWord "a",TokenOpenParen,TokenInteger 1,
-                       TokenCloseParen] ~?= Right (ASTCall "a" [ASTInteger 1])
+                       TokenCloseParen] ~?= Right (tCall "a" [tRat (1 % 1)])
   , parseAll additive [TokenInteger 1,TokenOpenParen,TokenInteger 2,
-                       TokenCloseParen] ~?= Right (ASTProduct (ASTInteger 1)
-                                                   (ASTInteger 2))
+                       TokenCloseParen] ~?= Right (tRat (2 % 1))
   , parseAll additive [TokenInteger 1,TokenOpenParen,TokenWord "b",
-                       TokenCloseParen] ~?= Right (ASTProduct (ASTInteger 1)
-                                                   (ASTVariable "b"))
+                       TokenCloseParen] ~?= Right (tVar "b")
   , parseAll additive [TokenWord "f",TokenOpenParen,TokenCloseParen] ~?=
-    Right (ASTCall "f" [])
+    Right (tCall "f" [])
   , parseAll additive [TokenWord "a",TokenOpenParen,TokenWord "b",TokenComma,
                        TokenWord "c",TokenCloseParen] ~?=
-    Right (ASTCall "a" [ASTVariable "b",ASTVariable "c"])
-  , parseAll additive [TokenWord "a",TokenPower,TokenOpenParen,TokenWord "b",
-                       TokenPlus,TokenWord "c",TokenCloseParen] ~?=
-    Right (ASTPower (ASTVariable "a") (ASTSum (ASTVariable "b")
-                                       (ASTVariable "c"))) -}
+    Right (tCall "a" [tVar "b",tVar "c"])
+  , isLeft (parseAll additive [TokenWord "a",TokenPower,TokenOpenParen,
+                               TokenWord "b",TokenPlus,TokenWord "c",
+                               TokenCloseParen]) ~?= True
   ]
