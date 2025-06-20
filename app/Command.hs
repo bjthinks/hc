@@ -36,7 +36,7 @@ execute store (CommandAssign v a) =
 execute store CommandBlank = (store, "")
 execute store (CommandClear v) = clearValue v store
 execute store (CommandEval a) =
-  (incrementResult $ set value v e store, displayAssignment v e)
+  (incrementResult $ setValue v e store, displayAssignment v e)
   where
     v = nextResult store
     e = runBuiltins $ substituteFromStore store [] $ runSubstitute $ fromAST a
