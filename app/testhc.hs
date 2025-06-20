@@ -492,9 +492,10 @@ integrationTests = test
     "r1 := (2 x + z)^100 / x z (x + z)"
   , integrationTest "a:=1;b:=2;c:=3;clear b;a+b+c"
     "a := 1;b := 2;c := 3;Removed definition of b.;r1 := b + 4"
-  , integrationTest "(a+b-1)*(a+b)*(a+b+1)" "r1 := (a + b - 1) (a + b) (a + b + 1)"
+  , integrationTest "(a+b-1)*(a+b)*(a+b+1)"
+    "r1 := (a + b - 1) (a + b) (a + b + 1)"
   , integrationTest "(a+b)*(a+b+c)" "r1 := (a + b + c) (a + b)"
- , integrationTest "a+b;r1+c" "r1 := a + b;r2 := a + b + c"
+  , integrationTest "a+b;r1+c" "r1 := a + b;r2 := a + b + c"
   ]
 
 tests :: Test
