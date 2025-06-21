@@ -457,6 +457,9 @@ expressionDisplayTests = test [
   , testDisplay "-(a/b)" "-a / b"
   , testDisplay "2*(a/b)" "2 a / b"
   --, testDisplay (ASTNegation (ASTPower a b)) "-a^b"
+  , testDisplay "factor(x^4+x^3)" "x^3 (x + 1)"
+  , testDisplay "factor(x^4+x^2)" "x^2 (x^2 + 1)"
+  , testDisplay "factor((x+1)^2+2*(x+1)+1)" "(x + 2)^2"
   ]
 
 storeTests :: Test
@@ -497,6 +500,7 @@ integrationTests = test
   , integrationTest "(a+b)*(a+b+c)" "r1 := (a + b + c) (a + b)"
   , integrationTest "a+b;r1+c" "r1 := a + b;r2 := a + b + c"
   , integrationTest "x:=1;substitute(x,a,x^2);x" "x := 1;r1 := a^2;r2 := 1"
+  , integrationTest "y:=(x+1)^2;expand(y)" "y := (x + 1)^2;r1 := x^2 + 2 x + 1"
   ]
 
 tests :: Test
