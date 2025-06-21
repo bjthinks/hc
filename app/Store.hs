@@ -1,4 +1,4 @@
-module Store(Store, newStore, setValue, clearValue, getValue,
+module Store(Store, newStore, setValue, clearValues, getValue,
              getVariables, nextResult, incrementResult) where
 
 import Expression
@@ -19,6 +19,14 @@ clearValue v s = case Map.lookup v (values s) of
   Nothing -> (s, "Variable " ++ v ++ " has no definition.")
   Just _ -> (s { values = Map.delete v $ values s },
              "Removed definition of " ++ v ++ ".")
+
+clearValues :: [String] -> Store -> (Store, String)
+clearValues [] _ = undefined
+clearValues [v] s = clearValue v s
+clearValues (v:vs) s = (s'', msg ++ "\n" ++ msgs)
+  where
+    (s', msg) = clearValue v s
+    (s'', msgs) = clearValues vs s'
 
 getValue :: String -> Store -> Maybe Expression
 getValue v s = Map.lookup v $ values s

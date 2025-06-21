@@ -14,7 +14,7 @@ import Control.Exception
 
 data Command = CommandAssign String Expression |
                CommandBlank |
-               CommandClear String |
+               CommandClear [String] |
                CommandEval Expression |
                CommandExit |
                CommandHelp String
@@ -32,7 +32,7 @@ execute store (CommandAssign v e) =
   else (setValue v ee store, displayAssignment v ee)
   where ee = runBuiltins $ doSubstitutions store [] e
 execute store CommandBlank = (store, "")
-execute store (CommandClear v) = clearValue v store
+execute store (CommandClear vs) = clearValues vs store
 execute store (CommandEval e) =
   (incrementResult $ setValue v ee store, displayAssignment v ee)
   where

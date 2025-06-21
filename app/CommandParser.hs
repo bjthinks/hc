@@ -30,7 +30,10 @@ assign = do TokenWord v <- matching isWord
 clear :: Parser Token Command
 clear = do _ <- match $ TokenWord "clear"
            TokenWord v <- matching isWord
-           return $ CommandClear v
+           vs <- many $ do _ <- match TokenComma
+                           TokenWord x <- matching isWord
+                           return x
+           return $ CommandClear $ v:vs
 
 help :: Parser Token Command
 help = do _ <- match $ TokenWord "help"
