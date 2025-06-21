@@ -10,8 +10,10 @@ import Together
 import Help
 import HCException
 import Control.Exception
+import Data.List
 
-data Command = CommandAssign String Expression |
+data Command = CommandAssignVariable String Expression |
+               CommandAssignFunction String [String] Expression |
                CommandBlank |
                CommandClear [String] |
                CommandEval Expression |
@@ -19,15 +21,31 @@ data Command = CommandAssign String Expression |
                CommandHelp String
 
 execute :: Store -> Command -> (Store, String)
-execute store (CommandAssign v e) =
+execute store (CommandAssignVariable v e) =
   if v `elem` builtinFunctions || v `elem` builtinCommands
   then throw HCReservedWord
-  else (setValue v ee store, displayAssignment v ee)
+  else (setValue v ee store, displayAssignVariable v ee)
   where ee = runBuiltins $ doSubstitutions store [] e
+execute store (CommandAssignFunction f args e) =
+  if hasDuplicate args
+  then throw HCDuplicateParameter
+  else if f `elem` builtinFunctions || f `elem` builtinCommands
+  then throw HCReservedWord
+  else ({-setFunction f args ee-} store, displayAssignFunction f args ee)
+  where ee = runBuiltins $ doSubstitutions store' [] e
+        store' = case args of
+          [] -> store
+          _ -> fst $ clearValues args store
+        hasDuplicate xs = hasDuplicateSorted $ sort xs
+        hasDuplicateSorted [] = False
+        hasDuplicateSorted [_] = False
+        hasDuplicateSorted (x:y:zs)
+          | x == y = True
+          | otherwise = hasDuplicateSorted (y:zs)
 execute store CommandBlank = (store, "")
 execute store (CommandClear vs) = clearValues vs store
 execute store (CommandEval e) =
-  (incrementResult $ setValue v ee store, displayAssignment v ee)
+  (incrementResult $ setValue v ee store, displayAssignVariable v ee)
   where
     v = nextResult store
     ee = runBuiltins $ doSubstitutions store [] e
@@ -48,5 +66,11 @@ runBuiltin "together" [x] = together x
 runBuiltin "together" _ = throw $ HCWrongNumberOfParameters "together" 1
 runBuiltin f es = eCall f es
 
-displayAssignment :: String -> Expression -> String
-displayAssignment v e = v ++ " := " ++ displayExpression e
+displayAssignVariable :: String -> Expression -> String
+displayAssignVariable v e = v ++ " := " ++ displayExpression e
+
+displayAssignFunction :: String -> [String] -> Expression -> String
+displayAssignFunction f args e =
+  f ++ "(" ++ prettyArgs ++ ") := " ++ displayExpression e
+  where
+    prettyArgs = intercalate ", " args

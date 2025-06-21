@@ -15,17 +15,36 @@ commandParser = do
   return (c:cs)
 
 command :: Parser Token Command
-command = exit <|> clear <|> help <|> assign <|> eval <|> blank
+command = exit <|> clear <|> help <|> assignVariable <|> assignFunction <|>
+  eval <|> blank
 
 exit :: Parser Token Command
 exit = do _ <- match $ TokenWord "exit"
           return CommandExit
 
-assign :: Parser Token Command
-assign = do TokenWord v <- matching isWord
-            _ <- match TokenAssign
-            e <- expressionParser
-            return $ CommandAssign v e
+assignVariable :: Parser Token Command
+assignVariable = do
+  TokenWord v <- matching isWord
+  _ <- match TokenAssign
+  e <- expressionParser
+  return $ CommandAssignVariable v e
+
+assignFunction :: Parser Token Command
+assignFunction = do
+  TokenWord f <- matching isWord
+  _ <- match TokenOpenParen
+  maybeVars <- option $ do TokenWord v <- matching isWord
+                           vs <- many $ do _ <- match TokenComma
+                                           TokenWord w <- matching isWord
+                                           return w
+                           return (v:vs)
+  let vars = case maybeVars of
+        Nothing -> []
+        Just vs -> vs
+  _ <- match TokenCloseParen
+  _ <- match TokenAssign
+  e <- expressionParser
+  return $ CommandAssignFunction f vars e
 
 clear :: Parser Token Command
 clear = do _ <- match $ TokenWord "clear"

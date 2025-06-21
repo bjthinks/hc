@@ -10,7 +10,8 @@ data HCException = HCAssignmentLoop |
                    HCNonIntegerPower |
                    HCReservedWord |
                    HCSubstituteNotVariable |
-                   HCWrongNumberOfParameters String Int
+                   HCWrongNumberOfParameters String Int |
+                   HCDuplicateParameter
   deriving (Show, Typeable)
 
 data HCExit = HCExit
@@ -30,3 +31,5 @@ hcErrorMessage HCSubstituteNotVariable = "Error: the first parameter to " ++
   "substitute must be a variable."
 hcErrorMessage (HCWrongNumberOfParameters f n) = "Error: function " ++ f ++
   " takes " ++ show n ++ " parameter" ++ (if n /= 1 then "s" else "") ++ "."
+hcErrorMessage HCDuplicateParameter =
+  "Error: function parameters must have distinct names."
