@@ -8,7 +8,7 @@ import Control.Exception
 data HCException = HCAssignmentLoop |
                    HCDivideByZero |
                    HCNonIntegerPower |
-                   HCRedefineBuiltin |
+                   HCReservedWord |
                    HCSubstituteNotVariable |
                    HCWrongNumberOfParameters String Int
   deriving (Show, Typeable)
@@ -24,8 +24,8 @@ hcErrorMessage :: HCException -> String
 hcErrorMessage HCAssignmentLoop = "Error: assignments form a loop."
 hcErrorMessage HCDivideByZero = "Error: division by zero."
 hcErrorMessage HCNonIntegerPower = "Error: exponents must be integers."
-hcErrorMessage HCRedefineBuiltin =
-  "Error: that name is reserved for a built-in function."
+hcErrorMessage HCReservedWord =
+  "Error: that name is reserved for built-in functionality."
 hcErrorMessage HCSubstituteNotVariable = "Error: the first parameter to " ++
   "substitute must be a variable."
 hcErrorMessage (HCWrongNumberOfParameters f n) = "Error: function " ++ f ++

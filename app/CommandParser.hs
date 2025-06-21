@@ -15,7 +15,7 @@ commandParser = do
   return (c:cs)
 
 command :: Parser Token Command
-command = exit <|> assign <|> clear <|> help <|> eval <|> blank
+command = exit <|> clear <|> help <|> assign <|> eval <|> blank
 
 exit :: Parser Token Command
 exit = do _ <- match $ TokenWord "exit"

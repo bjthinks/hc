@@ -1,6 +1,7 @@
 module Expression (eRat, eVar, eSum, eProd, eIntPow, eCall,
                    eMatch, isRational, isNegPow, eAsSum, eTransform,
                    prodAsQuot, extractConstantFromProduct,
+                   builtinFunctions, builtinCommands,
                    unsafeExpressionConstructors,
                    Expression,
                    test_Expression) where
@@ -11,6 +12,12 @@ import Data.Ratio ((%), numerator, denominator)
 import Control.Exception as C
 import Test.HUnit
 import HCException
+
+builtinFunctions :: [String]
+builtinFunctions = ["expand", "factor", "substitute", "together"]
+
+builtinCommands :: [String]
+builtinCommands = ["clear", "help", "exit"]
 
 {-
 Expressions only exist in certain forms.
@@ -185,8 +192,9 @@ eRat n = ExpressionRational n
 
 eVar :: String -> Expression
 eVar "" = error "invalid variable name"
-eVar (v:vs)
-  | isAlpha v && all isAlphaNum vs = ExpressionVariable (v:vs)
+eVar vv@(v:vs)
+  | elem vv (builtinFunctions ++ builtinCommands) = throw HCReservedWord
+  | isAlpha v && all isAlphaNum vs = ExpressionVariable vv
   | otherwise = error "invalid variable name"
 
 -------------------- SUMS --------------------
@@ -305,8 +313,9 @@ eIntPow x n = ExpressionIntPow x n
 
 eCall :: String -> [Expression] -> Expression
 eCall "" _ = error "invalid function name"
-eCall (g:gs) xs
-  | isAlpha g && all isAlphaNum gs = ExpressionCall (g:gs) xs
+eCall gg@(g:gs) xs
+  | gg `elem` builtinCommands = throw HCReservedWord
+  | isAlpha g && all isAlphaNum gs = ExpressionCall gg xs
   | otherwise = error "invalid function name"
 
 -------------------- TESTS --------------------

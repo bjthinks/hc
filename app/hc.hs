@@ -2,6 +2,7 @@ module Main where
 
 import Parser
 import Tokenizer
+import Expression
 import CommandParser
 import Command
 import Store

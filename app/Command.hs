@@ -1,5 +1,4 @@
-module Command (Command(..), builtinFunctions, builtinCommands, execute,
-                runBuiltins, testSubstitute) where
+module Command (Command(..), execute, runBuiltins, testSubstitute) where
 
 import DisplayExpression
 import Expression
@@ -19,16 +18,10 @@ data Command = CommandAssign String Expression |
                CommandExit |
                CommandHelp String
 
-builtinFunctions :: [String]
-builtinFunctions = ["expand", "factor", "substitute", "together"]
-
-builtinCommands :: [String]
-builtinCommands = ["clear", "help", "exit"]
-
 execute :: Store -> Command -> (Store, String)
 execute store (CommandAssign v e) =
-  if v `elem` builtinFunctions
-  then throw HCRedefineBuiltin
+  if v `elem` builtinFunctions || v `elem` builtinCommands
+  then throw HCReservedWord
   else (setValue v ee store, displayAssignment v ee)
   where ee = runBuiltins $ doSubstitutions store [] e
 execute store CommandBlank = (store, "")
@@ -44,6 +37,8 @@ execute store (CommandHelp topic) = (store, {-TODO word wrap-} showHelp topic)
 runBuiltins :: Expression -> Expression
 runBuiltins = eTransform eRat eVar eSum eProd eIntPow runBuiltin
 
+-- substitute is not here because it needs to happen within the
+-- doSubstitutions function
 runBuiltin :: String -> [Expression] -> Expression
 runBuiltin "expand" [x] = expand x
 runBuiltin "expand" _ = throw $ HCWrongNumberOfParameters "expand" 1
