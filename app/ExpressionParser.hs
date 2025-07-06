@@ -69,21 +69,12 @@ atom :: Parser Token Expression
 atom = integer <|> call <|> variable <|> paren
 
 call :: Parser Token Expression
-call = callNoArgs <|> callArgs
-
-callNoArgs :: Parser Token Expression
-callNoArgs = do TokenWord func <- matching isWord
-                _ <- match TokenOpenParen
-                _ <- match TokenCloseParen
-                return (eCall func [])
-
-callArgs :: Parser Token Expression
-callArgs = do TokenWord func <- matching isWord
-              _ <- match TokenOpenParen
-              a <- additive
-              as <- many $ match TokenComma >> additive
-              _ <- match TokenCloseParen
-              return $ eCall func (a:as)
+call = do TokenWord func <- matching isWord
+          _ <- match TokenOpenParen
+          a <- additive
+          as <- many $ match TokenComma >> additive
+          _ <- match TokenCloseParen
+          return $ eCall func (a:as)
 
 paren :: Parser Token Expression
 paren = do _ <- match TokenOpenParen
@@ -193,8 +184,9 @@ test_ExpressionParser =
                        TokenCloseParen] ~?= Right (tRat (2 % 1))
   , parseAll additive [TokenInteger 1,TokenOpenParen,TokenWord "b",
                        TokenCloseParen] ~?= Right (tVar "b")
-  , parseAll additive [TokenWord "f",TokenOpenParen,TokenCloseParen] ~?=
-    Right (tCall "f" [])
+  , parseAll additive [TokenWord "f",TokenOpenParen,TokenInteger 3,
+                       TokenCloseParen] ~?=
+    Right (tCall "f" [tRat 3])
   , parseAll additive [TokenWord "a",TokenOpenParen,TokenWord "b",TokenComma,
                        TokenWord "c",TokenCloseParen] ~?=
     Right (tCall "a" [tVar "b",tVar "c"])

@@ -33,14 +33,11 @@ assignFunction :: Parser Token Command
 assignFunction = do
   TokenWord f <- matching isWord
   _ <- match TokenOpenParen
-  maybeVars <- option $ do TokenWord v <- matching isWord
-                           vs <- many $ do _ <- match TokenComma
-                                           TokenWord w <- matching isWord
-                                           return w
-                           return (v:vs)
-  let vars = case maybeVars of
-        Nothing -> []
-        Just vs -> vs
+  vars <- do TokenWord v <- matching isWord
+             vs <- many $ do _ <- match TokenComma
+                             TokenWord w <- matching isWord
+                             return w
+             return (v:vs)
   _ <- match TokenCloseParen
   _ <- match TokenAssign
   e <- expressionParser
