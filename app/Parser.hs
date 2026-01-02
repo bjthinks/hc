@@ -7,6 +7,7 @@ module Parser (Parser, parseSome, parseAll,
                ($=)) where
 
 import Control.Applicative
+import Control.Monad
 import Control.Monad.Except
 import Control.Monad.State
 
