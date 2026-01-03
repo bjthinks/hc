@@ -9,7 +9,7 @@ module Parser (Parser, parseSome, parseAll,
 import Control.Applicative
 import Control.Monad
 import Control.Monad.Except
-import Control.Monad.State
+import Control.Monad.State.Strict
 
 -------------------- Module interface --------------------
 
