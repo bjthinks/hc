@@ -1,5 +1,5 @@
-hc: An Algebraic Calculator
-Copyright 2010-2025, Brian Johnson
+# hc: An Algebraic Calculator
+# Copyright 2010-2025, Brian Johnson
 
 This is my attempt to write something that bridges the gap between a
 simple calculator and a full-fledged computer algebra system.  "bc"
@@ -8,11 +8,11 @@ hence "hc".  hc is written in Haskell, and one of its design goals is
 to demonstrate that Haskell is practical as a language for medium-size
 projects.
 
-BUILD INSTRUCTIONS
+## BUILD INSTRUCTIONS
 1. Install ghcup
 2. make
 
-FEATURES
+## FEATURES
 * Exact integer and rational number arithmetic
 * Addition, subtraction, multiplication, division of integers and variables
 * Raising to integer powers
