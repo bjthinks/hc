@@ -1,5 +1,5 @@
 # hc: An Algebraic Calculator
-# Copyright 2010-2025, Brian Johnson
+Copyright 2010-2025, Brian Johnson
 
 This is my attempt to write something that bridges the gap between a
 simple calculator and a full-fledged computer algebra system.  "bc"
